@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ivory: #fdf9f3;
+  --color-cream: #faf5eb;
+  --color-sand: #f1e8d9;
+  --color-linen: #efe6d5;
+  --color-charcoal: #1c1917;
+  --color-espresso: #2a2420;
+  --color-smoke: #57534e;
+  --color-terracotta: #b96a4b;
+  --color-terracotta-deep: #96522f;
+  --color-champagne: #c9a86a;
+  --color-champagne-light: #e8d5a8;
+  --color-olive: #7c7a5a;
+  --color-sage: #a8a58c;
+
+  --font-serif: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  background: var(--color-ivory);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+::selection {
+  background: #c9a86a;
+  color: #1c1917;
+}
+
+/* film grain */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.eyebrow {
+  letter-spacing: 0.32em;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.hairline {
+  border-color: rgba(28, 25, 23, 0.12);
+}
+
+.img-fade {
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

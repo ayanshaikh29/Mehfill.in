@@ -1,0 +1,6 @@
+Contact: mailto:hello@mehfill.in
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en
+Policy: https://mehfill.in/security-policy
+Acknowledgments: https://mehfill.in/security-acknowledgments
+Canonical: https://mehfill.in/.well-known/security.txt
