@@ -6,8 +6,11 @@ export default function Testimonials() {
     <section className="bg-cream/70 border-y hairline py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Reveal className="text-center max-w-xl mx-auto">
-          <p className="eyebrow text-terracotta">KIND WORDS</p>
-          <h2 className="mt-4 font-serif font-light text-4xl md:text-6xl">Loved by <span className="italic">families.</span></h2>
+          <p className="eyebrow text-terracotta">EARLY ACCESS PREVIEW</p>
+          <h2 className="mt-4 font-serif font-light text-4xl md:text-6xl">Crafted to be <span className="italic">loved.</span></h2>
+          <p className="mt-4 text-sm text-charcoal/55">
+            Sample words showing the feeling we design for — real client stories will appear here after launch.
+          </p>
         </Reveal>
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {TESTIMONIALS.map((t, i) => (

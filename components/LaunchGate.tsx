@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import LaunchCountdown from "./LaunchCountdown";
+import LaunchLogo from "./LaunchLogo";
 import { getCountdownParts, isLaunched } from "@/lib/launch";
 
 type Phase = "checking" | "countdown" | "transition" | "revealed";
@@ -64,6 +65,20 @@ export default function LaunchGate({ children }: { children: React.ReactNode }) 
   const launched = useMemo(() => {
     if (override === "preview") return false;
     if (override === "live") return true;
+    // Dev convenience: on localhost / `next dev` always show the real site
+    // so work can continue. Production behaviour is untouched.
+    // To preview the countdown locally, open with ?launch=preview.
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname;
+      if (
+        host === "localhost" ||
+        host === "127.0.0.1" ||
+        host === "[::1]" ||
+        process.env.NODE_ENV === "development"
+      ) {
+        return true;
+      }
+    }
     return isLaunched(nowMs);
   }, [nowMs, override]);
 
@@ -116,6 +131,7 @@ export default function LaunchGate({ children }: { children: React.ReactNode }) 
         {!revealed && (
           <motion.div
             key={phase === "transition" ? `transition-${transitionKey}` : "countdown"}
+            data-lenis-prevent
             className="fixed inset-0 z-[90] overflow-y-auto bg-ivory"
             initial={{ opacity: phase === "checking" ? 0 : 1 }}
             animate={{ opacity: 1 }}
@@ -124,14 +140,7 @@ export default function LaunchGate({ children }: { children: React.ReactNode }) 
           >
             {phase === "transition" ? (
               <div className="grain relative flex min-h-dvh flex-col items-center justify-center bg-ivory px-6 text-center">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logo.png" alt="MEHFILL.in" className="mx-auto h-16 w-auto object-contain" width={320} height={80} />
-                </motion.div>
+                <LaunchLogo instant />
                 <motion.h1
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}

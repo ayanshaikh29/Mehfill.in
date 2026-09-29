@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const plan = sanitize(String(fd.get("plan") || ""), 40);
     const amount = Number(fd.get("amount") || 0);
     const customer_name = sanitize(String(fd.get("customer_name") || ""), 120);
-    const whatsapp = sanitize(String(fd.get("whatsapp") || ""), 30).replace(/\D/g, "");
+    const whatsapp_raw = sanitize(String(fd.get("whatsapp") || ""), 30).replace(/\D/g, "");
     const txn_id = sanitize(String(fd.get("txn_id") || ""), 60).replace(/[^a-zA-Z0-9]/g, "");
     const shot = fd.get("screenshot");
 
@@ -50,13 +50,24 @@ export async function POST(request: Request) {
     const venue_address = sanitize(String(fd.get("venue_address") || ""), 200);
     const template_slug = sanitize(String(fd.get("template_slug") || ""), 40);
 
-    if (!plan || !amount || !customer_name || !whatsapp || !txn_id) {
+    if (!plan || !amount || !customer_name || !whatsapp_raw || !txn_id) {
       return NextResponse.json({ error: "Missing details." }, { status: 400 });
     }
 
+    // Normalize to 12-digit Indian format: form collects 10 digits.
+    let digits = whatsapp_raw;
+    if (/^91\d{10}$/.test(digits)) {
+      // already fine
+    } else if (/^\d{10}$/.test(digits)) {
+      digits = "91" + digits;
+    } else if (/^0\d{10}$/.test(digits)) {
+      digits = "91" + digits.slice(1);
+    }
+    const whatsapp = digits;
+
     // Validate WhatsApp number (Indian format)
     if (!/^91\d{10}$/.test(whatsapp)) {
-      return NextResponse.json({ error: "Invalid WhatsApp number." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid WhatsApp number. Use your 10-digit mobile number." }, { status: 400 });
     }
 
     let user_email: string | null = null;
@@ -70,27 +81,33 @@ export async function POST(request: Request) {
 
     const admin = createAdminClient();
 
-    // Optional screenshot → payment-proofs bucket (created on demand).
-    let screenshot_url: string | null = null;
-    if (shot instanceof File && shot.size > 0 && shot.size < 5 * 1024 * 1024) {
-      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-      if (!allowedTypes.includes(shot.type)) {
-        return NextResponse.json({ error: "Invalid file type. Use JPG, PNG, or WebP." }, { status: 400 });
-      }
-      try {
-        await admin.storage.createBucket("payment-proofs", { public: true });
-      } catch {
-        // Bucket probably already exists.
-      }
-      const ext = (shot.name.split(".").pop() || "jpg").slice(0, 5);
-      const key = `${Date.now()}_${txn_id.slice(0, 20)}.${ext}`;
-      const { error: upErr } = await admin.storage.from("payment-proofs").upload(key, shot, {
-        contentType: shot.type || "image/jpeg",
-      });
-      if (!upErr) {
-        screenshot_url = admin.storage.from("payment-proofs").getPublicUrl(key).data.publicUrl;
-      }
+    // Screenshot is mandatory — reject early without it.
+    if (!(shot instanceof File) || shot.size === 0) {
+      return NextResponse.json({ error: "Payment screenshot is required." }, { status: 400 });
     }
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(shot.type)) {
+      return NextResponse.json({ error: "Invalid file type. Use JPG, PNG, or WebP." }, { status: 400 });
+    }
+    if (shot.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: "Screenshot must be under 5MB." }, { status: 400 });
+    }
+    // Required screenshot → payment-proofs bucket (created on demand).
+    let screenshot_url: string | null = null;
+    try {
+      await admin.storage.createBucket("payment-proofs", { public: true });
+    } catch {
+      // Bucket probably already exists.
+    }
+    const ext = (shot.name.split(".").pop() || "jpg").slice(0, 5);
+    const key = `${Date.now()}_${txn_id.slice(0, 20)}.${ext}`;
+    const { error: upErr } = await admin.storage.from("payment-proofs").upload(key, shot, {
+      contentType: shot.type || "image/jpeg",
+    });
+    if (upErr) {
+      return NextResponse.json({ error: "Could not save screenshot. Please try again or send it on WhatsApp." }, { status: 500 });
+    }
+    screenshot_url = admin.storage.from("payment-proofs").getPublicUrl(key).data.publicUrl;
 
     const { data: row, error } = await admin
       .from("upi_payments")

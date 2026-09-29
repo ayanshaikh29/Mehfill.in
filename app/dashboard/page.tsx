@@ -8,6 +8,7 @@ import { PLANS, formatINR, type Plan } from "@/lib/plans";
 import { TEMPLATES, type Template } from "@/lib/templates";
 import { WhatsAppIcon } from "@/components/BrandIcons";
 import { waLink } from "@/lib/contact";
+import { displayName } from "@/lib/displayName";
 
 type CartItem = {
   templateId: string;
@@ -131,7 +132,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="hidden lg:flex items-center gap-4">
-            <span className="text-sm text-charcoal/60">{user?.email || user?.user_metadata?.full_name || "User"}</span>
+            <span className="text-sm text-charcoal/60">Namaste, <b className="text-charcoal">{displayName(user)}</b></span>
             <button onClick={async () => { await createClient().auth.signOut(); router.push("/"); }} className="rounded-full border hairline px-4 py-2 text-[12px] font-bold hover:border-charcoal/40">Logout</button>
           </div>
 

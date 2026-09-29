@@ -7,6 +7,7 @@ import IntroReveal from "@/components/IntroReveal";
 import VisitTracker from "@/components/VisitTracker";
 import LaunchGate from "@/components/LaunchGate";
 import PostLaunch from "@/components/PostLaunch";
+import CookieNotice from "@/components/CookieNotice";
 import Script from "next/script";
 
 const serif = Cormorant_Garamond({
@@ -61,30 +62,38 @@ export default function RootLayout({
         <meta name="theme-color" content="#FDF9F3" />
         <meta httpEquiv="Content-Security-Policy" content={[
           "default-src 'self'",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.google-analytics.com https://www.googletagmanager.com",
+          // NOTE: only services actually used are allowlisted. No Google
+          // Analytics, Meta Pixel, YouTube embeds or Razorpay checkout exists
+          // in the codebase — if added later, extend this list deliberately.
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com data:",
           "img-src 'self' data: https: blob:",
           "media-src 'self' https: blob:",
-          "connect-src 'self' https://owrylcdcaywlsolqszho.supabase.co https://api.qrserver.com https://checkout.razorpay.com",
-          "frame-src 'self' https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com",
+          "connect-src 'self' https://owrylcdcaywlsolqszho.supabase.co https://api.qrserver.com",
+          "frame-src 'self'",
           "object-src 'none'",
           "base-uri 'self'",
-          "form-action 'self' https://checkout.razorpay.com",
+          "form-action 'self'",
           "frame-ancestors 'none'",
           "upgrade-insecure-requests",
         ].join("; ")} />
         <link rel="preload" as="video" href="/intro-desktop-opt.mp4" media="(min-width: 768px)" />
         <link rel="preload" as="video" href="/intro-mobile-opt.mp4" media="(max-width: 767px)" />
         <link rel="preload" as="image" href="/icon.png" />
+        <link rel="preload" as="image" href="/logo.png" />
         <link rel="security.txt" href="/.well-known/security.txt" />
       </head>
       <body suppressHydrationWarning className="min-h-screen bg-ivory text-charcoal antialiased">
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <SmoothScroll />
         <VisitTracker />
         <LaunchGate>
-          {children}
+          <div id="main-content" tabIndex={-1}>
+            {children}
+          </div>
         </LaunchGate>
+        <CookieNotice />
         <PostLaunch>
           <IntroReveal />
           <WhatsAppFloat />

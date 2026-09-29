@@ -21,6 +21,17 @@ export default function PostLaunch({ children }: { children: React.ReactNode }) 
           setLive(true);
           return;
         }
+        // Dev convenience: localhost / `next dev` always treated as live.
+        const host = window.location.hostname;
+        if (
+          host === "localhost" ||
+          host === "127.0.0.1" ||
+          host === "[::1]" ||
+          process.env.NODE_ENV === "development"
+        ) {
+          setLive(true);
+          return;
+        }
       }
       setLive(isLaunched(Date.now()));
     };

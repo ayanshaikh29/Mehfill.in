@@ -160,12 +160,14 @@ export function RSVPSection({ names }: { names: string }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
+            aria-label="Your name for RSVP"
             required
             className="flex-1 rounded-full border hairline bg-white px-5 py-3.5 text-sm outline-none focus:border-terracotta"
           />
           <button className="rounded-full bg-charcoal px-7 py-3.5 text-sm font-bold text-ivory hover:bg-terracotta-deep">RSVP</button>
         </form>
       )}
+      <p className="mt-4 text-[12px] text-charcoal/45">Demo preview — your response stays on this device and is not sent anywhere.</p>
     </section>
   );
 }

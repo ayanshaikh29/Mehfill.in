@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, ShoppingBag, IndianRupee, Clock, Menu, X, LogOut, CheckCircle, XCircle, ExternalLink, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { isAdminEmail } from "@/lib/admin";
 import { formatINR } from "@/lib/plans";
 
 interface OrderRow {
@@ -44,8 +45,6 @@ interface Visit {
   created_at: string;
 }
 
-const ADMIN_EMAILS = ["youremail@gmail.com"];
-
 export default function AdminDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -60,39 +59,48 @@ export default function AdminDashboard() {
   const [daily, setDaily] = useState<{ label: string; count: number }[]>([]);
   const [topPages, setTopPages] = useState<{ path: string; count: number }[]>([]);
   const [verifying, setVerifying] = useState<number | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
     const supabase = createClient();
     supabase.auth.getSession().then(({ data }) => {
       const u = data.session?.user ?? null;
       if (!u) { router.push("/admin/login?callbackUrl=/admin"); return; }
-      if (!u.email || !ADMIN_EMAILS.includes(u.email.toLowerCase())) {
+      if (!isAdminEmail(u.email)) {
         router.push("/admin/login?callbackUrl=/admin");
         return;
       }
       setUser(u);
       fetchAll();
+      // Near-realtime: re-pull fresh data every 15s so new orders &
+      // payments appear without a manual refresh.
+      interval = setInterval(() => fetchAll(true), 15000);
     });
+    return () => { if (interval) clearInterval(interval); };
   }, [router]);
 
-  const fetchAll = async () => {
+  const fetchAll = async (silent = false) => {
     try {
-      const supabase = createClient();
+      if (!silent) setLoading(true);
       const now = Date.now();
+      const res = await fetch("/api/admin/overview", { cache: "no-store" });
+      if (res.status === 403) { router.push("/admin/login?callbackUrl=/admin"); return; }
+      if (!res.ok) throw new Error("overview failed");
+      const j = await res.json();
 
-      const [totalRes, weekRes, monthRes] = await Promise.all([
-        supabase.from("visits").select("*", { count: "exact", head: true }),
-        supabase.from("visits").select("*", { count: "exact", head: true }).gte("created_at", new Date(now - 7 * 864e5).toISOString()),
-        supabase.from("visits").select("*", { count: "exact", head: true }).gte("created_at", new Date(now - 30 * 864e5).toISOString()),
-      ]);
+      const totalRes = { count: j.totalVisits ?? 0 };
+      const weekRes = { count: j.weekVisits ?? 0 };
+      const monthRes = { count: j.monthVisits ?? 0 };
+      const orderRows = (j.orders ?? []) as OrderRow[];
+      const upiRows = (j.upi ?? []) as UpiRow[];
+      const visitRows = (j.visits ?? []) as Visit[];
+      const recentRows = (j.recent ?? []) as { created_at: string }[];
+      const pathRows = (j.paths ?? []) as { path: string }[];
 
-      const { data: orderRows } = await supabase.from("orders").select("id, user_email, plan, amount, status, created_at").order("created_at", { ascending: false }).limit(100);
-      const { data: upiRows } = await supabase.from("upi_payments").select("*").order("created_at", { ascending: false }).limit(100);
-      const { data: visitRows } = await supabase.from("visits").select("id, path, created_at").order("created_at", { ascending: false }).limit(100);
-
-      const ordersData = (orderRows as OrderRow[]) ?? [];
-      const upiData = (upiRows as UpiRow[]) ?? [];
-      const visitsData = (visitRows as Visit[]) ?? [];
+      const ordersData = orderRows;
+      const upiData = upiRows;
+      const visitsData = visitRows;
 
       setOrders(ordersData);
       setUpi(upiData);
@@ -119,18 +127,16 @@ export default function AdminDashboard() {
       });
 
       // Daily chart (last 14 days)
-      const { data: recent } = await supabase.from("visits").select("created_at").gte("created_at", new Date(now - 14 * 864e5).toISOString()).limit(3000);
       const days: Record<string, number> = {};
-      for (const v of recent ?? []) {
+      for (const v of recentRows) {
         const d = new Date(v.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
         days[d] = (days[d] ?? 0) + 1;
       }
       setDaily(Object.entries(days).map(([label, count]) => ({ label, count })).slice(-14));
 
       // Top pages
-      const { data: paths } = await supabase.from("visits").select("path").gte("created_at", new Date(now - 30 * 864e5).toISOString()).limit(3000);
       const pages: Record<string, number> = {};
-      for (const v of paths ?? []) pages[v.path] = (pages[v.path] ?? 0) + 1;
+      for (const v of pathRows) pages[v.path] = (pages[v.path] ?? 0) + 1;
       setTopPages(Object.entries(pages).map(([path, count]) => ({ path, count })).sort((a, b) => b.count - a.count).slice(0, 8));
 
       // Users list (from orders)
@@ -149,6 +155,7 @@ export default function AdminDashboard() {
       console.error(e);
     } finally {
       setLoading(false);
+      setLastUpdated(new Date());
     }
   };
 
@@ -172,8 +179,8 @@ export default function AdminDashboard() {
   const maxDay = Math.max(1, ...daily.map(d => d.count));
   const tabs = [
     { id: "overview" as const, label: "Overview" },
-    { id: "orders" as const, label: `Orders (${orders.length})` },
-    { id: "upi" as const, label: `UPI Verify (${upi.filter(u => u.status === "pending").length})` },
+    { id: "orders" as const, label: `Razorpay (${orders.length})` },
+    { id: "upi" as const, label: `UPI Payments (${upi.length})` },
     { id: "users" as const, label: `Customers (${users.length})` },
     { id: "visits" as const, label: "Visits" },
   ];
@@ -181,7 +188,7 @@ export default function AdminDashboard() {
   const cards = [
     { icon: Eye, label: "Total visits", value: String(stats.totalVisits) },
     { icon: Clock, label: "Visits · 7d / 30d", value: `${stats.weekVisits} / ${stats.monthVisits}` },
-    { icon: ShoppingBag, label: "Orders (paid / total)", value: `${stats.paidOrders} / ${stats.totalOrders}` },
+    { icon: ShoppingBag, label: "Payments (paid / total)", value: `${stats.paidOrders} / ${stats.totalOrders}` },
     { icon: IndianRupee, label: "Revenue", value: formatINR(stats.revenue) },
     { icon: Users, label: "Customers", value: String(stats.totalUsers) },
   ];
@@ -190,9 +197,22 @@ export default function AdminDashboard() {
     <main className="min-h-screen bg-charcoal text-ivory">
       <header className="sticky top-0 z-40 bg-charcoal/95 backdrop-blur border-b border-white/10">
         <div className="mx-auto max-w-7xl px-5 md:px-8 py-4 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold tracking-[0.3em] text-champagne">MEHFILL · STUDIO</p>
-            <h1 className="font-serif text-xl">Owner Dashboard</h1>
+          <div className="flex items-center gap-3">
+            <div>
+              <p className="text-[11px] font-bold tracking-[0.3em] text-champagne">MEHFILL · STUDIO</p>
+              <h1 className="font-serif text-xl">Owner Dashboard</h1>
+            </div>
+            <button
+              onClick={() => fetchAll(true)}
+              title="Refresh now (auto-refreshes every 15s)"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[11px] font-bold text-ivory/70 hover:border-white/40 hover:text-ivory"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#25D366] opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#25D366]" />
+              </span>
+              LIVE{lastUpdated ? ` · ${lastUpdated.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", second: "2-digit" })}` : ""}
+            </button>
           </div>
           <div className="hidden lg:flex items-center gap-2">
             <Link href="/" className="rounded-full border border-white/20 px-4 py-2 text-[12px] font-bold">View Site</Link>
@@ -265,8 +285,8 @@ export default function AdminDashboard() {
 
         {activeTab === "orders" && (
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 overflow-x-auto">
-            <p className="text-[12px] font-bold tracking-[0.2em] text-ivory/50">ALL ORDERS</p>
-            {orders.length === 0 ? <p className="mt-4 text-sm text-ivory/50">No orders yet.</p> : (
+            <p className="text-[12px] font-bold tracking-[0.2em] text-ivory/50">RAZORPAY ORDERS</p>
+            {orders.length === 0 ? <p className="mt-4 text-sm text-ivory/50">No Razorpay orders yet. UPI payments appear under the UPI Payments tab.</p> : (
               <table className="mt-4 w-full min-w-[640px] text-left text-sm">
                 <thead><tr className="text-[11px] tracking-[0.15em] text-ivory/45">
                   <th className="pb-3 pr-4">DATE</th><th className="pb-3 pr-4">CUSTOMER</th><th className="pb-3 pr-4">PLAN</th><th className="pb-3 pr-4">AMOUNT</th><th className="pb-3">STATUS</th>
@@ -289,7 +309,7 @@ export default function AdminDashboard() {
 
         {activeTab === "upi" && (
           <div className="rounded-2xl border border-champagne/25 bg-champagne/[0.07] p-6 overflow-x-auto">
-            <p className="text-[12px] font-bold tracking-[0.2em] text-champagne-light">UPI PAYMENTS · VERIFY MANUALLY</p>
+            <p className="text-[12px] font-bold tracking-[0.2em] text-champagne-light">UPI PAYMENTS · VERIFY MANUALLY{upi.some(u => u.status === "pending") ? ` · ${upi.filter(u => u.status === "pending").length} PENDING` : ""}</p>
             {upi.length === 0 ? <p className="mt-4 text-sm text-ivory/50">No UPI submissions yet.</p> : (
               <div className="mt-4 space-y-4">
                 {upi.map(u => (

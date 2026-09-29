@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Eye, EyeOff, Lock, Shield } from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { isAdminEmail } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,7 @@ function AdminLoginInner() {
       if (error) throw error;
       
       // Check if user is admin
-      const isAdmin = data.user?.email && ["youremail@gmail.com"].includes(data.user.email.toLowerCase());
+      const isAdmin = isAdminEmail(data.user?.email);
       if (!isAdmin) {
         await supabase.auth.signOut();
         setErr("Access denied. Admin only.");

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Reveal } from "./Reveal";
 import MehfillAura from "./effects/MehfillAura";
 import { WhatsAppIcon } from "./BrandIcons";
-import { waLink, WA_MSG_GENERAL } from "@/lib/contact";
+import { waLink, WA_MSG_GENERAL, CONTACT_EMAIL } from "@/lib/contact";
 
 export default function CTA() {
   return (
@@ -27,6 +27,9 @@ export default function CTA() {
           </a>
         </div>
         <p className="relative mt-6 text-[12px] tracking-[0.18em] text-ivory/40 font-semibold">CUSTOM-MADE • PERSONAL • READY TO SHARE</p>
+        <p className="relative mt-3 text-sm text-ivory/55">
+          Prefer email? <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-champagne-light hover:text-ivory">{CONTACT_EMAIL}</a>
+        </p>
       </Reveal>
     </section>
   );

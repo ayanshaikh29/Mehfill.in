@@ -1,6 +1,8 @@
 "use client";
 import { TEMPLATES } from "@/lib/templates";
+import { SHOWCASE } from "@/lib/showcase";
 import TemplateCard from "./TemplateCard";
+import ShowcaseCard from "./ShowcaseCard";
 import { Reveal } from "./Reveal";
 import { WhatsAppIcon } from "./BrandIcons";
 import { waLink, WA_MSG_GENERAL } from "@/lib/contact";
@@ -20,6 +22,14 @@ export default function DesignGallery() {
             photos & details.
           </p>
         </Reveal>
+
+        {SHOWCASE.length > 0 && (
+          <div className="mt-10 flex flex-col gap-5 md:gap-7">
+            {SHOWCASE.map((s, i) => (
+              <ShowcaseCard key={s.slug} s={s} index={i} />
+            ))}
+          </div>
+        )}
 
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
           {TEMPLATES.map((t, i) => (

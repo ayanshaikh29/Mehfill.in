@@ -1,12 +1,13 @@
 "use client";
 
 import { memo, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { CountdownParts } from "@/lib/launch";
 import { pad2, LAUNCH_LABEL } from "@/lib/launch";
+import LaunchLogo from "./LaunchLogo";
 
-// ─── Champagne-gold particle field (pure CSS, ~18 dots) ──────────────────────
-const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
+// ─── Champagne-gold particle field (pure CSS) ────────────────────────────────
+const PARTICLES = Array.from({ length: 22 }, (_, i) => ({
   left: (i * 53 + 7) % 100,
   size: 3 + ((i * 7) % 4),
   duration: 9 + ((i * 13) % 8),
@@ -14,8 +15,7 @@ const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
   drift: ((i * 29) % 40) - 20,
 }));
 
-function Particles({ reduceMotion }: { reduceMotion: boolean }) {
-  if (reduceMotion) return null;
+function Particles() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       {PARTICLES.map((p, i) => (
@@ -36,7 +36,64 @@ function Particles({ reduceMotion }: { reduceMotion: boolean }) {
   );
 }
 
-// ─── Botanical leaf shadows (inline SVG, very subtle) ────────────────────────
+// ─── Twinkling star sparkles ─────────────────────────────────────────────────
+const SPARKLES = [
+  { left: "12%", top: "22%" },
+  { left: "88%", top: "28%" },
+  { left: "18%", top: "68%" },
+  { left: "82%", top: "72%" },
+  { left: "8%", top: "46%" },
+  { left: "93%", top: "52%" },
+];
+
+function Sparkles() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      {SPARKLES.map((s, i) => (
+        <svg
+          key={i}
+          viewBox="0 0 24 24"
+          className="launch-twinkle absolute h-3 w-3 text-champagne"
+          style={{ left: s.left, top: s.top, animationDelay: `${i * 0.7}s` }}
+          fill="currentColor"
+        >
+          <path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+// ─── Slow-rotating mandala backdrop ──────────────────────────────────────────
+function Mandala() {
+  const petals = Array.from({ length: 12 }, (_, i) => i * 30);
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
+      <svg viewBox="0 0 600 600" className="launch-mandala h-[150vmin] w-[150vmin] text-champagne opacity-[0.10]">
+        <g fill="none" stroke="currentColor" strokeWidth="1">
+          <circle cx="300" cy="300" r="290" />
+          <circle cx="300" cy="300" r="250" />
+          <circle cx="300" cy="300" r="150" />
+          {petals.map((r) => (
+            <ellipse
+              key={r}
+              cx="300"
+              cy="170"
+              rx="34"
+              ry="120"
+              transform={`rotate(${r} 300 300)`}
+            />
+          ))}
+          {petals.map((r) => (
+            <circle key={`d-${r}`} cx="300" cy="52" r="4" fill="currentColor" stroke="none" transform={`rotate(${r} 300 300)`} />
+          ))}
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// ─── Botanical leaf shadows ──────────────────────────────────────────────────
 function BotanicalShadows() {
   return (
     <svg
@@ -60,30 +117,103 @@ function BotanicalShadows() {
   );
 }
 
-function TimeCell({ value, label, index }: { value: string; label: string; index: number }) {
+// ─── Filigree corner flourishes ──────────────────────────────────────────────
+function Corners() {
+  const base = "pointer-events-none absolute h-10 w-10 sm:h-14 sm:w-14 border-champagne/70";
   return (
     <motion.div
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.9, delay: 1.0 + index * 0.12, ease: [0.22, 1, 0.36, 1] }}
-      className="flex flex-col items-center"
+      aria-hidden
+      className="pointer-events-none absolute inset-4 sm:inset-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1.2, delay: 0.6 }}
     >
-      <div
-        suppressHydrationWarning
-        className="font-serif text-5xl font-medium tabular-nums text-charcoal sm:text-6xl md:text-7xl"
+      <span className={`${base} left-0 top-0 border-l border-t`} />
+      <span className={`${base} right-0 top-0 border-r border-t`} />
+      <span className={`${base} bottom-0 left-0 border-b border-l`} />
+      <span className={`${base} bottom-0 right-0 border-b border-r`} />
+    </motion.div>
+  );
+}
+
+// ─── Ornamental divider: line — diamond — line ───────────────────────────────
+function Divider({ delay = 0 }: { delay?: number }) {
+  return (
+    <motion.div
+      aria-hidden
+      className="flex items-center gap-3"
+      initial={{ opacity: 0, scaleX: 0.6 }}
+      animate={{ opacity: 1, scaleX: 1 }}
+      transition={{ duration: 0.9, delay }}
+    >
+      <span className="h-px w-12 bg-gradient-to-r from-transparent to-champagne sm:w-20" />
+      <span className="block h-1.5 w-1.5 rotate-45 bg-champagne" />
+      <span className="h-px w-12 bg-gradient-to-l from-transparent to-champagne sm:w-20" />
+    </motion.div>
+  );
+}
+
+// ─── Countdown card with rolling digit ───────────────────────────────────────
+function TimeCell({
+  value,
+  label,
+  index,
+  reduceMotion,
+  live,
+}: {
+  value: string;
+  label: string;
+  index: number;
+  reduceMotion: boolean;
+  live: boolean;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 22 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 1.0 + index * 0.12, ease: [0.22, 1, 0.36, 1] }}
+      className="relative flex w-[68px] flex-col items-center overflow-hidden rounded-2xl border border-charcoal/10 bg-white/50 py-3 shadow-[0_10px_30px_rgba(201,168,106,0.18)] backdrop-blur-sm sm:w-[92px] sm:py-4"
+    >
+      {/* gold top tick */}
+      <span aria-hidden className="absolute inset-x-6 top-0 h-[2px] rounded-full bg-gradient-to-r from-transparent via-champagne to-transparent" />
+      <span
+        className="font-serif relative flex h-[44px] items-center justify-center text-4xl font-medium tabular-nums text-charcoal sm:h-[56px] sm:text-5xl"
         style={{ fontVariantNumeric: "tabular-nums" }}
+        suppressHydrationWarning
       >
-        {value}
-      </div>
-      <div className="mt-2 text-[10px] font-semibold tracking-[0.35em] text-smoke">
+        {!live || reduceMotion ? (
+          value
+        ) : (
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.span
+              key={value}
+              initial={{ y: 14, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -14, opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {value}
+            </motion.span>
+          </AnimatePresence>
+        )}
+      </span>
+      <span className="mt-1 text-[9px] font-bold tracking-[0.3em] text-smoke sm:text-[10px]">
         {label}
-      </div>
+      </span>
     </motion.div>
   );
 }
 
 function LaunchCountdownInner({ parts }: { parts: CountdownParts }) {
   const [reduceMotion, setReduceMotion] = useState(false);
+  // Hydration guard: server + first client render must be byte-identical.
+  // The seconds tick between SSR and hydration, so render deterministic
+  // placeholders until mounted, then switch to live values client-side.
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -93,13 +223,18 @@ function LaunchCountdownInner({ parts }: { parts: CountdownParts }) {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  const anim = reduceMotion
-    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3 } }
-    : undefined;
+  const fade = (delay: number) =>
+    reduceMotion
+      ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3 } }
+      : {
+          initial: { opacity: 0, y: 14 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
+        };
 
   return (
-    <div className="grain relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-ivory px-6 py-16 text-center">
-      {/* soft vignette */}
+    <div className="grain relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-ivory px-6 py-14 text-center">
+      {/* warm vignette */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -108,87 +243,78 @@ function LaunchCountdownInner({ parts }: { parts: CountdownParts }) {
             "radial-gradient(ellipse 90% 65% at 50% 38%, rgba(201,168,106,0.16), transparent 65%), radial-gradient(ellipse 70% 50% at 50% 110%, rgba(124,122,90,0.10), transparent 70%)",
         }}
       />
+      {!reduceMotion && <Mandala />}
       <BotanicalShadows />
-      <Particles reduceMotion={reduceMotion} />
+      {!reduceMotion && <Particles />}
+      {!reduceMotion && <Sparkles />}
+      <Corners />
 
       <div className="relative z-10 flex w-full max-w-2xl flex-col items-center">
-        {/* logo */}
-        <motion.div
-          {...anim}
-          initial={anim ? undefined : { opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+        {/* top eyebrow */}
+        <motion.p
+          {...fade(0.15)}
+          className="eyebrow mb-6 text-[10px] text-terracotta sm:text-xs"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.png"
-            alt="MEHFILL.in"
-            className="mx-auto h-16 w-auto object-contain sm:h-20"
-            width={320}
-            height={80}
-          />
-        </motion.div>
+          YOU&rsquo;RE INVITED TO THE BEGINNING
+        </motion.p>
+
+        <LaunchLogo reduceMotion={reduceMotion} />
 
         {/* tagline */}
         <motion.p
-          {...anim}
-          initial={anim ? undefined : { opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="font-serif mt-6 text-xl italic text-espresso sm:text-2xl"
+          {...fade(0.7)}
+          className="font-serif mt-7 text-xl italic text-espresso sm:text-2xl"
         >
           More Than an Invitation.
           <br />
           An Experience.
         </motion.p>
 
-        <motion.div
-          {...anim}
-          initial={anim ? undefined : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.9, delay: 0.8 }}
-          className="mt-10 flex items-center gap-4"
-        >
-          <span className="h-px w-10 bg-champagne/60 sm:w-16" />
-          <span className="eyebrow text-smoke">OUR STORY BEGINS IN</span>
-          <span className="h-px w-10 bg-champagne/60 sm:w-16" />
+        <motion.div {...fade(0.9)} className="mt-7">
+          <Divider />
         </motion.div>
 
-        {/* countdown */}
+        <motion.p
+          {...fade(1.0)}
+          className="eyebrow mt-5 text-[10px] text-smoke sm:text-xs"
+        >
+          OUR STORY BEGINS IN
+        </motion.p>
+
+        {/* countdown cards */}
         <div
           role="timer"
           aria-live="off"
-          aria-label={`${parts.days} days, ${parts.hours} hours, ${parts.minutes} minutes, ${parts.seconds} seconds until launch`}
-          className="mt-6 flex items-start justify-center gap-3 sm:gap-6"
-          suppressHydrationWarning
+          aria-label={
+            mounted
+              ? `${parts.days} days, ${parts.hours} hours, ${parts.minutes} minutes, ${parts.seconds} seconds until launch`
+              : "Countdown to launch"
+          }
+          className="mt-5 flex items-start justify-center gap-2 sm:gap-3"
         >
-          <TimeCell value={pad2(parts.days)} label="DAYS" index={0} />
-          <span aria-hidden className="font-serif pt-1 text-4xl text-champagne sm:text-5xl md:text-6xl">:</span>
-          <TimeCell value={pad2(parts.hours)} label="HOURS" index={1} />
-          <span aria-hidden className="font-serif pt-1 text-4xl text-champagne sm:text-5xl md:text-6xl">:</span>
-          <TimeCell value={pad2(parts.minutes)} label="MINS" index={2} />
-          <span aria-hidden className="font-serif pt-1 text-4xl text-champagne sm:text-5xl md:text-6xl">:</span>
-          <TimeCell value={pad2(parts.seconds)} label="SECS" index={3} />
+          <TimeCell value={mounted ? pad2(parts.days) : "00"} label="DAYS" index={0} reduceMotion={reduceMotion} live={mounted} />
+          <TimeCell value={mounted ? pad2(parts.hours) : "00"} label="HOURS" index={1} reduceMotion={reduceMotion} live={mounted} />
+          <TimeCell value={mounted ? pad2(parts.minutes) : "00"} label="MINS" index={2} reduceMotion={reduceMotion} live={mounted} />
+          <TimeCell value={mounted ? pad2(parts.seconds) : "00"} label="SECS" index={3} reduceMotion={reduceMotion} live={mounted} />
         </div>
 
-        <motion.p
-          {...anim}
-          initial={anim ? undefined : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.9, delay: 1.5 }}
-          className="mt-8 text-xs font-semibold tracking-[0.3em] text-terracotta"
+        {/* launch date pill */}
+        <motion.div
+          {...fade(1.5)}
+          className="mt-7 inline-flex items-center gap-2.5 rounded-full border border-champagne/50 bg-champagne/10 px-5 py-2"
         >
-          {LAUNCH_LABEL}
-        </motion.p>
+          <span aria-hidden className="block h-1.5 w-1.5 rotate-45 bg-terracotta" />
+          <span className="text-[11px] font-bold tracking-[0.28em] text-terracotta sm:text-xs">
+            {LAUNCH_LABEL}
+          </span>
+          <span aria-hidden className="block h-1.5 w-1.5 rotate-45 bg-terracotta" />
+        </motion.div>
 
         <motion.p
-          {...anim}
-          initial={anim ? undefined : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.9, delay: 1.7 }}
-          className="mt-4 text-[11px] font-medium tracking-[0.25em] text-smoke"
+          {...fade(1.7)}
+          className="mt-5 text-[10px] font-semibold tracking-[0.35em] text-smoke sm:text-[11px]"
         >
-          CREATE. INVITE. CELEBRATE.
+          CREATE &nbsp;•&nbsp; INVITE &nbsp;•&nbsp; CELEBRATE
         </motion.p>
       </div>
 
@@ -209,8 +335,26 @@ function LaunchCountdownInner({ parts }: { parts: CountdownParts }) {
           50% { transform: translate3d(var(--drift, 0px), -52vh, 0); opacity: 0.4; }
           100% { transform: translate3d(calc(var(--drift, 0px) * -0.5), -105vh, 0); opacity: 0; }
         }
+        .launch-twinkle {
+          opacity: 0.2;
+          animation: twinkle 3s ease-in-out infinite;
+        }
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.15; transform: scale(0.7) rotate(0deg); }
+          50% { opacity: 0.9; transform: scale(1.15) rotate(20deg); }
+        }
+        .launch-mandala {
+          animation: mandala-spin 90s linear infinite;
+        }
+        @keyframes mandala-spin {
+          to { transform: rotate(360deg); }
+        }
         @media (prefers-reduced-motion: reduce) {
-          .launch-particle { display: none; }
+          .launch-particle,
+          .launch-twinkle,
+          .launch-mandala {
+            display: none;
+          }
         }
       `}</style>
     </div>

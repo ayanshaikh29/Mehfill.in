@@ -92,7 +92,17 @@ export default function PricingSection() {
             </Reveal>
           ))}
         </div>
-        <p className="mt-6 text-center text-[13px] text-charcoal/50">Pay directly via UPI — no gateway fees · GST invoice on request</p>
+        <div className="mt-8 text-center">
+          <a
+            href={waLink("Hello! I saw your pricing on Mehfill.in. Is the cost negotiable? I would like a better price for my invitation.")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-[#25D366]/40 bg-[#25D366]/10 px-6 py-3 text-sm font-bold text-[#14703c] hover:bg-[#25D366]/20"
+          >
+            <WhatsAppIcon className="h-4 w-4" /> Prices negotiable — chat on WhatsApp for a better deal
+          </a>
+        </div>
+        <p className="mt-4 text-center text-[13px] text-charcoal/50">Pay directly via UPI — no gateway fees · GST invoice on request</p>
       </div>
     </section>
   );

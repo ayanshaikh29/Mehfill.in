@@ -50,6 +50,31 @@ body {
   color: #1c1917;
 }
 
+/* skip link — visible only on keyboard focus */
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 200;
+  border-radius: 9999px;
+  background: #1c1917;
+  color: #fdf9f3;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: top 0.2s ease;
+}
+.skip-link:focus-visible {
+  top: 16px;
+}
+
+/* visible keyboard focus everywhere (never remove outlines without this) */
+:focus-visible {
+  outline: 2px solid #96522f;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 /* film grain */
 .grain::after {
   content: "";

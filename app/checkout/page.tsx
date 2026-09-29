@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { PLANS, formatINR } from "@/lib/plans";
 import { TEMPLATES } from "@/lib/templates";
 import { UPI_ID, upiPayLink, upiQrImage } from "@/lib/payment";
-import { WhatsAppIcon } from "@/components/BrandIcons";
+import { WhatsAppIcon, GooglePayIcon, PhonePeIcon, PaytmIcon } from "@/components/BrandIcons";
 import PremiumSelect from "@/components/PremiumSelect";
 import { waLink } from "@/lib/contact";
 
@@ -32,6 +32,7 @@ function CheckoutInner() {
   const [err, setErr] = useState("");
   const [txn, setTxn] = useState("");
   const [shot, setShot] = useState<File | null>(null);
+  const [privacyOk, setPrivacyOk] = useState(false);
 
   const [f, setF] = useState({
     fullName: "", email: "", mobile: "", whatsapp: "",
@@ -87,7 +88,7 @@ function CheckoutInner() {
     f.fullName.trim() && /.+@.+\..+/.test(f.email) &&
     f.mobile.replace(/\D/g, "").length === 10 &&
     f.whatsapp.replace(/\D/g, "").length === 10 &&
-    f.occasion && f.eventDate && f.venueName.trim() && f.city.trim() && f.state;
+    f.occasion && f.eventDate && f.venueName.trim() && f.city.trim() && f.state && privacyOk;
 
   const copyId = async () => {
     try { await navigator.clipboard.writeText(UPI_ID); } catch { /* ignore */ }
@@ -98,6 +99,8 @@ function CheckoutInner() {
   const submitTxn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!txn.trim()) { setErr("Transaction ID is required"); return; }
+    if (!shot) { setErr("Payment screenshot is required — please upload it."); return; }
+    if (shot.size > 5 * 1024 * 1024) { setErr("Screenshot must be under 5MB."); return; }
     setErr("");
     setBusy(true);
     try {
@@ -119,11 +122,18 @@ function CheckoutInner() {
       fd.set("txn_id", txn.trim());
       if (shot) fd.set("screenshot", shot);
       const res = await fetch("/api/upi-submit", { method: "POST", body: fd });
-      if (!res.ok) throw new Error("save failed");
+      if (!res.ok) {
+        let msg = "Could not save online — please send your transaction ID on WhatsApp instead.";
+        try {
+          const data = await res.json();
+          if (data?.error) msg = data.error;
+        } catch { /* keep default */ }
+        throw new Error(msg);
+      }
       try { if (user) localStorage.removeItem(`mehfill_cart_${user.id}`); } catch { /* ignore */ }
       setStep("done");
-    } catch {
-      setErr("Could not save online — please send your transaction ID on WhatsApp instead.");
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not save online — please send your transaction ID on WhatsApp instead.");
     } finally {
       setBusy(false);
     }
@@ -162,24 +172,45 @@ function CheckoutInner() {
           <div className="mt-2 border-t hairline pt-3 flex justify-between font-bold text-lg">
             <span>Total to pay</span><span>{formatINR(total)}</span>
           </div>
+          <a
+            href={waLink(`Hello! My checkout total is ${formatINR(total)} for my Mehfill invitation. Is the cost negotiable?`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-bold text-[#14703c] hover:underline"
+          >
+            <WhatsAppIcon className="h-4 w-4" /> Need a better price? Cost is negotiable on WhatsApp
+          </a>
         </div>
 
         {step === "details" && (
           <div className="mt-5 rounded-2xl border hairline bg-white p-6">
             <p className="eyebrow text-terracotta">STEP 1 · YOUR DETAILS</p>
             <div className="mt-4 grid sm:grid-cols-2 gap-3">
-              <input value={f.fullName} onChange={(e) => set("fullName", e.target.value)} placeholder="Full name *" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.email} onChange={(e) => set("email", e.target.value)} placeholder="Email *" type="email" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.mobile} onChange={(e) => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Mobile (10-digit) *" inputMode="numeric" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.whatsapp} onChange={(e) => set("whatsapp", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="WhatsApp (10-digit) *" inputMode="numeric" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
+              <input value={f.fullName} onChange={(e) => set("fullName", e.target.value)} placeholder="Full name *" aria-label="Full name" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
+              <input value={f.email} onChange={(e) => set("email", e.target.value)} placeholder="Email *" aria-label="Email" type="email" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
+              <input value={f.mobile} onChange={(e) => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Mobile (10-digit) *" aria-label="Mobile number, 10 digits" inputMode="numeric" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
+              <input value={f.whatsapp} onChange={(e) => set("whatsapp", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="WhatsApp (10-digit) *" aria-label="WhatsApp number, 10 digits" inputMode="numeric" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
               <div className="sm:col-span-2"><PremiumSelect name="occasion" value={f.occasion} options={OCCASIONS.map((o) => ({ value: o, label: o }))} placeholder="Occasion *" onChange={(v) => set("occasion", v)} label="Occasion" /></div>
-              <input value={f.eventDate} onChange={(e) => set("eventDate", e.target.value)} type="date" min={new Date().toISOString().split("T")[0]} className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.venueName} onChange={(e) => set("venueName", e.target.value)} placeholder="Venue name *" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.city} onChange={(e) => set("city", e.target.value)} placeholder="City *" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
+              <input value={f.eventDate} onChange={(e) => set("eventDate", e.target.value)} type="date" aria-label="Event date" min={new Date().toISOString().split("T")[0]} className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
+              <input value={f.venueName} onChange={(e) => set("venueName", e.target.value)} placeholder="Venue name *" aria-label="Venue name" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
+              <input value={f.city} onChange={(e) => set("city", e.target.value)} placeholder="City *" aria-label="City" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
               <div><PremiumSelect name="state" value={f.state} options={STATES.map((s) => ({ value: s, label: s }))} placeholder="State *" onChange={(v) => set("state", v)} label="State" /></div>
-              <input value={f.venueAddress} onChange={(e) => set("venueAddress", e.target.value)} placeholder="Full venue address" className="sm:col-span-2 rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.pincode} onChange={(e) => set("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Pincode" inputMode="numeric" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
+              <input value={f.venueAddress} onChange={(e) => set("venueAddress", e.target.value)} placeholder="Full venue address" aria-label="Full venue address" className="sm:col-span-2 rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
+              <input value={f.pincode} onChange={(e) => set("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Pincode" aria-label="Pincode" inputMode="numeric" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
             </div>
+            <label className="mt-4 flex cursor-pointer items-start gap-3 text-[13px] leading-relaxed text-charcoal/70">
+              <input
+                type="checkbox"
+                checked={privacyOk}
+                onChange={(e) => setPrivacyOk(e.target.checked)}
+                className="mt-1 h-4 w-4 shrink-0 accent-[#96522f]"
+              />
+              <span>
+                I agree to the <Link href="/privacy-policy" className="font-semibold text-terracotta-deep underline underline-offset-2">Privacy Policy</Link> and
+                understand my details and payment screenshot will be stored to create and verify my invitation order. We only
+                contact you about your order — no spam, no marketing calls.
+              </span>
+            </label>
             <button disabled={!detailsValid} onClick={() => setStep("pay")} className="mt-5 w-full rounded-full bg-charcoal py-4 text-sm font-bold text-ivory hover:bg-espresso disabled:opacity-40">
               Continue to Pay {formatINR(total)}
             </button>
@@ -190,10 +221,23 @@ function CheckoutInner() {
           <div className="mt-5 rounded-2xl border hairline bg-white p-6">
             <p className="eyebrow text-terracotta">STEP 2 · PAY VIA UPI</p>
             <p className="mt-2 font-serif font-light text-4xl">{formatINR(total)}</p>
-            <p className="mt-1 text-sm text-charcoal/60">Pay using GPay, PhonePe, Paytm or BHIM.</p>
-            <a href={upiPayLink(total, note)} className="mt-5 flex items-center justify-center gap-2 rounded-full bg-charcoal py-4 text-[15px] font-bold text-ivory hover:bg-espresso">
-              <WhatsAppIcon className="h-5 w-5" /> Pay via UPI
-            </a>
+            <p className="mt-1 text-sm text-charcoal/60">Tap your UPI app to pay — or scan the QR below.</p>
+            <div className="mt-4 grid grid-cols-3 gap-2.5">
+              {[
+                { name: "GPay", Icon: GooglePayIcon },
+                { name: "PhonePe", Icon: PhonePeIcon },
+                { name: "Paytm", Icon: PaytmIcon },
+              ].map(({ name, Icon }) => (
+                <a
+                  key={name}
+                  href={upiPayLink(total, note)}
+                  className="flex flex-col items-center gap-1.5 rounded-2xl border hairline bg-ivory py-4 transition-colors hover:border-charcoal/30 hover:bg-cream"
+                >
+                  <Icon className="h-7 w-7" />
+                  <span className="text-[12px] font-bold">{name}</span>
+                </a>
+              ))}
+            </div>
             {!qrFailed && (
               <div className="mx-auto mt-4 w-fit rounded-2xl border hairline bg-ivory p-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -210,11 +254,15 @@ function CheckoutInner() {
 
             <form onSubmit={submitTxn} className="mt-5 border-t hairline pt-5 flex flex-col gap-3">
               <p className="font-serif text-xl italic">Already paid? Submit your transaction ID.</p>
-              <input required value={txn} onChange={(e) => setTxn(e.target.value)} placeholder="UPI transaction ID (UTR) *" className="rounded-2xl border hairline bg-ivory px-4 py-3.5 text-sm outline-none focus:border-terracotta font-mono" />
+              <input required value={txn} onChange={(e) => setTxn(e.target.value)} placeholder="UPI transaction ID (UTR) *" aria-label="UPI transaction ID" className="rounded-2xl border hairline bg-ivory px-4 py-3.5 text-sm outline-none focus:border-terracotta font-mono" />
               <label className="rounded-2xl border border-dashed hairline bg-ivory px-4 py-3.5 text-sm text-charcoal/60 cursor-pointer">
-                {shot ? `Screenshot: ${shot.name}` : "Payment screenshot (optional)"}
+                {shot ? `Screenshot: ${shot.name}` : (<>Payment screenshot <b className="text-terracotta-deep">* required</b></>)}
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => setShot(e.target.files?.[0] ?? null)} />
               </label>
+              <p className="-mt-1 text-[12px] leading-relaxed text-charcoal/55">
+                Stored securely and used only to verify this payment. See our{" "}
+                <Link href="/privacy-policy" className="font-semibold text-terracotta-deep underline underline-offset-2">Privacy Policy</Link>.
+              </p>
               {err && <p className="text-sm text-terracotta-deep">{err}</p>}
               <button disabled={busy} className="rounded-full bg-charcoal py-4 text-sm font-bold text-ivory hover:bg-espresso disabled:opacity-60">
                 {busy ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : "Submit for Verification"}
