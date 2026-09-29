@@ -1,14 +1,14 @@
 // ─── MEHFILL.in launch gate ────────────────────────────────────────────────
-// Launch: 2 Oct 2026, 3:00 PM IST (Asia/Kolkata) = 09:30 UTC.
+// Launch: 2 Oct 2026, 2:30 PM IST (Asia/Kolkata) = 09:00 UTC.
 // Fixed IST instant via explicit offset — timezone-independent:
 // any device, any timezone compares Date.now() (UTC ms) against this value.
-// Equivalent to Date.UTC(2026, 9, 2, 9, 30, 0).
+// Equivalent to Date.UTC(2026, 9, 2, 9, 0, 0).
 
 export const LAUNCH_TIMESTAMP_MS = new Date(
-  "2026-10-02T15:00:00+05:30"
+  "2026-10-02T14:30:00+05:30"
 ).getTime();
 
-export const LAUNCH_LABEL = "02.10.26 • 3:00 PM";
+export const LAUNCH_LABEL = "02.10.26 • 2:30 PM";
 
 export function isLaunched(nowMs: number): boolean {
   return nowMs >= LAUNCH_TIMESTAMP_MS;
