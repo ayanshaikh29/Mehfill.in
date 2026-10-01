@@ -67,16 +67,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  async redirects() {
-    // Demo sites are static folders: force trailing slash so their
-    // relative CSS/JS/media paths always resolve (e.g. /site-1/style.css).
-    return [
-      { source: "/site-1", destination: "/site-1/", permanent: true },
-      { source: "/site-2", destination: "/site-2/", permanent: true },
-      { source: "/site-3", destination: "/site-3/", permanent: true },
-      { source: "/site-4", destination: "/site-4/", permanent: true },
-    ];
-  },
   async rewrites() {
     return [
       {
