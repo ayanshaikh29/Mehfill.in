@@ -24,7 +24,7 @@ export default function DesignGallery() {
         </Reveal>
 
         {SHOWCASE.length > 0 && (
-          <div className="mt-10 flex flex-col gap-5 md:gap-7">
+          <div className="mx-auto mt-10 grid max-w-4xl gap-5 md:grid-cols-2 md:gap-7">
             {SHOWCASE.map((s, i) => (
               <ShowcaseCard key={s.slug} s={s} index={i} />
             ))}
