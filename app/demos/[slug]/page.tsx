@@ -11,10 +11,28 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { slug: string } }) {
   const t = getTemplate(params.slug);
-  if (!t) return { title: "Demo not found — Mehfill.in" };
+  if (!t) return { title: "Demo not found — Mehfill.in", robots: { index: false, follow: false } };
+  const url = `https://mehfill.in/demos/${t.slug}`;
+  const title = `${t.name} — ${t.occasion} Digital Invitation Demo`;
   return {
-    title: `${t.name} — ${t.occasion} Demo | Mehfill.in`,
-    description: t.description,
+    title,
+    description: `${t.description} Open the live ${t.name} ${t.occasion} invitation demo by Mehfill.in — cinematic reveal, events, gallery & RSVP.`,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${title} | Mehfill.in`,
+      description: t.description,
+      url,
+      siteName: "Mehfill.in",
+      locale: "en_IN",
+      type: "website",
+      images: [{ url: t.image, width: 1200, height: 630, alt: `${t.name} invitation demo` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | Mehfill.in`,
+      description: t.description,
+      images: [t.image],
+    },
   };
 }
 

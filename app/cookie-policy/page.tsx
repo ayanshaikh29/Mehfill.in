@@ -47,7 +47,7 @@ export default function CookiePolicyPage() {
       <h2>4. Third parties that may set their own cookies</h2>
       <ul>
         <li>
-          <strong>Google Fonts / Unsplash / QR-code service</strong> — these load fonts, images and
+          <strong>Google Fonts / QR-code service</strong> — these load fonts and
           the payment QR. They may process standard technical data per their own policies, but we do
           not use them for tracking you.
         </li>

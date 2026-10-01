@@ -44,7 +44,7 @@ export default function CinematicExperience() {
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
-              src="https://images.unsplash.com/photo-1595407753234-0882f1e77954?q=80&w=1200&auto=format&fit=crop"
+              src="/images/hero/cinematic_banner.jpg"
               alt="Cinematic invitation venue"
               className="aspect-[4/5] sm:aspect-[5/5] w-full object-cover"
             />
@@ -59,7 +59,7 @@ export default function CinematicExperience() {
             >
               <p className="text-[10px] tracking-[0.3em] font-bold text-terracotta">ETERNAL — LIVE DEMO</p>
               <p className="font-serif text-2xl mt-1">Together with their families</p>
-              <p className="text-sm text-charcoal/60 mt-1">Ayan & Amara — 14.02.2027, Udaipur</p>
+              <p className="text-sm text-charcoal/60 mt-1">Aarav & Amara — 14.02.2027, Udaipur</p>
             </motion.div>
           </div>
         </Reveal>

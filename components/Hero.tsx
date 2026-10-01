@@ -107,7 +107,7 @@ export default function Hero() {
             >
               <div className="relative aspect-[9/19] overflow-hidden rounded-[2rem] bg-[#0f0e0d]">
                 <img
-                  src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=800&auto=format&fit=crop"
+                  src="/images/hero/hero_wedding.jpg"
                   alt="Eternal wedding invitation preview"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
@@ -115,7 +115,7 @@ export default function Hero() {
                 <div className="absolute top-3 left-1/2 -translate-x-1/2 h-6 w-24 rounded-full bg-black/90" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-center text-ivory">
                   <p className="text-[10px] tracking-[0.35em] text-champagne-light">YOU&apos;RE INVITED</p>
-                  <p className="mt-2 font-serif text-3xl leading-none">Ayan <span className="italic">&</span> Amara</p>
+                  <p className="mt-2 font-serif text-3xl leading-none">Aarav <span className="italic">&</span> Amara</p>
                   <p className="mt-2 text-[11px] tracking-[0.2em] opacity-80">14 . 02 . 2027 — UDAIPUR</p>
                   <div className="mx-auto mt-4 w-fit rounded-full border border-white/30 px-5 py-2 text-[11px] tracking-[0.2em] backdrop-blur">TAP TO ENTER</div>
                 </div>

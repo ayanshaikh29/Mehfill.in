@@ -26,26 +26,96 @@ const sans = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Mehfill.in — More Than an Invitation. An Experience.",
+  metadataBase: new URL("https://mehfill.in"),
+  title: {
+    default: "Mehfill.in — Digital Wedding Invitations | More Than an Invitation. An Experience.",
+    template: "%s | Mehfill.in",
+  },
   description:
-    "Create beautiful digital invitations for weddings, birthdays, engagements and every celebration that matters.",
+    "Mehfill.in crafts cinematic digital wedding invitations for Indian celebrations — Nikah, Shaadi, Haldi, Mehndi, Sangeet, engagements, birthdays & anniversaries. Live demos, WhatsApp ordering, RSVP, maps & music in one beautiful link.",
   keywords: [
-    "digital invitation",
-    "wedding invitation",
-    "indian wedding",
-    "birthday invitation",
+    "digital wedding invitation",
+    "online wedding invitation India",
+    "digital Nikah invitation",
+    "Muslim wedding invitation online",
+    "Haldi Mehndi invitation",
+    "Sangeet invitation online",
+    "engagement invitation digital",
+    "birthday invitation online",
+    "anniversary invitation",
+    "baby shower invitation",
+    "RSVP invitation website",
+    "wedding invitation video",
     "mehfill",
+    "mehfill.in",
   ],
+  authors: [{ name: "Mehfill.in" }],
+  creator: "Mehfill.in",
+  alternates: {
+    canonical: "https://mehfill.in/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
     title: "Mehfill.in — More Than an Invitation. An Experience.",
     description:
-      "Beautiful digital invitations crafted for the moments that matter.",
+      "Cinematic digital invitations for weddings, Nikah, Haldi–Mehndi, engagements, birthdays & every celebration. Open a live demo and feel it.",
+    url: "https://mehfill.in/",
+    siteName: "Mehfill.in",
+    locale: "en_IN",
     type: "website",
+    images: [
+      {
+        url: "/og-cover.png",
+        width: 1200,
+        height: 630,
+        alt: "Mehfill.in — More Than an Invitation. An Experience.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mehfill.in — More Than an Invitation. An Experience.",
+    description:
+      "Cinematic digital invitations for Indian weddings & celebrations. Open a live demo.",
+    images: ["/og-cover.png"],
   },
   icons: {
     icon: "/icon.png",
     apple: "/apple-icon.png",
   },
+};
+
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://mehfill.in/#organization",
+      name: "Mehfill.in",
+      url: "https://mehfill.in/",
+      logo: "https://mehfill.in/logo.png",
+      description:
+        "Cinematic digital invitations for Indian weddings and celebrations.",
+      sameAs: ["https://www.instagram.com/build_with_ayan29"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://mehfill.in/#website",
+      url: "https://mehfill.in/",
+      name: "Mehfill.in",
+      publisher: { "@id": "https://mehfill.in/#organization" },
+      inLanguage: "en-IN",
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -82,7 +152,12 @@ export default function RootLayout({
         <link rel="preload" as="video" href="/intro-mobile-opt.mp4" media="(max-width: 767px)" />
         <link rel="preload" as="image" href="/icon.png" />
         <link rel="preload" as="image" href="/logo.png" />
+        <link rel="preload" as="image" href="/logo-transparent.png" />
         <link rel="security.txt" href="/.well-known/security.txt" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+        />
       </head>
       <body suppressHydrationWarning className="min-h-screen bg-ivory text-charcoal antialiased">
         <a href="#main-content" className="skip-link">Skip to main content</a>

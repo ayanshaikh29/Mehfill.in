@@ -3,15 +3,15 @@ import Link from "next/link";
 import { Reveal } from "./Reveal";
 
 const OCCASIONS = [
-  { name: "Weddings", sub: "Nikah, Anand Karaj, church & Hindu weddings", img: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=800&auto=format&fit=crop" },
-  { name: "Birthdays", sub: "First birthdays to fiftieths", img: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=800&auto=format&fit=crop" },
-  { name: "Engagements", sub: "Ring ceremonies & proposals", img: "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800&auto=format&fit=crop" },
-  { name: "Haldi & Mehndi", sub: "Joyful pre-wedding festivities", img: "https://images.unsplash.com/photo-1610173826608-bd1f53a52db1?q=80&w=800&auto=format&fit=crop" },
-  { name: "Anniversaries", sub: "Silver, golden & every year", img: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=800&auto=format&fit=crop" },
-  { name: "Baby Showers", sub: "Godh Bharai & welcoming ceremonies", img: "https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=800&auto=format&fit=crop" },
-  { name: "Parties", sub: "Festive nights & gatherings", img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop" },
-  { name: "Faith & Prayer", sub: "Puja, Dawat, Baptism, Akhand Path & more", img: "https://images.unsplash.com/photo-1604608672516-f1b9b1d37076?q=80&w=800&auto=format&fit=crop" },
-  { name: "Corporate Events", sub: "Launches & celebrations at work", img: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop" },
+  { name: "Weddings", sub: "Nikah, Anand Karaj, church & Hindu weddings", img: "/images/occasions/weddings.jpg" },
+  { name: "Birthdays", sub: "First birthdays to fiftieths", img: "/images/occasions/birthdays.jpg" },
+  { name: "Engagements", sub: "Ring ceremonies & proposals", img: "/images/occasions/engagements.jpg" },
+  { name: "Haldi & Mehndi", sub: "Joyful pre-wedding festivities", img: "/images/occasions/haldi_mehndi.jpg" },
+  { name: "Anniversaries", sub: "Silver, golden & every year", img: "/images/occasions/anniversaries.jpg" },
+  { name: "Baby Showers", sub: "Godh Bharai & welcoming ceremonies", img: "/images/occasions/baby_showers.jpg" },
+  { name: "Parties", sub: "Festive nights & gatherings", img: "/images/occasions/parties.jpg" },
+  { name: "Faith & Prayer", sub: "Puja, Dawat, Baptism, Akhand Path & more", img: "/images/occasions/faith_prayer.jpg" },
+  { name: "Corporate Events", sub: "Launches & celebrations at work", img: "/images/occasions/corporate.jpg" },
 ];
 
 export default function Occasions() {

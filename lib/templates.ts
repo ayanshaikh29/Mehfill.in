@@ -42,15 +42,14 @@ export const TEMPLATES: Template[] = [
     description:
       "Antique doors, marigold light and a slow reveal — a wedding that begins before guests arrive.",
     palette: { bg: "#1C1917", ink: "#FDF9F3", accent: "#C9A86A" },
-    image:
-      "https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/templates/eternal_cover.jpg",
     gallery: [
-      "https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1610173826608-bd1f53a52db1?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1595407753234-0882f1e77954?q=80&w=1200&auto=format&fit=crop",
+      "/images/templates/eternal_cover.jpg",
+      "/images/occasions/haldi_mehndi.jpg",
+      "/images/hero/cinematic_banner.jpg",
     ],
     data: {
-      names: "Ayan & Amara",
+      names: "Aarav & Amara",
       date: "14 . 02 . 2027 — Udaipur",
       venue: "The Leela Palace, Udaipur",
       location: "Udaipur, Rajasthan",
@@ -63,33 +62,6 @@ export const TEMPLATES: Template[] = [
     },
   },
   {
-    slug: "riwaayat",
-    name: "Riwaayat",
-    occasion: "Weddings",
-    tagline: "Traditional Indian elegance",
-    description:
-      "Ivory, gold and quiet tradition — for families who want heritage with restraint.",
-    palette: { bg: "#FAF5EB", ink: "#1C1917", accent: "#96522F" },
-    image:
-      "https://images.unsplash.com/photo-1610173826608-bd1f53a52db1?q=80&w=1200&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1610173826608-bd1f53a52db1?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1587271636175-90d58cdad458?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=1200&auto=format&fit=crop",
-    ],
-    data: {
-      names: "Kabir & Meher",
-      date: "22 . 11 . 2026 — Jaipur",
-      venue: "Samode Haveli, Jaipur",
-      location: "Jaipur, Rajasthan",
-      events: [
-        { name: "Mehndi", date: "Nov 20", time: "11 AM", venue: "Sheesh Mahal" },
-        { name: "Sangeet", date: "Nov 21", time: "7 PM", venue: "Durbar Hall" },
-        { name: "Wedding", date: "Nov 22", time: "8 PM", venue: "Palace Courtyard" },
-      ],
-    },
-  },
-  {
     slug: "bloom",
     name: "Bloom",
     occasion: "Engagement",
@@ -97,12 +69,11 @@ export const TEMPLATES: Template[] = [
     description:
       "Blush editorial minimalism — a modern engagement told like a love letter.",
     palette: { bg: "#FDF9F3", ink: "#1C1917", accent: "#B96A4B" },
-    image:
-      "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/occasions/engagements.jpg",
     gallery: [
-      "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1200&auto=format&fit=crop",
+      "/images/occasions/engagements.jpg",
+      "/images/occasions/anniversaries.jpg",
+      "/images/hero/hero_wedding.jpg",
     ],
     data: {
       names: "Zoya & Arham",
@@ -123,12 +94,11 @@ export const TEMPLATES: Template[] = [
     description:
       "Charcoal, champagne and bold type — a birthday that feels like a premiere.",
     palette: { bg: "#111110", ink: "#F5F0E6", accent: "#C9A86A" },
-    image:
-      "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/occasions/birthdays.jpg",
     gallery: [
-      "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop",
+      "/images/occasions/birthdays.jpg",
+      "/images/occasions/parties.jpg",
+      "/images/occasions/corporate.jpg",
     ],
     data: {
       names: "Aria turns 25",
@@ -138,32 +108,6 @@ export const TEMPLATES: Template[] = [
       events: [
         { name: "Cocktails", date: "Jul 18", time: "7 PM", venue: "Rooftop" },
         { name: "After Hours", date: "Jul 18", time: "10 PM", venue: "Listening Bar" },
-      ],
-    },
-  },
-  {
-    slug: "moments",
-    name: "Moments",
-    occasion: "Anniversary",
-    tagline: "Minimal romantic experience",
-    description:
-      "Quiet, warm and deeply personal — twenty-five years, told gently.",
-    palette: { bg: "#EFE6D5", ink: "#1C1917", accent: "#7C7A5A" },
-    image:
-      "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1200&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=1200&auto=format&fit=crop",
-    ],
-    data: {
-      names: "Rhea & Vikram — 25 Years",
-      date: "05 . 12 . 2026 — Goa",
-      venue: "Ahilya by the Sea, Goa",
-      location: "Goa",
-      events: [
-        { name: "Vow Renewal", date: "Dec 05", time: "5 PM", venue: "Sea Deck" },
-        { name: "Family Dinner", date: "Dec 05", time: "8 PM", venue: "Fig Tree" },
       ],
     },
   },

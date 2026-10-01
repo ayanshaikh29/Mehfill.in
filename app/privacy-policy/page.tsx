@@ -92,9 +92,6 @@ export default function PrivacyPolicyPage() {
         <li>
           <strong>Google Fonts</strong> — loads site fonts.
         </li>
-        <li>
-          <strong>Unsplash CDN</strong> — loads decorative/template photographs.
-        </li>
       </ul>
       <p>
         We do not use Google Analytics, Meta Pixel, Hotjar or any advertising trackers. If that

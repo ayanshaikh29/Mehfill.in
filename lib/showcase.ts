@@ -17,6 +17,19 @@ export interface Showcase {
 
 export const SHOWCASE: Showcase[] = [
   {
+    slug: "aariz-zoya-wedding",
+    names: "Aariz & Zoya",
+    occasion: "Wedding · Shaadi",
+    title: "A royal wedding invitation, live for real guests",
+    description:
+      "Cinematic wedding experience with tap-to-open reveal, live countdown, events, gallery and RSVP — a second live demo crafted for Indian wedding celebrations.",
+    url: "https://mehfill-demo-2.netlify.app/",
+    // Custom cover you provided (sunset terrace "You're Invited").
+    image: "/demos/demo-2.png",
+    badge: "LIVE DEMO",
+    palette: { bg: "#3B0A0A", ink: "#FDF9F3", accent: "#C9A86A" },
+  },
+  {
     slug: "hamza-maryam-nikah",
     names: "Hamza & Maryam",
     occasion: "Nikah · Wedding",

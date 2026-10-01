@@ -27,7 +27,7 @@ export default function EternalDemo({ t }: { t: Template }) {
             onClick={() => setEntered(true)}
           >
             <img
-              src="https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=1400&auto=format&fit=crop"
+              src="/images/templates/eternal_cover.jpg"
               alt="Antique doors with flowers"
               className="absolute inset-0 h-full w-full object-cover"
             />
@@ -46,7 +46,7 @@ export default function EternalDemo({ t }: { t: Template }) {
             />
             <div className="relative h-full flex flex-col items-center justify-center text-center px-6">
               <p className="text-[11px] tracking-[0.45em] text-[#E8D5A8]">YOU&apos;RE INVITED</p>
-              <h1 className="mt-4 font-serif font-light text-5xl md:text-7xl">Ayan <span className="italic">&</span> Amara</h1>
+              <h1 className="mt-4 font-serif font-light text-5xl md:text-7xl">Aarav <span className="italic">&</span> Amara</h1>
               <p className="mt-3 text-sm tracking-[0.25em] text-white/70">14 . 02 . 2027 — UDAIPUR</p>
               <div className="mt-8 animate-pulse rounded-full border border-white/40 px-8 py-3 text-[12px] tracking-[0.3em] backdrop-blur">TAP TO ENTER</div>
             </div>
@@ -63,14 +63,14 @@ export default function EternalDemo({ t }: { t: Template }) {
               initial={{ scale: 1.15 }}
               animate={{ scale: 1 }}
               transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
-              src="https://images.unsplash.com/photo-1595407753234-0882f1e77954?q=80&w=1600&auto=format&fit=crop"
+              src="/images/hero/cinematic_banner.jpg"
               alt="Venue"
               className="absolute inset-0 h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#141210] via-black/20 to-black/40" />
             <div className="relative h-full flex flex-col justify-end p-6 md:p-14">
               <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-[11px] tracking-[0.4em] text-[#E8D5A8]">TOGETHER WITH THEIR FAMILIES</motion.p>
-              <motion.h2 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="mt-3 font-serif font-light text-5xl md:text-8xl leading-none">Ayan <span className="italic text-[#E8D5A8]">&</span> Amara</motion.h2>
+              <motion.h2 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="mt-3 font-serif font-light text-5xl md:text-8xl leading-none">Aarav <span className="italic text-[#E8D5A8]">&</span> Amara</motion.h2>
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} className="mt-5 flex flex-wrap gap-3 text-sm">
                 <span className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 backdrop-blur px-4 py-2"><CalendarDays className="h-4 w-4" /> 14 Feb 2027</span>
                 <span className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 backdrop-blur px-4 py-2"><MapPin className="h-4 w-4" /> The Leela Palace, Udaipur</span>
