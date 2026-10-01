@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+<meta name="theme-color" content="#303A29" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>Aarav & Meera — Wedding Invitation | Mehfill.in</title>
+<meta name="description" content="A sage-green botanical wedding invitation — Aarav & Meera, 18 December 2026, The Garden Estate." />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="locked">
+
+<canvas id="petals" aria-hidden="true"></canvas>
+<canvas id="burst" aria-hidden="true"></canvas>
+<audio id="bg-music" src="Bol Kaffara Kya Hoga - Ek Deewane Ki Deewaniyat _ Harshvardhan_ Sonam _ Chetas_ Neha_ Farhan_ Lijo(MP3_160K).mp3" loop preload="auto"></audio>
+<div id="scroll-progress" aria-hidden="true"><span></span></div>
+
+<!-- ============ VIDEO COVER ============ -->
+<div id="cover">
+  <video id="cover-video" src="lv_0_20261001202511.mp4" playsinline webkit-playsinline preload="auto"></video>
+  <div class="cover-shade"></div>
+  <p class="cover-brand">MEHFILL.IN · BOTANICAL COLLECTION</p>
+  <div class="cover-names" id="cover-names">
+    <p class="cover-sub">We are getting married</p>
+    <h2 class="cover-couple"><span class="n1">Aarav</span><em>&</em><span class="n2">Meera</span></h2>
+    <div class="cover-orn" aria-hidden="true"><i></i><b>♡</b><i></i></div>
+    <p class="cover-date">18 · 12 · 2026</p>
+  </div>
+  <button id="open-btn" class="tag-hotspot" aria-label="Tap to open invitation">
+    <svg class="tag-shape" viewBox="0 0 200 280" aria-hidden="true"><path d="M100 8 C114 30 152 38 174 68 C192 92 188 118 186 140 C188 162 192 188 174 212 C152 242 114 250 100 272 C86 250 48 242 26 212 C8 188 12 162 14 140 C12 118 8 92 26 68 C48 38 86 30 100 8 Z"/></svg>
+  </button>
+  <div class="cover-progress"><span id="cover-bar"></span></div>
+  <p class="cover-scrollcue" id="cover-scrollcue"><span>Scroll down</span><i>↓</i></p>
+</div>
+
+<!-- music -->
+<button id="music-btn" aria-label="Toggle music" title="Music">
+  <span class="ring"></span>
+  <span class="icon" id="music-icon">♪</span>
+</button>
+<button id="top-btn" aria-label="Back to top">↑</button>
+
+<!-- ============ SITE ============ -->
+<main id="main">
+<div class="page">
+
+  <!-- REVEAL -->
+  <section class="sec reveal rv-blur center hero-reveal" id="reveal">
+    <p class="eyebrow">Together with their families</p>
+    <h1 class="couple-title"><span>Aarav</span><em>&</em><span>Meera</span></h1>
+    <p class="invite-line">invite you to celebrate<br/>their wedding</p>
+    <div class="orn-line"><i></i><b>♡</b><i></i></div>
+    <p class="reveal-date">18 December 2026</p>
+    <p class="reveal-sub">The Garden Estate · Mumbai</p>
+    <a href="#rsvp" class="btn-gold scroll-link">RSVP <span>→</span></a>
+  </section>
+
+  <!-- HERO -->
+  <section class="sec hero reveal rv-up" id="hero">
+    <div class="hero-bg" aria-hidden="true">
+      <svg class="hero-leaf hl1" viewBox="0 0 100 140"><path d="M50 5 C78 40 88 80 50 135 C12 80 22 40 50 5Z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M50 18 V122" stroke="currentColor" stroke-width="1"/></svg>
+      <svg class="hero-leaf hl2" viewBox="0 0 100 140"><path d="M50 5 C78 40 88 80 50 135 C12 80 22 40 50 5Z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M50 18 V122" stroke="currentColor" stroke-width="1"/></svg>
+      <svg class="hero-leaf hl3" viewBox="0 0 100 140"><path d="M50 5 C78 40 88 80 50 135 C12 80 22 40 50 5Z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M50 18 V122" stroke="currentColor" stroke-width="1"/></svg>
+      <div class="hero-sun"></div>
+    </div>
+    <p class="eyebrow light">A botanical celebration</p>
+    <h2 class="hero-quote">Two hearts.<br/><em>One beautiful beginning.</em></h2>
+    <p class="hero-names script">Aarav & Meera</p>
+    <p class="hero-date">18 · 12 · 2026</p>
+    <div class="hero-heart" aria-hidden="true"><span>♡</span></div>
+    <div class="hero-photo tilt">
+      <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80" alt="Aarav and Meera" loading="lazy" />
+      <span class="hero-photo-cap">our favourite hello</span>
+    </div>
+  </section>
+
+  <!-- SCRATCH -->
+  <section class="sec reveal rv-zoom center" id="scratch-sec">
+    <p class="eyebrow">Something hidden</p>
+    <h3 class="h-serif">Our Date</h3>
+    <p class="muted">Something beautiful<br/>is waiting to be revealed.</p>
+    <div class="scratch-wrap">
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+          <clipPath id="scratchHeartClip" clipPathUnits="objectBoundingBox">
+            <path d="M 0.5 0.92 C 0.28 0.75 0.05 0.58 0.05 0.35 C 0.05 0.18 0.18 0.08 0.32 0.08 C 0.41 0.08 0.48 0.13 0.5 0.2 C 0.52 0.13 0.59 0.08 0.68 0.08 C 0.82 0.08 0.95 0.18 0.95 0.35 C 0.95 0.58 0.72 0.75 0.5 0.92 Z"/>
+          </clipPath>
+        </defs>
+      </svg>
+      <div class="scratch-heart-border">
+      <div class="scratch-card" id="scratch-card">
+        <div class="scratch-reveal">
+          <p class="sr-num">18</p>
+          <p class="sr-month">December</p>
+          <p class="sr-year">2026</p>
+          <div class="sr-orn"><i></i><b id="sr-heart">♡</b><i></i></div>
+          <p class="sr-friday">Friday · 7 PM</p>
+        </div>
+        <canvas id="scratch-canvas"></canvas>
+        <svg class="scratch-heart-line" viewBox="0 0 200 190" preserveAspectRatio="none" aria-hidden="true"><path d="M100 172 C40 125 8 92 8 60 C8 30 30 12 56 12 C74 12 92 22 100 40 C108 22 126 12 144 12 C170 12 192 30 192 60 C192 92 160 125 100 172 Z"/></svg>
+        <p class="scratch-hint" id="scratch-hint">✦ &nbsp;swipe to reveal&nbsp; ✦</p>
+      </div>
+      </div>
+      <div class="scratch-row">
+        <div class="scratch-progress"><span id="scratch-bar"></span></div>
+        <button class="link-btn" id="scratch-reset" type="button">Reset</button>
+      </div>
+      <p class="scratch-done" id="scratch-done" hidden>Save the date <b>♡</b></p>
+    </div>
+  </section>
+
+  <!-- LOVE STORY HEART -->
+  <section class="sec reveal rv-up center" id="story-photo">
+    <p class="eyebrow">Our love story</p>
+    <h3 class="h-serif">Our Beautiful Beginning</h3>
+    <figure class="story-photo tilt">
+      <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" alt="Aarav and Meera celebrating" loading="lazy" />
+      <figcaption class="story-photo-cap">sealed with love ♡</figcaption>
+    </figure>
+    <p class="quote">“Some moments become memories.<br/>Some memories become forever.”</p>
+    <div class="couple-mini">
+      <div><b>Aarav</b><small>Son of Mr. Rajan & Mrs. Lata Sharma</small></div>
+      <span class="amp">♡</span>
+      <div><b>Meera</b><small>Daughter of Mr. Vikram & Mrs. Anita Rao</small></div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="sec" id="story">
+    <p class="eyebrow center">How we got here</p>
+    <h3 class="h-serif center">Our Story</h3>
+    <div class="timeline" id="timeline">
+      <span class="t-line"><span class="t-fill" id="t-fill"></span></span>
+      <div class="t-item reveal rv-left">
+        <span class="t-dot"><i>♡</i></span>
+        <div class="t-card"><b>2019</b><h4>The First Hello</h4><p>A borrowed book, a coffee shop, and a conversation that never really ended.</p></div>
+      </div>
+      <div class="t-item reveal rv-right">
+        <span class="t-dot"><i>♡</i></span>
+        <div class="t-card"><b>2021</b><h4>The First Date</h4><p>Monsoon rain, one umbrella, and two hearts walking a little too slowly home.</p></div>
+      </div>
+      <div class="t-item reveal rv-left">
+        <span class="t-dot"><i>♡</i></span>
+        <div class="t-card"><b>2024</b><h4>The Question</h4><p>Under fairy lights in the garden — one knee, one ring, one happy yes.</p></div>
+      </div>
+      <div class="t-item reveal rv-right">
+        <span class="t-dot gold"><i>♡</i></span>
+        <div class="t-card highlight"><b>2026</b><h4>Our Forever</h4><p>And now, with all our favourite people — we say forever.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section class="sec" id="events">
+    <p class="eyebrow center">Join us for</p>
+    <h3 class="h-serif center">The Celebration</h3>
+    <div class="events">
+      <article class="ev-card reveal rv-up">
+        <span class="ev-corner tl"></span><span class="ev-corner tr"></span><span class="ev-corner bl"></span><span class="ev-corner br"></span>
+        <p class="ev-tag">Day One</p>
+        <h4>Mehendi</h4>
+        <p class="ev-date">17 December · 11:00 AM</p>
+        <p class="ev-venue">Sangeet Garden</p>
+        <p class="ev-note">Colours, marigolds & music under the trees.</p>
+        <a class="ev-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Sangeet+Garden+Mumbai">View map <span>→</span></a>
+      </article>
+      <article class="ev-card main reveal rv-pop">
+        <span class="ev-corner tl"></span><span class="ev-corner tr"></span><span class="ev-corner bl"></span><span class="ev-corner br"></span>
+        <span class="ev-star">★ Main</span>
+        <p class="ev-tag">Day Two</p>
+        <h4>Wedding</h4>
+        <p class="ev-date">18 December · 7:00 PM</p>
+        <p class="ev-venue">The Garden Estate</p>
+        <p class="ev-note">Vows beneath the jasmine arch at golden hour.</p>
+        <a class="ev-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=The+Garden+Estate+Mumbai">View map <span>→</span></a>
+      </article>
+      <article class="ev-card reveal rv-up">
+        <span class="ev-corner tl"></span><span class="ev-corner tr"></span><span class="ev-corner bl"></span><span class="ev-corner br"></span>
+        <p class="ev-tag">Day Three</p>
+        <h4>Reception</h4>
+        <p class="ev-date">19 December · 8:00 PM</p>
+        <p class="ev-venue">The Grand Hall</p>
+        <p class="ev-note">Dinner, dancing & a night to remember.</p>
+        <a class="ev-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Grand+Hall+Mumbai">View map <span>→</span></a>
+      </article>
+    </div>
+  </section>
+
+  <!-- COUNTDOWN -->
+  <section class="sec reveal rv-up center" id="countdown-sec">
+    <p class="eyebrow">Until we say forever</p>
+    <h3 class="h-serif">Counting Down to Forever</h3>
+    <div class="count" id="count">
+      <div class="cd"><span id="cd-d">00</span><label>Days</label></div>
+      <div class="cdot">·</div>
+      <div class="cd"><span id="cd-h">00</span><label>Hours</label></div>
+      <div class="cdot">·</div>
+      <div class="cd"><span id="cd-m">00</span><label>Minutes</label></div>
+      <div class="cdot">·</div>
+      <div class="cd"><span id="cd-s">00</span><label>Seconds</label></div>
+    </div>
+    <p class="cd-note" id="cd-note"></p>
+    <a class="btn-line" target="_blank" rel="noopener" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Aarav+%26+Meera+Wedding&dates=20261218T133000Z/20261218T180000Z&details=Wedding+at+The+Garden+Estate,+Mumbai&location=The+Garden+Estate,+Mumbai">Add to calendar <span>→</span></a>
+  </section>
+
+  <!-- VENUE -->
+  <section class="sec reveal rv-pop" id="venue">
+    <div class="venue-card">
+      <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1000&q=80" alt="The Garden Estate" loading="lazy" />
+      <div class="venue-shade"></div>
+      <div class="venue-info">
+        <p class="eyebrow light">The venue</p>
+        <h3>The Garden Estate</h3>
+        <p>Where our forever begins.</p>
+        <a class="btn-cream" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=The+Garden+Estate+Mumbai"><span class="pin">⌖</span> View Location <span>→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="sec" id="gallery">
+    <p class="eyebrow center">Moments</p>
+    <h3 class="h-serif center">Gallery</h3>
+    <div class="gal">
+      <figure class="g-hero reveal rv-zoom"><img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?auto=format&fit=crop&w=1000&q=80" alt="wedding" loading="lazy"/><figcaption>together, always</figcaption></figure>
+      <figure class="reveal rv-left"><img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&q=80" alt="rings" loading="lazy"/><figcaption>the promise</figcaption></figure>
+      <figure class="reveal rv-right overlap"><img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=600&q=80" alt="hands" loading="lazy"/><figcaption>hand in hand</figcaption></figure>
+      <figure class="reveal rv-zoom"><img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=600&q=80" alt="bride" loading="lazy"/><figcaption>her morning</figcaption></figure>
+      <figure class="reveal rv-zoom"><img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=600&q=80" alt="couple" loading="lazy"/><figcaption>golden hour</figcaption></figure>
+    </div>
+    <p class="muted small center">Tap any photo to view</p>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="sec quote-sec reveal rv-blur center" id="quote">
+    <div class="q-leaves" aria-hidden="true"><i>❧</i><i>❧</i><i>❧</i></div>
+    <p class="q-text">“And suddenly,<br/>all the little moments<br/>led to this one.”</p>
+    <p class="q-names script">Aarav & Meera</p>
+  </section>
+
+  <!-- RSVP -->
+  <section class="sec reveal rv-right" id="rsvp">
+    <p class="eyebrow center">One last thing</p>
+    <h3 class="h-serif center">We'd Love to<br/>Celebrate With You</h3>
+    <form id="rsvp-form" class="form" novalidate>
+      <label for="f-name">Your Name *</label>
+      <input id="f-name" type="text" placeholder="Your beautiful name" autocomplete="name" />
+      <div class="two">
+        <div>
+          <label>Number of Guests *</label>
+          <div class="stepper">
+            <button type="button" id="g-minus" aria-label="less">−</button>
+            <span id="g-val">1</span>
+            <button type="button" id="g-plus" aria-label="more">+</button>
+          </div>
+        </div>
+        <div>
+          <label>Will you be joining us? *</label>
+          <div class="pills" id="attend-pills">
+            <button type="button" data-v="yes">Yes, I'll be there ♡</button>
+            <button type="button" data-v="no">Can't make it</button>
+          </div>
+        </div>
+      </div>
+      <label for="f-msg">Message</label>
+      <textarea id="f-msg" rows="3" placeholder="Blessings, wishes, song requests..."></textarea>
+      <button type="submit" class="btn-gold full">Send RSVP</button>
+      <p class="rsvp-note" id="rsvp-note" hidden></p>
+    </form>
+  </section>
+
+  <footer class="foot center reveal rv-up">
+    <div class="orn-line"><i></i><b>♡</b><i></i></div>
+    <p class="script foot-names">Aarav & Meera</p>
+    <p class="muted small">18 December 2026 · The Garden Estate, Mumbai</p>
+    <p class="credit">Crafted with love by <a href="https://mehfill.in" target="_blank" rel="noopener">mehfill.in</a></p>
+  </footer>
+
+</div>
+</main>
+
+<div id="lightbox" hidden>
+  <button id="lb-prev" aria-label="Previous">‹</button>
+  <img id="lb-img" alt="photo" />
+  <button id="lb-next" aria-label="Next">›</button>
+  <button id="lb-x" aria-label="Close">×</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

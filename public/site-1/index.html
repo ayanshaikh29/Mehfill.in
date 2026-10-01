@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Hamza &amp; Maryam — Nikah Invitation | دعوتِ نکاح</title>
+<meta name="description" content="You're invited — Nikah of Hamza Ahmed & Maryam Khan, August 31, 2026, Grand Palace Hall, London." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Montserrat:wght@300;400;500;600&family=Amiri:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="no-scroll">
+
+<!-- Floating petals canvas -->
+<canvas id="petals"></canvas>
+
+<!-- Background nasheed (local MP3) -->
+<audio id="bg-music" loop preload="auto">
+  <source src="nasheed.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Language toggle -->
+<div id="lang-toggle" role="group" aria-label="Language / زبان">
+  <button type="button" data-lang="en" class="active">EN</button>
+  <button type="button" data-lang="ur">اردو</button>
+</div>
+
+<!-- Floating audio toggle -->
+<button id="music-toggle" aria-label="Toggle music" title="Play / Pause music">
+  <span id="music-icon">♪</span>
+</button>
+
+<!-- ================= CINEMATIC INTRO ================= -->
+<div id="cine">
+
+  <!-- Cinematic journey video: first frame = closed door, visible immediately -->
+  <video id="journey" src="cinematic.mp4" muted playsinline preload="auto"></video>
+  <div class="cine-grade"></div>
+
+  <!-- Cinematic vignette -->
+  <div class="cine-vignette"></div>
+
+  <!-- Phase 1: YOU'RE INVITED -->
+  <div class="cine-invite" id="cine-invite">
+    <p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+    <p class="invite-eyebrow" data-en="Together with their families" data-ur="اپنے خاندانوں کی دعاؤں کے ساتھ">Together with their families</p>
+    <h1 class="invite-title"><span data-en="You're" data-ur="آپ کو">You're</span><span data-en="Invited" data-ur="دعوت ہے">Invited</span></h1>
+    <div class="invite-rule"><i></i><b>❦</b><i></i></div>
+    <p class="invite-names"><span data-en="Hamza" data-ur="حمزہ">Hamza</span> &nbsp;·&nbsp; <span data-en="Maryam" data-ur="مریم">Maryam</span></p>
+    <button id="open-btn" class="tap-btn">
+      <span class="tap-ring"></span>
+      <span class="tap-ring delay"></span>
+      <span data-en="Tap to Open" data-ur="کھولنے کے لیے دبائیں">Tap to Open</span>
+    </button>
+  </div>
+
+  <!-- Phase 2: Couple names over the video -->
+  <div class="cine-names" id="cine-names">
+    <p class="names-eyebrow" data-en="The Wedding Celebration Of" data-ur="جشنِ نکاح">The Wedding Celebration Of</p>
+    <h2 class="names-script"><span data-en="Hamza" data-ur="حمزہ">Hamza</span><span class="amp-line" data-en="&amp;" data-ur="و">&amp;</span><span data-en="Maryam" data-ur="مریم">Maryam</span></h2>
+    <div class="invite-rule"><i></i><b>❦</b><i></i></div>
+    <p class="names-date" data-en="31 · 08 · 2026 &nbsp;&nbsp;—&nbsp;&nbsp; London" data-ur="31 · 08 · 2026 &nbsp;&nbsp;—&nbsp;&nbsp; لندن">31 · 08 · 2026 &nbsp;&nbsp;—&nbsp;&nbsp; London</p>
+    <button id="enter-btn" class="tap-btn small"><span data-en="Swipe Up to Reveal ↓" data-ur="اوپر سوائپ کریں ↓">Swipe Up to Reveal ↓</span></button>
+  </div>
+
+</div>
+
+<!-- ================= MAIN STORY (scroll) ================= -->
+<main id="main-content" class="locked">
+<div class="page">
+
+  <!-- 0 · ASSALAM GREETING -->
+  <section class="section reveal assalam">
+    <p class="assalam-ar">اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</p>
+    <p class="assalam-t" data-en="With the blessings of Allah (SWT) and the love of our families, we invite you to our Nikah." data-ur="اللہ تعالیٰ کی رحمت اور اپنے خاندانوں کی محبت کے ساتھ، ہم آپ کو اپنے نکاح میں شرکت کی دعوت دیتے ہیں۔">With the blessings of Allah (SWT) and the love of our families, we invite you to our Nikah.</p>
+  </section>
+
+  <!-- 1 · SCRATCH OF LOVE -->
+  <section class="section reveal">
+    <p class="eyebrow" data-en="A hidden surprise" data-ur="ایک چھپی ہوئی خوشی">A hidden surprise</p>
+    <h3 class="section-title" data-en="Scratch of Love" data-ur="محبت کا اسکریچ">Scratch of Love</h3>
+    <p class="section-sub" data-en="Gently scratch the card to reveal our date 💝" data-ur="ہماری تاریخ دیکھنے کے لیے نرمی سے کھرچیں 💝">Gently scratch the card to reveal our date 💝</p>
+    <div class="scratch-wrap">
+      <div class="scratch-card">
+        <div class="scratch-reveal">
+          <p class="reveal-label" data-en="Save the Date" data-ur="تاریخ یاد رکھیں">Save the Date</p>
+          <h4 class="reveal-date" data-en="August 31, 2026" data-ur="31 اگست 2026">August 31, 2026</h4>
+          <p class="reveal-day" data-en="Monday · 10:30 AM" data-ur="پیر · صبح 10:30 بجے">Monday · 10:30 AM</p>
+          <p class="reveal-venue" data-en="Grand Palace Hall, London" data-ur="گرینڈ پیلس ہال، لندن">Grand Palace Hall, London</p>
+        </div>
+        <canvas id="scratch-canvas"></canvas>
+        <p class="scratch-hint" id="scratch-hint" data-en="💝 Scratch to Reveal 💝" data-ur="💝 کھرچ کر دیکھیں 💝">💝 Scratch to Reveal 💝</p>
+      </div>
+      <button id="scratch-reset" class="ghost-btn" type="button"><span data-en="Reset card" data-ur="دوبارہ بنائیں">Reset card</span></button>
+      <div class="scratch-progress"><div id="scratch-bar"></div></div>
+    </div>
+  </section>
+
+  <!-- 2 · WEDDING DATE -->
+  <section class="section reveal">
+    <p class="eyebrow" data-en="Save the Date" data-ur="تاریخ یاد رکھیں">Save the Date</p>
+    <h3 class="section-title" data-en="Wedding Date" data-ur="تاریخِ شادی">Wedding Date</h3>
+    <div class="date-card">
+      <div class="countdown">
+        <div class="time-box"><span id="cd-days">00</span><label data-en="Days" data-ur="دن">Days</label></div>
+        <div class="colon">:</div>
+        <div class="time-box"><span id="cd-hours">00</span><label data-en="Hours" data-ur="گھنٹے">Hours</label></div>
+        <div class="colon">:</div>
+        <div class="time-box"><span id="cd-mins">00</span><label data-en="Minutes" data-ur="منٹ">Minutes</label></div>
+        <div class="colon">:</div>
+        <div class="time-box"><span id="cd-secs">00</span><label data-en="Seconds" data-ur="سیکنڈ">Seconds</label></div>
+      </div>
+      <p id="countdown-note" class="countdown-note"></p>
+    </div>
+  </section>
+
+  <!-- 3 · VENUE -->
+  <section class="section reveal">
+    <p class="eyebrow" data-en="Where we gather" data-ur="جہاں ہم جمع ہوں گے">Where we gather</p>
+    <h3 class="section-title" data-en="Venue" data-ur="مقامِ تقریب">Venue</h3>
+    <div class="venue-hero">
+      <h4 data-en="Grand Palace Hall" data-ur="گرینڈ پیلس ہال">Grand Palace Hall</h4>
+      <p data-en="City Centre, London" data-ur="سٹی سینٹر، لندن">City Centre, London</p>
+    </div>
+  </section>
+
+  <!-- 4 · WEDDING EVENTS -->
+  <section class="section reveal">
+    <p class="eyebrow" data-en="Three days of joy" data-ur="خوشی کے تین دن">Three days of joy</p>
+    <h3 class="section-title" data-en="Wedding Events" data-ur="تقریبات">Wedding Events</h3>
+    <div class="events">
+      <article class="event-card">
+        <div class="event-emoji">🌿</div>
+        <h4 data-en="Mehendi" data-ur="مہندی">Mehendi</h4>
+        <p class="event-when" data-en="Sat, Aug 29, 2026 · 4:00 PM" data-ur="ہفتہ، 29 اگست 2026 · شام 4:00 بجے">Sat, Aug 29, 2026 · 4:00 PM</p>
+        <p data-en="An evening of henna, music and laughter with our closest family and friends." data-ur="اپنے قریبی خاندان اور دوستوں کے ساتھ مہندی، موسیقی اور خوشیوں بھری ایک شام۔">An evening of henna, music and laughter with our closest family and friends.</p>
+      </article>
+      <article class="event-card featured">
+        <div class="event-ribbon" data-en="Main Event" data-ur="اہم تقریب">Main Event</div>
+        <div class="event-emoji">💍</div>
+        <h4 data-en="Nikah · Wedding" data-ur="نکاح · شادی">Nikah · Wedding</h4>
+        <p class="event-when" data-en="Mon, Aug 31, 2026 · 10:30 AM" data-ur="پیر، 31 اگست 2026 · صبح 10:30 بجے">Mon, Aug 31, 2026 · 10:30 AM</p>
+        <p data-en="Sacred Nikah and ring exchange at Grand Palace Hall, followed by duas and blessings." data-ur="گرینڈ پیلس ہال میں مقدس نکاح اور انگوٹھیوں کا تبادلہ، پھر دعائیں اور نیک تمنائیں۔">Sacred Nikah and ring exchange at Grand Palace Hall, followed by duas and blessings.</p>
+      </article>
+      <article class="event-card">
+        <div class="event-emoji">🥂</div>
+        <h4 data-en="Walima · Reception" data-ur="ولیمہ">Walima · Reception</h4>
+        <p class="event-when" data-en="Wed, Sep 2, 2026 · 7:30 PM" data-ur="بدھ، 2 ستمبر 2026 · شام 7:30 بجے">Wed, Sep 2, 2026 · 7:30 PM</p>
+        <p data-en="Dinner and celebration under the stars — duas, toasts and memories." data-ur="ستاروں تلے کھانا اور جشن — دعائیں اور یادیں۔">Dinner and celebration under the stars — duas, toasts and memories.</p>
+      </article>
+    </div>
+    <div class="dress-strip" data-en="👗 Dress code — <b>modest festive wear</b> in blush, emerald &amp; gold 🤵" data-ur="👗 لباس — <b>شائستہ عیدانہ لباس</b>، بلش، زمردی اور سنہرے رنگ 🤵">👗 Dress code — <b>modest festive wear</b> in blush, emerald &amp; gold 🤵</div>
+  </section>
+
+  <!-- 5 · COUPLE -->
+  <section class="section reveal">
+    <p class="eyebrow" data-en="The happy couple" data-ur="دلہا دلہن">The happy couple</p>
+    <h3 class="section-title" data-en="Hamza &amp; Maryam" data-ur="حمزہ و مریم">Hamza &amp; Maryam</h3>
+    <div class="slider" id="slider">
+      <div class="slides" id="slides">
+        <figure class="slide active">
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80" alt="Wedding couple" loading="lazy">
+          <figcaption data-en="Where it all began 💕" data-ur="جہاں سب شروع ہوا 💕">Where it all began 💕</figcaption>
+        </figure>
+        <figure class="slide">
+          <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=900&q=80" alt="Wedding celebration" loading="lazy">
+          <figcaption data-en="Every love story is beautiful 🌸" data-ur="ہر محبت کی کہانی خوبصورت ہے 🌸">Every love story is beautiful 🌸</figcaption>
+        </figure>
+        <figure class="slide">
+          <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=900&q=80" alt="Ring exchange" loading="lazy">
+          <figcaption data-en="Sealed with a promise 💍" data-ur="وعدے کے ساتھ مہر 💍">Sealed with a promise 💍</figcaption>
+        </figure>
+        <figure class="slide">
+          <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=900&q=80" alt="Together forever" loading="lazy">
+          <figcaption data-en="Forever starts here ✨" data-ur="ہمیشہ یہیں سے شروع ہوتا ہے ✨">Forever starts here ✨</figcaption>
+        </figure>
+      </div>
+      <button class="slide-arrow prev" id="slide-prev" aria-label="Previous photo">‹</button>
+      <button class="slide-arrow next" id="slide-next" aria-label="Next photo">›</button>
+      <div class="slide-dots" id="slide-dots"></div>
+    </div>
+    <div class="couple-lines">
+      <p data-en="<b>Hamza Ahmed</b> — Son of Mr. &amp; Mrs. Ahmed · Software Engineer" data-ur="<b>حمزہ احمد</b> — فرزند مسٹر و مسز احمد · سوفٹ ویئر انجینئر"><b>Hamza Ahmed</b> — Son of Mr. &amp; Mrs. Ahmed · Software Engineer</p>
+      <p class="amp">❤</p>
+      <p data-en="<b>Maryam Khan</b> — Daughter of Mr. &amp; Mrs. Khan · Chartered Accountant" data-ur="<b>مریم خان</b> — دختر مسٹر و مسز خان · چارٹرڈ اکاؤنٹنٹ"><b>Maryam Khan</b> — Daughter of Mr. &amp; Mrs. Khan · Chartered Accountant</p>
+    </div>
+    <p class="quote" data-en="“Two souls united under Allah's blessings — thank you for being part of our dua.”" data-ur="“اللہ کی رحمت سے دو روحوں کا ملن — ہماری دعا کا حصہ بننے کا شکریہ۔”">“Two souls united under Allah's blessings — thank you for being part of our dua.”</p>
+  </section>
+
+  <!-- 6 · LOCATION -->
+  <section class="section reveal">
+    <p class="eyebrow" data-en="Find your way" data-ur="راستہ معلوم کریں">Find your way</p>
+    <h3 class="section-title" data-en="Location" data-ur="پتہ">Location</h3>
+    <div class="venue-card">
+      <div class="map-wrap">
+        <iframe title="Grand Palace Hall Map"
+          src="https://www.google.com/maps?q=City+Centre+London&output=embed"
+          loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      </div>
+      <a class="ocean-btn" target="_blank" rel="noopener"
+         href="https://www.google.com/maps/search/?api=1&query=Grand+Palace+Hall+City+Centre+London"><span data-en="📍 View Location" data-ur="📍 مقام دیکھیں">📍 View Location</span></a>
+    </div>
+  </section>
+
+  <!-- 7 · FINAL + RSVP -->
+  <section class="section reveal">
+    <p class="eyebrow" data-en="One last thing" data-ur="ایک آخری بات">One last thing</p>
+    <h3 class="names-script sm" data-en="We can't wait<br>to celebrate with you" data-ur="آپ کے ساتھ خوشی منانے<br>کے منتظر ہیں">We can't wait<br>to celebrate with you</h3>
+    <form id="rsvp-form" class="rsvp-form" novalidate>
+      <div class="form-group">
+        <label for="f-name" data-en="Full Name *" data-ur="پورا نام *">Full Name *</label>
+        <input id="f-name" type="text" data-en-ph="Your beautiful name" data-ur-ph="آپ کا خوبصورت نام" placeholder="Your beautiful name" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-attend" data-en="Will you attend? *" data-ur="کیا آپ شرکت کریں گے؟ *">Will you attend? *</label>
+          <select id="f-attend" class="native-hidden" aria-hidden="true" tabindex="-1">
+            <option value="" data-en="— Select —" data-ur="— منتخب کریں —">— Select —</option>
+            <option value="yes" data-en="Yes, I'll be there! 🎉" data-ur="جی ہاں، میں ضرور آؤں گا! 🎉">Yes, I'll be there! 🎉</option>
+            <option value="no" data-en="Sorry, can't make it 💌" data-ur="معذرت، نہیں آسکوں گا 💌">Sorry, can't make it 💌</option>
+          </select>
+          <div class="custom-select" id="attend-select">
+            <button type="button" class="cs-btn" aria-haspopup="listbox" aria-expanded="false">
+              <span class="cs-value">— Select —</span>
+              <span class="cs-arrow">▾</span>
+            </button>
+            <ul class="cs-list" role="listbox" hidden></ul>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="f-guests" data-en="Guests *" data-ur="مہمان *">Guests *</label>
+          <input id="f-guests" type="number" min="1" max="10" value="1" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="f-msg" data-en="Message &amp; duas" data-ur="پیغام و دعائیں">Message &amp; duas</label>
+        <textarea id="f-msg" rows="3" data-en-ph="Blessings, duas, wishes..." data-ur-ph="دعائیں، نیک تمنائیں..." placeholder="Blessings, duas, wishes..."></textarea>
+      </div>
+      <button type="submit" class="ocean-btn full"><span data-en="Send RSVP 💕" data-ur="جواب بھیجیں 💕">Send RSVP 💕</span></button>
+    </form>
+  </section>
+
+  <footer class="footer">
+    <div class="invite-rule dark"><i></i><b>❦</b><i></i></div>
+    <p class="footer-script">Hamza &amp; Maryam</p>
+    <p data-en="August 31, 2026 · Grand Palace Hall, London" data-ur="31 اگست 2026 · گرینڈ پیلس ہال، لندن">August 31, 2026 · Grand Palace Hall, London</p>
+    <p class="credit">Designed with 🤍 by <a href="https://www.instagram.com/build_with_ayan29?stkn=angyampkam5xcDIz" target="_blank" rel="noopener">Ayan Shaikh</a></p>
+  </footer>
+
+</div>
+</main>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

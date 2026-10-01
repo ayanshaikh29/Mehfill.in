@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Aarav &amp; Meera — Wedding Invitation | Mehfill.in</title>
+<meta name="description" content="Together with their families, Aarav & Meera invite you to celebrate their wedding — 18 December 2026." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@300;400;500&family=DM+Sans:wght@400;500&family=Great+Vibes&display=swap" rel="stylesheet" />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="scrollProgress" aria-hidden="true"><span id="scrollBar"></span></div>
+<canvas id="leafCanvas" aria-hidden="true"></canvas>
+<div class="vine left" aria-hidden="true"></div>
+<div class="vine right" aria-hidden="true"></div>
+
+<!-- ============ VIDEO COVER ============ -->
+<audio id="bgMusic" src="Tenu Leke (Full Song) _ Salaam-E-Ishq _ Salman Khan_ Rimi Sen_ Priyanka Chopra(MP3_160K).mp3" loop preload="auto"></audio>
+<div id="cover" aria-modal="true" role="dialog" aria-label="Open invitation">
+  <video id="coverVideo" src="lv_0_20261001223204.mp4" playsinline webkit-playsinline preload="auto"></video>
+  <div class="cover-shade"></div>
+  <p class="cover-brand">MEHFILL.IN · BOTANICAL COLLECTION</p>
+  <button id="openBtn" aria-label="Tap to open invitation">
+    <span class="tap-halo"></span>
+    <span class="tap-halo h2"></span>
+    <span class="tap-core">A&nbsp;|&nbsp;M</span>
+  </button>
+  <p class="cover-taptext" id="coverTapText">Tap to open<i>↓</i></p>
+  <div class="cover-names" id="coverNames">
+    <p class="cover-sub">We are getting married</p>
+    <h2 class="cover-couple"><span>Aarav</span><em>&amp;</em><span>Meera</span></h2>
+    <div class="cover-orn" aria-hidden="true"><i></i><b>♡</b><i></i></div>
+    <p class="cover-date">18 · 12 · 2026</p>
+  </div>
+  <button id="coverSkip" hidden>Skip →</button>
+  <div class="cover-progress"><span id="coverBar"></span></div>
+</div>
+
+<!-- floating ui -->
+<button id="musicBtn" aria-label="Play music" title="Music">♪</button>
+<button id="menuBtn" aria-label="Open menu"><span></span><span></span></button>
+<button id="topBtn" aria-label="Back to top">↑</button>
+<nav id="floatMenu" aria-label="Sections">
+  <a href="#story">Story</a><i>·</i>
+  <a href="#events">Events</a><i>·</i>
+  <a href="#gallery">Gallery</a><i>·</i>
+  <a href="#rsvp">RSVP</a>
+</nav>
+
+<main id="site">
+
+  <!-- HERO -->
+  <header class="hero" id="top">
+    <img class="hero-flower hf1" src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=500&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <img class="hero-flower hf2" src="https://images.unsplash.com/photo-1520763185298-1b434c919102?q=80&w=500&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <img class="garland" src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=700&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <div class="hero-inner reveal rv-blur">
+      <p class="label-xs">Together with their families</p>
+      <div class="hero-arch" id="heroArch">
+        <img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?q=80&w=900&auto=format&fit=crop" alt="Aarav and Meera" />
+        <span class="hero-arch-cap">our favourite hello</span>
+      </div>
+      <div class="hero-mono">A <span>|</span> M</div>
+      <h1 class="hero-names">Aarav <em>&amp;</em> Meera</h1>
+      <p class="script-line">invite you to celebrate their wedding</p>
+      <div class="rule"><span></span><i>♡</i><span></span></div>
+      <p class="hero-date">18 December 2026 · Mumbai</p>
+      <div class="hero-links">
+        <a href="#rsvp">RSVP <span>→</span></a>
+        <a href="#story">Our story <span>→</span></a>
+      </div>
+    </div>
+    <div class="scroll-cue"><span>Scroll</span><div class="scroll-line"><div class="scroll-fill" id="scrollFill"></div></div></div>
+  </header>
+
+  <div class="strip" aria-hidden="true"><span>A · M</span><i>·</i><span>18 December 2026</span><i>·</i><span>The Garden Estate</span></div>
+  <div class="floral-div reveal rv-up" aria-hidden="true"><span></span><img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=200&auto=format&fit=crop" alt="" /><span></span></div>
+
+  <!-- STORY -->
+  <section class="section" id="story">
+    <img class="bloom tr" src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=300&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <div class="wrap slim">
+      <p class="label-xs reveal rv-up">Our story</p>
+      <h2 class="quote reveal rv-blur">“Some moments become memories.<br/>Some memories become <em>forever</em>.”</h2>
+      <div class="chapters">
+        <article class="chapter reveal rv-left">
+          <span class="ghost">01</span>
+          <div><p class="t-year">2019</p><h3>The First Hello</h3><p>A crowded bookshop, one shared shelf, and a conversation neither wanted to end.</p></div>
+        </article>
+        <article class="chapter reveal rv-right">
+          <span class="ghost">02</span>
+          <div><p class="t-year">2021</p><h3>The First Date</h3><p>Evening tea under eucalyptus trees — two hours felt like two minutes.</p></div>
+        </article>
+        <article class="chapter reveal rv-left">
+          <span class="ghost">03</span>
+          <div><p class="t-year">2024</p><h3>The Question</h3><p>On a quiet terrace at sunset, with a ring hidden in baby’s-breath.</p></div>
+        </article>
+        <article class="chapter reveal rv-right">
+          <span class="ghost">04</span>
+          <div><p class="t-year">2026</p><h3>Our Forever</h3><p>With the blessing of our families, we begin our greatest chapter.</p></div>
+        </article>
+      </div>
+      <div class="timeline" id="timeline" style="position:absolute;opacity:0;pointer-events:none;height:10px;overflow:hidden"><div class="t-line"><div class="t-progress" id="tProgress"></div></div></div>
+    </div>
+  </section>
+
+  <figure class="break reveal rv-zoom">
+    <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=1400&auto=format&fit=crop" alt="Wedding flowers" loading="lazy" />
+    <figcaption>eucalyptus · baby’s-breath · blush roses</figcaption>
+  </figure>
+
+  <!-- DATE — heart scratch -->
+  <section class="section" id="dateSection">
+    <img class="bloom tl" src="https://images.unsplash.com/photo-1494972308805-463bc619d34e?q=80&w=300&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <div class="wrap slim center">
+      <p class="label-xs reveal rv-up">Something hidden</p>
+      <h2 class="h2 reveal rv-up">Save the Date</h2>
+      <p class="caption reveal rv-up">Something beautiful<br/>is waiting to be revealed.</p>
+      <div class="scratch-heart-wrap reveal rv-zoom">
+        <div class="scratch-under scratch-under-heart">
+          <div class="big-day">18</div>
+          <div class="big-month">December</div>
+          <div class="big-year">2026</div>
+          <p class="save">Save the date ♡</p>
+        </div>
+        <canvas id="scratchCanvas"></canvas>
+        <div class="scratch-hint scratch-hint-heart" id="scratchHint">Scratch my heart</div>
+      </div>
+      <div class="scratch-meta reveal rv-up">
+        <div class="scratch-progress"><span id="scratchBar"></span></div>
+        <button class="link-btn" id="scratchReset" type="button">Reset</button>
+      </div>
+      <p class="scratch-done" id="scratchDone" hidden>Save the date <b>♡</b></p>
+    </div>
+  </section>
+
+  <!-- LOVE -->
+  <section class="section" id="love">
+    <img class="bloom tl sm" src="https://images.unsplash.com/photo-1520763185298-1b434c919102?q=80&w=300&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <img class="bloom br sm" src="https://images.unsplash.com/photo-1496062031456-07b8f162a322?q=80&w=300&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <div class="wrap slim center">
+      <p class="label-xs reveal rv-up">The two of us</p>
+      <h2 class="h2 reveal rv-up">Made for Each Other</h2>
+      <div class="heart-frame reveal rv-zoom" id="heartFrame">
+        <svg class="heart-outline" viewBox="0 0 200 180" fill="none"><path id="heartPath" d="M100 160 C 40 110, 10 80, 10 52 C 10 26, 30 12, 52 12 C 72 12, 92 26, 100 46 C 108 26, 128 12, 148 12 C 170 12, 190 26, 190 52 C 190 80, 160 110, 100 160 Z" stroke="#7C8668" stroke-width="1.2"/></svg>
+        <div class="heart-photo"><img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=1000&auto=format&fit=crop" alt="Aarav and Meera" loading="lazy" /></div>
+      </div>
+      <p class="quote sm reveal rv-blur">“And suddenly, all the little moments<br/>led to <em>this one</em>.”</p>
+      <div class="fam reveal rv-up">
+        <div><b>Aarav</b><small>Son of Mr. Rajan &amp; Mrs. Lata Sharma</small></div>
+        <span>♡</span>
+        <div><b>Meera</b><small>Daughter of Mr. Vikram &amp; Mrs. Anita Rao</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section class="section" id="events">
+    <img class="bloom tr" src="https://images.unsplash.com/photo-1496062031456-07b8f162a322?q=80&w=300&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <div class="wrap slim">
+      <p class="label-xs reveal rv-up">The celebration</p>
+      <h2 class="h2 reveal rv-up">Three Days of Love</h2>
+      <div class="elist">
+        <article class="erow reveal rv-left">
+          <div class="erow-date"><span>17</span><small>Dec · 11 AM</small></div>
+          <div class="erow-body"><h3>Mehendi</h3><p>An afternoon of colour &amp; laughter — The Courtyard Lawn</p><a target="_blank" rel="noopener" href="https://maps.google.com/?q=Garden+Estate+Mumbai">Location <span>→</span></a></div>
+        </article>
+        <article class="erow reveal rv-right">
+          <div class="erow-date"><span>18</span><small>Dec · 7 PM</small></div>
+          <div class="erow-body"><h3>The Wedding <em>✦</em></h3><p>Vows beneath the eucalyptus — The Garden Estate</p><a target="_blank" rel="noopener" href="https://maps.google.com/?q=Garden+Estate+Mumbai">Location <span>→</span></a></div>
+        </article>
+        <article class="erow reveal rv-left">
+          <div class="erow-date"><span>19</span><small>Dec · 8 PM</small></div>
+          <div class="erow-body"><h3>Reception</h3><p>Dinner, music &amp; dancing — The Glass Pavilion</p><a target="_blank" rel="noopener" href="https://maps.google.com/?q=Garden+Estate+Mumbai">Location <span>→</span></a></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="floral-div reveal rv-up" aria-hidden="true"><span></span><img src="https://images.unsplash.com/photo-1520763185298-1b434c919102?q=80&w=200&auto=format&fit=crop" alt="" /><span></span></div>
+
+  <!-- COUNTDOWN -->
+  <section class="section" id="countdown">
+    <div class="wrap slim center">
+      <p class="label-xs reveal rv-up">Counting down to forever</p>
+      <div class="cd reveal rv-zoom" role="timer" aria-live="off">
+        <div><span id="cdD">000</span><small>Days</small></div>
+        <div><span id="cdH">00</span><small>Hours</small></div>
+        <div><span id="cdM">00</span><small>Minutes</small></div>
+        <div><span id="cdS">00</span><small>Seconds</small></div>
+      </div>
+      <p class="caption reveal rv-up" id="cdNote"></p>
+      <div class="rule reveal rv-up"><span></span><i>♡</i><span></span></div>
+    </div>
+  </section>
+
+  <!-- VENUE -->
+  <section class="venue" id="venue">
+    <div class="venue-frame reveal rv-zoom">
+      <img class="venue-img" src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1400&auto=format&fit=crop" alt="The Garden Estate" loading="lazy" />
+      <span class="venue-cap">where our forever begins</span>
+    </div>
+    <div class="wrap slim center">
+      <p class="label-xs reveal rv-up">The venue</p>
+      <h2 class="h2 reveal rv-up">The Garden Estate</h2>
+      <p class="venue-sub reveal rv-up">Open lawns, jasmine air &amp; dinner under fairy lights.</p>
+      <p class="venue-city reveal rv-up">Palm Meadows · Mumbai</p>
+      <a class="btn-line reveal rv-up" target="_blank" rel="noopener" href="https://maps.google.com/?q=Garden+Estate+Mumbai">View location <span>→</span></a>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="section" id="gallery">
+    <img class="bloom tl" src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=300&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <div class="wrap">
+      <p class="label-xs reveal rv-up">Captured moments</p>
+      <h2 class="h2 reveal rv-up">Gallery</h2>
+      <div class="ed-grid">
+        <figure class="g g-large reveal rv-zoom"><img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?q=80&w=1200&auto=format&fit=crop" alt="The couple in soft light" loading="lazy" /><figcaption>together, always</figcaption></figure>
+        <figure class="g reveal rv-left"><img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=800&auto=format&fit=crop" alt="Laughing together" loading="lazy" /><figcaption>golden hour</figcaption></figure>
+        <figure class="g reveal rv-right"><img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=800&auto=format&fit=crop" alt="Hands with bouquet" loading="lazy" /><figcaption>the promise</figcaption></figure>
+        <figure class="g reveal rv-left"><img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=800&auto=format&fit=crop" alt="Bridal portrait" loading="lazy" /><figcaption>her morning</figcaption></figure>
+        <figure class="g reveal rv-right"><img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=1000&auto=format&fit=crop" alt="Wedding details" loading="lazy" /><figcaption>hand in hand</figcaption></figure>
+      </div>
+      <p class="caption reveal rv-up">tap any photo to view ♡</p>
+    </div>
+  </section>
+
+  <!-- RSVP -->
+  <section class="section" id="rsvp">
+    <img class="bloom br" src="https://images.unsplash.com/photo-1494972308805-463bc619d34e?q=80&w=300&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <div class="wrap slim center">
+      <p class="label-xs reveal rv-up">One last thing</p>
+      <h2 class="h2 reveal rv-up">Will you join us?</h2>
+      <form id="rsvpForm" class="rsvp reveal rv-up" novalidate>
+        <label>Your name<input type="text" name="name" placeholder="Full name" required autocomplete="name" /></label>
+        <label>Guests<input type="number" name="guests" min="1" max="10" value="1" required /></label>
+        <div class="rsvp-choice">
+          <label class="opt"><input type="radio" name="attend" value="yes" checked /><span>Joyfully accepts ♡</span></label>
+          <label class="opt"><input type="radio" name="attend" value="no" /><span>Regretfully declines</span></label>
+        </div>
+        <label>Message<textarea name="message" rows="2" placeholder="Blessings, wishes, song requests…"></textarea></label>
+        <button type="submit" class="btn-line">Send RSVP <span>→</span></button>
+      </form>
+      <div class="rsvp-done" id="rsvpDone" hidden>
+        <div class="done-heart">♡</div>
+        <p>Thank you for being<br/>part of our story.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="floral-div reveal rv-up" aria-hidden="true"><span></span><img src="https://images.unsplash.com/photo-1494972308805-463bc619d34e?q=80&w=200&auto=format&fit=crop" alt="" /><span></span></div>
+
+  <!-- FOOTER -->
+  <footer class="finale" id="finale">
+    <img class="bloom tl fin" src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=300&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <img class="bloom br fin" src="https://images.unsplash.com/photo-1494972308805-463bc619d34e?q=80&w=300&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <div class="finale-inner reveal rv-up">
+      <div class="rule light"><span></span><i>♡</i><span></span></div>
+      <p class="finale-script">Aarav &amp; Meera</p>
+      <div class="finale-mono">A <span>|</span> M</div>
+      <p class="finale-until">Until forever…</p>
+      <p class="finale-fam">Son of Mr. Rajan &amp; Mrs. Lata Sharma<br/>Daughter of Mr. Vikram &amp; Mrs. Anita Rao</p>
+      <p class="finale-date">18 · 12 · 2026 · The Garden Estate, Mumbai</p>
+      <nav class="finale-nav" aria-label="Footer">
+        <a href="#story">Story</a><i>·</i>
+        <a href="#events">Events</a><i>·</i>
+        <a href="#gallery">Gallery</a><i>·</i>
+        <a href="#rsvp">RSVP</a><i>·</i>
+        <a href="#top">Top ↑</a>
+      </nav>
+      <div class="rule light"><span></span><i>✦</i><span></span></div>
+      <p class="finale-made">Crafted with love by <a href="https://mehfill.in" target="_blank" rel="noopener">mehfill.in</a></p>
+    </div>
+  </footer>
+</main>
+
+<!-- lightbox -->
+<div id="lightbox" hidden aria-label="Photo viewer">
+  <button id="lbClose" aria-label="Close">✕</button>
+  <button id="lbPrev" aria-label="Previous">‹</button>
+  <img id="lbImg" src="" alt="Gallery photo" />
+  <button id="lbNext" aria-label="Next">›</button>
+</div>
+
+<div id="ribbonSweep" aria-hidden="true"></div>
+<div id="petalField" aria-hidden="true"></div>
+<canvas id="celebrate" aria-hidden="true"></canvas>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+<meta name="theme-color" content="#fcd9dd" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>Arham & Zoya — Nikah Invitation</title>
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<meta name="description" content="Baby-pink digital Nikah invitation — Arham & Zoya, Dec 28 2026, Lakeview Rose Lawns Hyderabad." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500;600&family=Amiri:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="locked">
+
+<!-- ambient layers -->
+<canvas id="petals"></canvas>
+<canvas id="confetti"></canvas>
+<div class="orbs" aria-hidden="true"><i class="o1"></i><i class="o2"></i><i class="o3"></i><i class="o4"></i></div>
+<div id="scroll-progress" aria-hidden="true"><span></span></div>
+<div id="hearts-layer" aria-hidden="true"></div>
+
+<!-- Background song -->
+<audio id="bg-music" src="bg-music.mp3" loop preload="auto" playsinline></audio>
+
+<!-- PRELOADER : simple elegant, no percentage -->
+<div id="preloader">
+  <div class="pre-inner">
+    <div class="pre-ring"><span>A</span><em>&</em><span>Z</span></div>
+    <p class="pre-bis">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+    <p class="pre-names script">Arham & Zoya</p>
+    <div class="pre-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+  </div>
+</div>
+
+<!-- Floating controls -->
+<div id="lang-toggle" role="group" aria-label="Language">
+  <button type="button" data-lang="en" class="active">EN</button>
+  <button type="button" data-lang="ur">اردو</button>
+</div>
+<button id="music-toggle" aria-label="Toggle music" title="Music"><span class="eq"><i></i><i></i><i></i></span><span class="note">♪</span></button>
+<button id="top-btn" aria-label="Back to top">↑</button>
+
+<!-- COVER : video + tap to open -->
+<div id="cover">
+  <video id="cover-video" src="39f2b862-3c40-4365-a964-38f259baf71e.mp4" playsinline webkit-playsinline preload="auto" muted></video>
+  <div class="cover-shade"></div>
+  <div class="cover-names-veil" id="cover-names">
+    <p class="cover-bis">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+    <p class="cover-eyebrow" data-en="Together with their families" data-ur="اپنے خاندانوں کی دعاؤں کے ساتھ">Together with their families</p>
+    <div class="cover-swap">
+      <div class="cover-state-invite">
+        <h2 class="cover-title-big"><span data-en="You're Invited" data-ur="آپ کو دعوت ہے">You're Invited</span></h2>
+        <div class="cover-orn" aria-hidden="true"><i></i><b>❦</b><i></i></div>
+      </div>
+      <div class="cover-state-names">
+        <p class="cover-sub" data-en="We are getting married" data-ur="ہم شادی کر رہے ہیں">We are getting married</p>
+        <h2 class="cover-couple-big"><span class="n1" data-en="Arham" data-ur="ارحم">Arham</span><em>&</em><span class="n2" data-en="Zoya" data-ur="زویا">Zoya</span></h2>
+        <div class="cover-orn" aria-hidden="true"><i></i><b>❦</b><i></i></div>
+        <p class="cover-date" data-en="28 · 12 · 2026 — Hyderabad" data-ur="28 · 12 · 2026 — حیدرآباد">28 · 12 · 2026 — Hyderabad</p>
+      </div>
+    </div>
+  </div>
+  <div class="cover-tap" id="cover-tap">
+    <button id="open-btn" class="cover-open-btn"><span data-en="Tap to Open" data-ur="کھولنے کے لیے دبائیں">Tap to Open</span></button>
+  </div>
+  <div class="cover-progress"><span id="cover-bar"></span></div>
+  <p class="cover-scrollcue" id="cover-scrollcue"><span data-en="Scroll down" data-ur="نیچے اسکرول کریں">Scroll down</span><i>↓</i></p>
+</div>
+
+<!-- STORY -->
+<main id="main">
+<div class="page">
+
+  <!-- greeting -->
+  <section class="sec reveal rv-up center">
+    <div class="orn">❦</div>
+    <p class="arabic float-slow">اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</p>
+    <p class="muted" data-en="With the blessings of Allah (SWT) and the love of our families, we invite you to our Nikah." data-ur="اللہ تعالیٰ کی رحمت اور اپنے خاندانوں کی محبت کے ساتھ، ہم آپ کو اپنے نکاح میں شرکت کی دعوت دیتے ہیں۔">With the blessings of Allah (SWT) and the love of our families, we invite you to our Nikah.</p>
+    <div class="divider"><i></i><b>❦</b><i></i></div>
+    <div class="pill-row">
+      <span class="mini-pill"><span data-en="Barakah" data-ur="برکت">Barakah</span></span>
+      <span class="mini-pill"><span data-en="Nikah" data-ur="نکاح">Nikah</span></span>
+      <span class="mini-pill"><span data-en="Family" data-ur="خاندان">Family</span></span>
+    </div>
+  </section>
+
+  <!-- FIRST · sealed surprise (scratch) -->
+  <section class="sec reveal rv-zoom center">
+    <p class="eyebrow" data-en="A little surprise first" data-ur="پہلے ایک چھوٹی سی خوشی">A little surprise first</p>
+    <h3 class="h-serif" data-en="Sealed with Love" data-ur="محبت کی مہر">Sealed with Love</h3>
+    <p class="muted small" data-en="Gently scratch the seal to reveal our date" data-ur="ہماری تاریخ دیکھنے کے لیے نرمی سے کھرچیں">Gently scratch the seal to reveal our date</p>
+    <div class="seal-wrap tilt">
+      <div class="seal-card" id="seal-card">
+        <div class="seal-reveal">
+          <p class="seal-label" data-en="Save the Date" data-ur="تاریخ یاد رکھیں">Save the Date</p>
+          <p class="seal-date script">28 . 12 . 2026</p>
+          <p class="seal-sub" data-en="Monday · 11 AM · Lakeview Rose Lawns, Hyderabad" data-ur="پیر · صبح 11 بجے · لیک ویو روز لانس، حیدرآباد">Monday · 11 AM · Lakeview Rose Lawns, Hyderabad</p>
+          <p class="seal-names">A · Z</p>
+        </div>
+        <canvas id="seal-canvas"></canvas>
+        <p class="seal-hint" id="seal-hint" data-en="scratch here" data-ur="یہاں کھرچیں">scratch here</p>
+      </div>
+      <div class="seal-row">
+        <div class="seal-progress"><span id="seal-bar"></span></div>
+        <button id="seal-reset" class="link-btn" type="button"><span data-en="Reset seal" data-ur="دوبارہ بنائیں">Reset seal</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- couple -->
+  <section class="sec reveal rv-blur center couple-sec">
+    <div class="float-hearts" aria-hidden="true"><i>&</i><i>&</i><i>&</i><i>&</i><i>&</i></div>
+    <p class="eyebrow" data-en="Assalam o Alaikum — we are" data-ur="السلام علیکم — ہم ہیں">Assalam o Alaikum — we are</p>
+    <h2 class="script big shimmer-text"><span data-en="Arham" data-ur="ارحم">Arham</span><em>&</em><span data-en="Zoya" data-ur="زویا">Zoya</span></h2>
+    <div class="couple-cards">
+      <div class="person reveal rv-left d1"><span class="avatar">A</span><b data-en="Arham" data-ur="ارحم">Arham</b><small data-en="Son of Mr. Imran Sheikh & Mrs. Sheikh" data-ur="فرزند عمران شیخ">Son of Mr. Imran Sheikh & Mrs. Sheikh</small></div>
+      <div class="amp">&</div>
+      <div class="person reveal rv-right d2"><span class="avatar">Z</span><b data-en="Zoya" data-ur="زویا">Zoya</b><small data-en="Daughter of Mr. Salim Khan & Mrs. Khan" data-ur="دختر سلیم خان">Daughter of Mr. Salim Khan & Mrs. Khan</small></div>
+    </div>
+    <p class="quote glow-quote" data-en="“Two souls, one dua — written in the heavens, celebrated on earth.”" data-ur="“دو روحیں، ایک دعا — آسمان پر لکھی، زمین پر جشن۔”">“Two souls, one dua — written in the heavens, celebrated on earth.”</p>
+  </section>
+
+  <!-- countdown -->
+  <section class="sec reveal rv-up center">
+    <p class="eyebrow" data-en="Save the Date" data-ur="تاریخ یاد رکھیں">Save the Date</p>
+    <h3 class="h-serif" data-en="28 December 2026" data-ur="28 دسمبر 2026">28 December 2026</h3>
+    <p class="muted small" data-en="Monday · 11:00 AM onwards · Lakeview Rose Lawns, Shamshabad Road, Hyderabad" data-ur="پیر · صبح 11:00 بجے · لیک ویو روز لانس، حیدرآباد">Monday · 11:00 AM onwards · Lakeview Rose Lawns, Shamshabad Road, Hyderabad</p>
+    <div class="count" id="count">
+      <div class="cd-card"><span id="cd-d">00</span><label data-en="Days" data-ur="دن">Days</label></div>
+      <div class="dot">·</div>
+      <div class="cd-card"><span id="cd-h">00</span><label data-en="Hours" data-ur="گھنٹے">Hours</label></div>
+      <div class="dot">·</div>
+      <div class="cd-card"><span id="cd-m">00</span><label data-en="Mins" data-ur="منٹ">Mins</label></div>
+      <div class="dot">·</div>
+      <div class="cd-card"><span id="cd-s">00</span><label data-en="Secs" data-ur="سیکنڈ">Secs</label></div>
+    </div>
+    <p id="cd-note" class="cd-note"></p>
+    <a class="pill-btn ghost" target="_blank" rel="noopener" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Arham+%26+Zoya+Nikah&dates=20261228T053000Z/20261228T120000Z&details=Nikah+at+Lakeview+Rose+Lawns,+Shamshabad+Road,+Hyderabad&location=Lakeview+Rose+Lawns,+Shamshabad+Road,+Hyderabad"><span data-en="Add to Calendar" data-ur="کیلنڈر میں شامل کریں">Add to Calendar</span></a>
+  </section>
+
+  <!-- events -->
+  <section class="sec reveal rv-left">
+    <p class="eyebrow center" data-en="Three moments of joy" data-ur="خوشی کے تین لمحے">Three moments of joy</p>
+    <h3 class="h-serif center" data-en="Celebrations" data-ur="تقریبات">Celebrations</h3>
+    <div class="timeline"><span id="timeline-fill"></span></div>
+    <div class="mini-list">
+      <div class="mini-row reveal rv-left d1">
+        <div class="mini-date"><b>27</b><span>Dec</span></div>
+        <div class="mini-body">
+          <span class="tag gold"><span data-en="Haldi" data-ur="ہلدی">Haldi</span></span>
+          <h4 data-en="Haldi" data-ur="ہلدی">Haldi</h4>
+          <p data-en="Sun · 10 AM · Marigold Farmhouse, Gandipet Road, Hyderabad" data-ur="اتوار · صبح 10 بجے · میری گولڈ فارم ہاؤس، حیدرآباد">Sun · 10 AM · Marigold Farmhouse, Gandipet Road, Hyderabad</p>
+          <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Marigold+Farmhouse+Gandipet+Road+Hyderabad" data-en="View map →" data-ur="نقشہ دیکھیں →">View map →</a>
+        </div>
+      </div>
+      <div class="mini-row main reveal rv-pop d2">
+        <div class="mini-date glow"><b>28</b><span>Dec</span></div>
+        <div class="mini-body">
+          <span class="tag"><span data-en="Nikah · Main" data-ur="نکاح · اہم">Nikah · Main</span></span>
+          <h4 data-en="Wedding" data-ur="شادی">Wedding</h4>
+          <p data-en="Mon · 11 AM · Lakeview Rose Lawns, Shamshabad Road — Nikah, duas & blessings" data-ur="پیر · صبح 11 بجے · لیک ویو روز لانس — نکاح اور دعائیں">Mon · 11 AM · Lakeview Rose Lawns, Shamshabad Road — Nikah, duas & blessings</p>
+          <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Lakeview+Rose+Lawns+Shamshabad+Road+Hyderabad" data-en="View map →" data-ur="نقشہ دیکھیں →">View map →</a>
+        </div>
+      </div>
+      <div class="mini-row reveal rv-left d3">
+        <div class="mini-date"><b>29</b><span>Dec</span></div>
+        <div class="mini-body">
+          <span class="tag gold"><span data-en="Walima" data-ur="ولیمہ">Walima</span></span>
+          <h4 data-en="Reception" data-ur="دعوتِ ولیمہ">Reception</h4>
+          <p data-en="Tue · 7 PM · Grand Iris Banquet Hall, Banjara Hills, Hyderabad" data-ur="منگل · شام 7 بجے · گرینڈ آئرس ہال، حیدرآباد">Tue · 7 PM · Grand Iris Banquet Hall, Banjara Hills, Hyderabad</p>
+          <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Grand+Iris+Banquet+Hall+Banjara+Hills+Hyderabad" data-en="View map →" data-ur="نقشہ دیکھیں →">View map →</a>
+        </div>
+      </div>
+    </div>
+    <p class="dress center" data-en="Dress code — modest festive wear in blush, cream & gold" data-ur="لباس — شائستہ عیدانہ لباس، بلش اور سنہرے رنگ">Dress code — modest festive wear in blush, cream & gold</p>
+  </section>
+
+  <!-- gallery -->
+  <section class="sec reveal rv-right">
+    <p class="eyebrow center" data-en="Captured love" data-ur="محبت کی جھلک">Captured love</p>
+    <h3 class="h-serif center" data-en="Gallery" data-ur="یادیں">Gallery</h3>
+    <div class="grid">
+      <figure class="reveal rv-zoom d1"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80" alt="couple" loading="lazy"><figcaption>Forever</figcaption></figure>
+      <figure class="tall reveal rv-zoom d2"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80" alt="celebration" loading="lazy"><figcaption>Nikah vibes</figcaption></figure>
+      <figure class="reveal rv-zoom d3"><img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&q=80" alt="rings" loading="lazy"><figcaption>Qubool Hai</figcaption></figure>
+      <figure class="reveal rv-zoom d4"><img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=600&q=80" alt="together" loading="lazy"><figcaption>Two souls</figcaption></figure>
+    </div>
+    <p class="muted small center" data-en="Tap any photo to view" data-ur="دیکھنے کے لیے تصویر دبائیں">Tap any photo to view</p>
+  </section>
+
+  <!-- venue -->
+  <section class="sec reveal rv-pop center">
+    <p class="eyebrow" data-en="Where we gather" data-ur="جہاں ہم جمع ہوں گے">Where we gather</p>
+    <h3 class="h-serif" data-en="Lakeview Rose Lawns, Hyderabad" data-ur="لیک ویو روز لانس، حیدرآباد">Lakeview Rose Lawns, Hyderabad</h3>
+    <p class="muted small" data-en="Shamshabad Road, Near Gandipet Lake, Hyderabad — 11 AM onwards" data-ur="شمشاآباد روڈ، حیدرآباد — صبح 11 بجے سے">Shamshabad Road, Near Lake Side, Hyderabad — 11 AM onwards</p>
+    <div class="map shimmer-border"><iframe title="Venue map" src="https://www.google.com/maps?q=Lakeview+Rose+Lawns+Shamshabad+Road+Hyderabad&output=embed" loading="lazy" allowfullscreen></iframe></div>
+    <div class="venue-btns">
+      <a class="pill-btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Lakeview+Rose+Lawns+Shamshabad+Road+Hyderabad"><span data-en="Open in Maps" data-ur="نقشے میں کھولیں">Open in Maps</span></a>
+      <a class="pill-btn ghost" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Grand+Iris+Banquet+Hall+Banjara+Hills+Hyderabad"><span data-en="Reception venue" data-ur="ولیمہ کا مقام">Reception venue</span></a>
+    </div>
+  </section>
+
+  <!-- rsvp -->
+  <section class="sec reveal rv-right">
+    <p class="eyebrow center" data-en="One last thing" data-ur="ایک آخری بات">One last thing</p>
+    <h3 class="script mid center"><span data-en="Will you join us?" data-ur="کیا آپ شامل ہوں گے؟">Will you join us?</span></h3>
+    <form id="rsvp" class="form" novalidate>
+      <label data-en="Full Name *" data-ur="پورا نام *">Full Name *</label>
+      <input id="f-name" type="text" placeholder="Your beautiful name" autocomplete="name" enterkeyhint="next" />
+      <div class="two">
+        <div>
+          <label data-en="Attending? *" data-ur="شرکت؟ *">Attending? *</label>
+          <div class="pills" id="attend-pills">
+            <button type="button" data-v="yes" data-en="Joyfully accepts" data-ur="خوشی سے قبول">Joyfully accepts</button>
+            <button type="button" data-v="no" data-en="Regretfully declines" data-ur="معذرت کے ساتھ">Regretfully declines</button>
+          </div>
+        </div>
+        <div>
+          <label data-en="Guests *" data-ur="مہمان *">Guests *</label>
+          <div class="stepper">
+            <button type="button" id="g-minus" aria-label="less">−</button>
+            <span id="g-val">1</span>
+            <button type="button" id="g-plus" aria-label="more">+</button>
+          </div>
+        </div>
+      </div>
+      <label data-en="Message & duas" data-ur="پیغام و دعائیں">Message & duas</label>
+      <textarea id="f-msg" rows="3" placeholder="Blessings, duas, wishes..."></textarea>
+      <button type="submit" class="pill-btn full send-btn"><span data-en="Send RSVP" data-ur="جواب بھیجیں">Send RSVP</span></button>
+      <p class="rsvp-note" id="rsvp-note" hidden></p>
+    </form>
+  </section>
+
+  <footer class="foot center reveal rv-up">
+    <div class="divider"><i></i><b>❦</b><i></i></div>
+    <p class="script foot-names">Arham & Zoya</p>
+    <p class="muted small" data-en="28 December 2026 · Lakeview Rose Lawns, Hyderabad" data-ur="28 دسمبر 2026 · لیک ویو روز لانس، حیدرآباد">28 December 2026 · Lakeview Rose Lawns, Hyderabad</p>
+    <div class="foot-hearts" aria-hidden="true">❦</div>
+    <p class="credit">Designed by <a href="https://mehfill.in" target="_blank" rel="noopener">mehfill.in</a></p>
+  </footer>
+
+</div>
+</main>
+
+<!-- lightbox -->
+<div id="lightbox" hidden><button id="lb-prev" aria-label="Previous">‹</button><img id="lb-img" alt="photo" /><button id="lb-next" aria-label="Next">›</button><button id="lb-x" aria-label="Close">×</button></div>
+<script src="script.js"></script>
+</body>
+</html>
