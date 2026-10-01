@@ -24,9 +24,8 @@ export const SHOWCASE: Showcase[] = [
     description:
       "Bilingual English–Urdu experience with tap-to-open reveal, scratch-to-reveal save-the-date, live countdown, events, gallery and RSVP — designed for a real London Nikah celebration.",
     url: "https://mehfill.in/site-1/",
-    // Live homepage screenshot as cover (WordPress mshots, free, no key).
-    image:
-      "https://s0.wp.com/mshots/v1/https%3A%2F%2Fmehfill.in%2Fsite-1%2F?w=1200",
+    // Custom cover provided.
+    image: "/demos/site-1-cover.png",
     badge: "REAL INVITATION",
     palette: { bg: "#0c3b2e", ink: "#FDF9F3", accent: "#C9A86A" },
   },
@@ -51,9 +50,8 @@ export const SHOWCASE: Showcase[] = [
     description:
       "Sage-green luxury with fountain video reveal, heart scratch-to-reveal date, love-story timeline, countdown, gallery and RSVP — a universal botanical celebration.",
     url: "https://mehfill.in/site-3/",
-    // Live homepage screenshot as cover (WordPress mshots, free, no key).
-    image:
-      "https://s0.wp.com/mshots/v1/https%3A%2F%2Fmehfill.in%2Fsite-3%2F?w=1200",
+    // Custom cover provided.
+    image: "/demos/site-3-cover.png",
     badge: "LIVE DEMO",
     palette: { bg: "#303A29", ink: "#FFFDF7", accent: "#C7A75B" },
   },
@@ -65,9 +63,8 @@ export const SHOWCASE: Showcase[] = [
     description:
       "Full-screen video cover with tap-to-open reveal, names showcase, events, venue, gallery and RSVP — a grand botanical wedding film for real guests.",
     url: "https://mehfill.in/site-4/",
-    // Live homepage screenshot as cover (WordPress mshots, free, no key).
-    image:
-      "https://s0.wp.com/mshots/v1/https%3A%2F%2Fmehfill.in%2Fsite-4%2F?w=1200",
+    // Custom cover provided.
+    image: "/demos/site-4-cover.jpeg",
     badge: "LIVE DEMO",
     palette: { bg: "#1F2A1D", ink: "#FFFDF7", accent: "#C7A75B" },
   },
