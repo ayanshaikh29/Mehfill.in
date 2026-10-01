@@ -69,6 +69,17 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
+      // Static demo sites live as plain files in public/site-N/.
+      // Explicit rewrites so they resolve on localhost (next dev does not
+      // serve directory index.html) as well as on Vercel production.
+      { source: "/site-1", destination: "/site-1/index.html" },
+      { source: "/site-1/", destination: "/site-1/index.html" },
+      { source: "/site-2", destination: "/site-2/index.html" },
+      { source: "/site-2/", destination: "/site-2/index.html" },
+      { source: "/site-3", destination: "/site-3/index.html" },
+      { source: "/site-3/", destination: "/site-3/index.html" },
+      { source: "/site-4", destination: "/site-4/index.html" },
+      { source: "/site-4/", destination: "/site-4/index.html" },
       {
         source: "/security.txt",
         destination: "/.well-known/security.txt",
