@@ -20,9 +20,11 @@ function Wordmark({ className = "", light = false }: { className?: string; light
   // Transparent wordmark (no background) — sits cleanly on the floating pill.
   // On dark (mobile menu) render it in ivory via invert so the espresso
   // artwork stays readable on charcoal.
+  // NOTE: img is absolute, so parent MUST have an explicit width — otherwise
+  // aspect-ratio has nothing to size from and the logo collapses to 0px.
   return (
     <span
-      className={`relative block overflow-hidden ${className}`}
+      className={`relative block shrink-0 overflow-hidden ${className}`}
       style={{ aspectRatio: "901 / 319" }}
       aria-label="Mehfill.in — home"
       role="img"
@@ -55,7 +57,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 md:px-5 md:pt-4">
+      <header className="fixed inset-x-0 top-0 z-50 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:px-5 md:pt-4">
         <motion.nav
           initial={{ y: -24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -66,8 +68,8 @@ export default function Navbar() {
               : "border-white/40 bg-ivory/60 shadow-[0_8px_30px_rgba(28,25,23,0.06)] backdrop-blur-lg"
           }`}
         >
-          <Link href="#top" className="group flex shrink-0 items-center" aria-label="Mehfill.in home">
-            <Wordmark className="w-[148px transition-transform duration-500 group-hover:scale-[1.03] md:w-[168px]" />
+          <Link href="#top" className="group flex min-w-0 shrink-0 items-center" aria-label="Mehfill.in home">
+            <Wordmark className="w-[132px] transition-transform duration-500 group-hover:scale-[1.03] sm:w-[148px] md:w-[168px]" />
           </Link>
 
           <div className="hidden items-center gap-1 rounded-full border border-charcoal/[0.07] bg-white/60 px-1.5 py-1 lg:flex">
@@ -107,7 +109,7 @@ export default function Navbar() {
           <button
             aria-label="Open menu"
             onClick={() => setOpen(true)}
-            className="rounded-full border border-charcoal/10 bg-white/70 p-2.5 backdrop-blur transition-colors hover:bg-white lg:hidden"
+            className="shrink-0 rounded-full border border-charcoal/10 bg-white/70 p-2.5 text-charcoal backdrop-blur transition-colors hover:bg-white active:scale-95 lg:hidden"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -120,19 +122,19 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex flex-col bg-charcoal text-ivory"
+            className="fixed inset-0 z-[60] flex flex-col overflow-y-auto bg-charcoal text-ivory"
           >
-            <div className="flex items-center justify-between px-5 py-4">
-              <Wordmark light className="w-[150px]" />
+            <div className="flex shrink-0 items-center justify-between px-4 py-3 sm:px-5 sm:py-4">
+              <Wordmark light className="w-[132px] sm:w-[150px]" />
               <button
                 aria-label="Close menu"
                 onClick={() => setOpen(false)}
-                className="rounded-full border border-white/20 p-2.5 transition-colors hover:bg-white/10"
+                className="rounded-full border border-white/20 p-2.5 transition-colors hover:bg-white/10 active:scale-95"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="flex flex-1 flex-col justify-center gap-2 px-8">
+            <div className="flex min-h-0 flex-1 flex-col justify-center gap-1 px-6 py-6 sm:gap-2 sm:px-8">
               {LINKS.map((l, i) => (
                 <motion.div
                   key={l.label}
@@ -143,19 +145,19 @@ export default function Navbar() {
                   <Link
                     href={l.href}
                     onClick={() => setOpen(false)}
-                    className="block py-2 font-serif text-5xl font-light transition-colors hover:text-champagne"
+                    className="block py-1.5 font-serif text-4xl font-light leading-[1.05] transition-colors hover:text-champagne sm:py-2 sm:text-5xl"
                   >
                     {l.label}
                   </Link>
                 </motion.div>
               ))}
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="pt-8">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="pt-6 sm:pt-8">
                 <a
                   href={waLink(WA_MSG_GENERAL)}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
-                  className="inline-flex items-center gap-2 rounded-full bg-ivory px-7 py-3.5 font-semibold text-charcoal"
+                  className="inline-flex items-center gap-2 rounded-full bg-ivory px-6 py-3 text-sm font-semibold text-charcoal sm:px-7 sm:py-3.5 sm:text-base"
                 >
                   <WhatsAppIcon className="h-4 w-4" /> Get Your Invitation <ArrowUpRight className="h-4 w-4" />
                 </a>
