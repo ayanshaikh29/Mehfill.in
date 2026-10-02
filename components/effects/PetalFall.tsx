@@ -43,9 +43,12 @@ export default function PetalFall({
     let h = 0;
     let raf = 0;
     let inView = true;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const isMobile = window.innerWidth < 768 || window.matchMedia("(pointer: coarse)").matches;
+    // Mobile GPUs choke on high-DPR canvas — cap at 1x on phones.
+    const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
     const colors = tone === "light" ? LIGHT_COLORS : DARK_COLORS;
-    const count = Math.round(density * (window.innerWidth < 640 ? 0.5 : 1));
+    // Phones get ~1/3 density — still pretty, far cheaper.
+    const count = Math.round(density * (isMobile ? 0.35 : window.innerWidth < 640 ? 0.5 : 1));
 
     const resize = () => {
       const r = canvas.getBoundingClientRect();
@@ -91,20 +94,28 @@ export default function PetalFall({
       ctx.bezierCurveTo(s * 0.9, -s * 0.4, s * 0.7, s * 0.7, 0, s);
       ctx.bezierCurveTo(-s * 0.7, s * 0.7, -s * 0.9, -s * 0.4, 0, -s);
       ctx.fill();
-      ctx.globalAlpha = p.alpha * p.depth * 0.45;
-      ctx.strokeStyle = "#8a6a35";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, -s * 0.8);
-      ctx.lineTo(0, s * 0.8);
-      ctx.stroke();
+      // Skip the vein stroke on mobile — halves path cost per petal.
+      if (!isMobile) {
+        ctx.globalAlpha = p.alpha * p.depth * 0.45;
+        ctx.strokeStyle = "#8a6a35";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 0.8);
+        ctx.lineTo(0, s * 0.8);
+        ctx.stroke();
+      }
       ctx.restore();
     };
 
     let t = 0;
-    const loop = () => {
+    let last = 0;
+    // Mobile: ~30fps is plenty for petals and saves ~50% GPU.
+    const frameBudget = isMobile ? 33 : 16;
+    const loop = (now: number = 0) => {
       raf = requestAnimationFrame(loop);
       if (!inView || document.hidden) return;
+      if (now - last < frameBudget) return;
+      last = now;
       t += 16;
       ctx.clearRect(0, 0, w, h);
       for (const p of petals) {

@@ -39,6 +39,26 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* GPU marquee — runs on compositor thread, zero JS per frame */
+.marquee-track {
+  transform: translateZ(0);
+  will-change: transform;
+  animation: marquee 28s linear infinite;
+}
+@keyframes marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* Long below-fold sections skip off-screen rendering work on mobile.
+   Hero (#top) excluded so LCP is never delayed. */
+section:not(#top) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
 }
 
 .font-serif {
@@ -107,6 +127,19 @@ body {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  .marquee-track {
+    animation: none !important;
+  }
+}
+
+/* Grain + heavy blurs are the biggest mobile jank source — off on phones */
+@media (max-width: 767px), (pointer: coarse) {
+  .grain::after {
+    display: none;
+  }
+  .marquee-track {
+    animation-duration: 36s;
   }
 }
 

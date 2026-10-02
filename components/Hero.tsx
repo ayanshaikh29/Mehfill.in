@@ -1,14 +1,24 @@
 "use client";
 import Link from "next/link";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { WhatsAppIcon } from "./BrandIcons";
 import MehfillAura from "./effects/MehfillAura";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { waLink, WA_MSG_GENERAL } from "@/lib/contact";
 
 export default function Hero() {
   const ref = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const [finePointer, setFinePointer] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: fine)");
+    const update = () => setFinePointer(mq.matches && window.innerWidth >= 1024);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  const enableParallax = finePointer && !reduce;
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const sx = useSpring(mx, { stiffness: 60, damping: 18 });
@@ -20,6 +30,7 @@ export default function Hero() {
   const bgY = useTransform(sy, [-0.5, 0.5], [12, -12]);
 
   const onMove = (e: React.MouseEvent) => {
+    if (!enableParallax) return;
     const r = ref.current?.getBoundingClientRect();
     if (!r) return;
     mx.set((e.clientX - r.left) / r.width - 0.5);
@@ -28,12 +39,20 @@ export default function Hero() {
 
   return (
     <section id="top" ref={ref} onMouseMove={onMove} className="relative overflow-hidden pt-28 md:pt-36 pb-16 md:pb-24">
-      {/* ambient background */}
-      <motion.div style={{ x: bgX, y: bgY }} className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 -right-32 h-[480px] w-[480px] rounded-full bg-champagne/20 blur-[120px]" />
-        <div className="absolute top-1/3 -left-40 h-[420px] w-[420px] rounded-full bg-terracotta/15 blur-[120px]" />
-        <div className="absolute bottom-0 right-1/3 h-[300px] w-[500px] rounded-full bg-sage/20 blur-[100px]" />
-      </motion.div>
+      {/* ambient background — small soft blurs on mobile, large only on desktop */}
+      {enableParallax ? (
+        <motion.div style={{ x: bgX, y: bgY }} className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-32 -right-32 h-[480px] w-[480px] rounded-full bg-champagne/20 blur-[120px]" />
+          <div className="absolute top-1/3 -left-40 h-[420px] w-[420px] rounded-full bg-terracotta/15 blur-[120px]" />
+          <div className="absolute bottom-0 right-1/3 h-[300px] w-[500px] rounded-full bg-sage/20 blur-[100px]" />
+        </motion.div>
+      ) : (
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-20 -right-20 h-[260px] w-[260px] rounded-full bg-champagne/20 blur-[80px] md:-top-32 md:-right-32 md:h-[480px] md:w-[480px] md:blur-[120px]" />
+          <div className="absolute top-1/3 -left-24 h-[240px] w-[240px] rounded-full bg-terracotta/15 blur-[80px] md:-left-40 md:h-[420px] md:w-[420px] md:blur-[120px]" />
+          <div className="absolute bottom-0 right-1/3 h-[200px] w-[280px] rounded-full bg-sage/20 blur-[70px] md:h-[300px] md:w-[500px] md:blur-[100px]" />
+        </div>
+      )}
       <MehfillAura variant="hero" />
 
       <div className="relative mx-auto max-w-7xl px-5 md:px-8 grid lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-8 items-center">
@@ -98,7 +117,7 @@ export default function Hero() {
 
         {/* phone visual */}
         <div className="relative mx-auto w-full max-w-[420px]">
-          <motion.div style={{ x: phoneX, y: phoneY }} className="relative">
+          <motion.div style={enableParallax ? { x: phoneX, y: phoneY } : undefined} className="relative">
             <motion.div
               initial={{ opacity: 0, y: 40, rotate: 2 }}
               animate={{ opacity: 1, y: 0, rotate: 0 }}
@@ -109,6 +128,8 @@ export default function Hero() {
                 <img
                   src="/images/hero/hero_wedding.jpg"
                   alt="Eternal wedding invitation preview"
+                  fetchPriority="high"
+                  decoding="async"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/30" />
@@ -145,17 +166,15 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* marquee */}
+      {/* marquee — pure CSS animation (GPU transform, no JS tick) */}
       <div className="relative mt-16 md:mt-20 border-y hairline bg-cream/60 py-4 overflow-hidden">
-        <motion.div
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
-          className="flex whitespace-nowrap gap-10 font-serif text-lg md:text-xl italic text-charcoal/60 w-max"
+        <div
+          className="marquee-track flex w-max whitespace-nowrap gap-10 font-serif text-lg md:text-xl italic text-charcoal/60"
         >
           {Array(2).fill(["Weddings", "Nikah", "Haldi", "Mehndi", "Anand Karaj", "Birthdays", "Engagements", "Anniversaries", "Baby Showers", "Baptism", "Puja", "Dawat", "Walima", "Sangeet", "Reception"].join("  •  ")).map((s, i) => (
             <span key={i} className="pr-10">{s}  • </span>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

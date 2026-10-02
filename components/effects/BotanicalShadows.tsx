@@ -1,5 +1,6 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 // Soft "sunlight through leaves" — blurred botanical shadow clusters
 // drifting slowly in opposite corners, like the brand reference.
@@ -33,6 +34,18 @@ export default function BotanicalShadows({
   strength?: number;
   className?: string;
 }) {
+  const reduce = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse), (max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  // Mobile: render the wash statically. Infinite drift + big blurs are the
+  // #1 jank source on phone GPUs — static looks identical at a glance.
+  const staticMode = reduce || isMobile;
   return (
     <div aria-hidden="true" className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}>
       {/* warm sunlight wash */}
@@ -46,29 +59,29 @@ export default function BotanicalShadows({
       />
       {/* top-left cluster */}
       <motion.div
-        animate={{ x: [0, 16, 0], y: [0, 12, 0], rotate: [0, 2.5, 0] }}
+        animate={staticMode ? undefined : { x: [0, 16, 0], y: [0, 12, 0], rotate: [0, 2.5, 0] }}
         transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-16 -left-16 w-[300px] md:w-[440px] opacity-[0.14] blur-[7px]"
+        className="absolute -top-16 -left-16 w-[220px] sm:w-[300px] md:w-[440px] opacity-[0.14] blur-[4px] md:blur-[7px]"
         style={{ opacity: 0.14 * strength }}
       >
         <BranchCluster className="h-auto w-full" />
       </motion.div>
       {/* bottom-right cluster (mirrored) */}
       <motion.div
-        animate={{ x: [0, -14, 0], y: [0, -10, 0], rotate: [0, -2, 0] }}
+        animate={staticMode ? undefined : { x: [0, -14, 0], y: [0, -10, 0], rotate: [0, -2, 0] }}
         transition={{ duration: 19, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -bottom-20 -right-16 w-[280px] md:w-[420px] rotate-[160deg] blur-[7px]"
+        className="absolute -bottom-20 -right-16 w-[200px] sm:w-[280px] md:w-[420px] rotate-[160deg] blur-[4px] md:blur-[7px]"
         style={{ opacity: 0.12 * strength }}
       >
         <BranchCluster className="h-auto w-full" />
       </motion.div>
       {/* dappled light blobs */}
       <motion.div
-        animate={{ opacity: [0.5, 0.9, 0.5] }}
+        animate={staticMode ? undefined : { opacity: [0.5, 0.9, 0.5] }}
         transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute left-[8%] top-[22%] h-40 w-40 rounded-full bg-[#e8d5a8]/25 blur-[50px]"
+        className="absolute left-[8%] top-[22%] h-28 w-28 sm:h-40 sm:w-40 rounded-full bg-[#e8d5a8]/25 blur-[36px] md:blur-[50px]"
       />
-      <div className="absolute bottom-[12%] right-[10%] h-48 w-48 rounded-full bg-[#e8d5a8]/20 blur-[60px]" />
+      <div className="absolute bottom-[12%] right-[10%] h-32 w-32 sm:h-48 sm:w-48 rounded-full bg-[#e8d5a8]/20 blur-[40px] md:blur-[60px]" />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 // Thin elegant gold hairline curves, drawn on scroll —
 // the delicate arcs from the brand reference.
@@ -11,6 +12,29 @@ export default function GoldThreads({
   className?: string;
   flip?: boolean;
 }) {
+  const reduce = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse), (max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  // Mobile: skip pathLength animation (SVG repaint is costly) — static lines.
+  if (reduce || isMobile) {
+    return (
+      <svg
+        viewBox="0 0 400 800"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-y-0 right-0 h-full w-[220px] md:w-[340px] ${flip ? "-scale-x-100 left-0 right-auto" : ""} ${className}`}
+      >
+        <path d="M360,0 C300,170 250,260 120,400 C40,490 60,620 140,800" stroke="#C9A86A" strokeWidth="1.2" fill="none" opacity="0.55" />
+        <path d="M395,40 C340,200 290,300 170,430 C100,505 120,640 190,800" stroke="#C9A86A" strokeWidth="0.8" fill="none" opacity="0.35" />
+      </svg>
+    );
+  }
   return (
     <svg
       viewBox="0 0 400 800"

@@ -26,6 +26,7 @@ export default function ShowcaseCard({ s, index }: { s: Showcase; index: number 
             src={s.image}
             alt={`${s.names} — live invitation cover`}
             loading="lazy"
+            decoding="async"
             onError={() => setImgOk(false)}
             className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-[1.2s] ease-out group-hover:scale-[1.05]"
           />
@@ -46,7 +47,7 @@ export default function ShowcaseCard({ s, index }: { s: Showcase; index: number 
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10" />
         <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-champagne px-3.5 py-1.5 text-[11px] font-bold tracking-[0.14em] text-charcoal">
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-charcoal opacity-60" />
+            <span className="absolute hidden h-full w-full animate-ping rounded-full bg-charcoal opacity-60 sm:inline-flex" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-charcoal" />
           </span>
           {s.badge}

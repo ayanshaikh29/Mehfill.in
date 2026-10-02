@@ -64,8 +64,8 @@ export default function Navbar() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className={`mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-2xl border py-2.5 pl-4 pr-2.5 transition-all duration-500 md:rounded-full md:py-2 md:pl-5 ${
             scrolled
-              ? "border-charcoal/10 bg-ivory/85 shadow-[0_12px_40px_rgba(28,25,23,0.12)] backdrop-blur-xl"
-              : "border-white/40 bg-ivory/60 shadow-[0_8px_30px_rgba(28,25,23,0.06)] backdrop-blur-lg"
+              ? "border-charcoal/10 bg-ivory/85 shadow-[0_12px_40px_rgba(28,25,23,0.12)] backdrop-blur-md md:backdrop-blur-xl"
+              : "border-white/40 bg-ivory/60 shadow-[0_8px_30px_rgba(28,25,23,0.06)] backdrop-blur-md md:backdrop-blur-lg"
           }`}
         >
           <Link href="#top" className="group flex min-w-0 shrink-0 items-center" aria-label="Mehfill.in home">

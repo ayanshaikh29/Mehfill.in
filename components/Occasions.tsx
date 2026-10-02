@@ -27,7 +27,7 @@ export default function Occasions() {
           {OCCASIONS.map((o, i) => (
             <Reveal key={o.name} delay={(i % 3) * 0.07}>
               <Link href="#designs" className="group relative block overflow-hidden rounded-[1.4rem] aspect-[4/5] sm:aspect-[4/4.4]">
-                <img src={o.img} alt={o.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-105" />
+                <img src={o.img} alt={o.name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <p className="font-serif text-xl md:text-2xl text-ivory">{o.name}</p>

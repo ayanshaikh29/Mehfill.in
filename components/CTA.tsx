@@ -1,18 +1,29 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Reveal } from "./Reveal";
 import MehfillAura from "./effects/MehfillAura";
 import { WhatsAppIcon } from "./BrandIcons";
 import { waLink, WA_MSG_GENERAL, CONTACT_EMAIL } from "@/lib/contact";
 
 export default function CTA() {
+  const reduce = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse), (max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  const staticGlow = reduce || isMobile;
   return (
     <section id="cta" className="px-4 md:px-8 pb-20 md:pb-28">
       <Reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-charcoal text-ivory grain px-6 py-16 md:p-20 text-center">
         <motion.div
-          animate={{ opacity: [0.4, 0.7, 0.4], scale: [1, 1.08, 1] }}
+          animate={staticGlow ? undefined : { opacity: [0.4, 0.7, 0.4], scale: [1, 1.08, 1] }}
           transition={{ duration: 8, repeat: Infinity }}
-          className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[420px] w-[720px] rounded-full bg-champagne/20 blur-[120px]"
+          className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[280px] w-[420px] md:h-[420px] md:w-[720px] rounded-full bg-champagne/20 blur-[80px] md:blur-[120px]"
         />
         <MehfillAura variant="dark" />
         <p className="eyebrow text-champagne relative">GET YOURS</p>

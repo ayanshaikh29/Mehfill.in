@@ -1,6 +1,6 @@
 "use client";
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Clapperboard, Images, MapPin, Music4, Sparkles, CalendarClock, HeartHandshake } from "lucide-react";
 import { WhatsAppIcon } from "./BrandIcons";
 
@@ -17,8 +17,20 @@ const FEATURES = [
 
 export default function FeatureShowcase() {
   const ref = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: fine) and (min-width: 1024px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const x = useTransform(scrollYProgress, [0, 1], ["4%", "-52%"]);
+  const xDesktop = useTransform(scrollYProgress, [0, 1], ["4%", "-52%"]);
+  // Mobile: scroll-linked horizontal parallax fights native touch scroll and
+  // causes visible glitch. Native snap-scroll instead — zero JS per frame.
+  const enableParallax = isDesktop && !reduce;
 
   return (
     <section ref={ref} className="bg-charcoal text-ivory py-20 md:py-28 overflow-hidden grain relative">
@@ -26,9 +38,12 @@ export default function FeatureShowcase() {
         <p className="eyebrow text-champagne">EVERYTHING INSIDE</p>
         <h2 className="mt-4 font-serif font-light text-4xl md:text-6xl max-w-2xl">One link. <span className="italic text-champagne-light">The whole celebration.</span></h2>
       </div>
-      <motion.div style={{ x }} className="mt-12 flex gap-5 w-max px-5 md:px-8">
+      <motion.div
+        style={enableParallax ? { x: xDesktop } : undefined}
+        className="mt-12 flex gap-5 w-max max-w-full px-5 md:px-8 overflow-x-auto snap-x snap-mandatory no-scrollbar lg:overflow-visible"
+      >
         {FEATURES.map((f) => (
-          <div key={f.title} className="w-[260px] md:w-[300px] shrink-0 rounded-[1.5rem] border border-white/12 bg-white/[0.04] backdrop-blur p-7">
+          <div key={f.title} className="w-[260px] md:w-[300px] shrink-0 snap-start rounded-[1.5rem] border border-white/12 bg-white/[0.04] p-7">
             <f.icon className="h-6 w-6 text-champagne" />
             <h3 className="mt-5 font-serif text-2xl">{f.title}</h3>
             <p className="mt-2 text-sm text-ivory/60 leading-relaxed">{f.text}</p>

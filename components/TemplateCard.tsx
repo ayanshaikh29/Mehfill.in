@@ -18,6 +18,7 @@ export default function TemplateCard({ t, index }: { t: Template; index: number 
           src={t.image}
           alt={`${t.name} — ${t.occasion} invitation`}
           loading="lazy"
+          decoding="async"
           className="h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.06]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-80" />

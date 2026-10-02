@@ -46,6 +46,8 @@ export default function CinematicExperience() {
               transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
               src="/images/hero/cinematic_banner.jpg"
               alt="Cinematic invitation venue"
+              loading="lazy"
+              decoding="async"
               className="aspect-[4/5] sm:aspect-[5/5] w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />

@@ -14,6 +14,8 @@ export default function BrandMoment() {
         <motion.img
           src="/logo.png"
           alt="Mehfill.in"
+          loading="lazy"
+          decoding="async"
           initial={{ opacity: 0, scale: 0.94, y: 18 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
