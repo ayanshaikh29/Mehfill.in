@@ -11,6 +11,9 @@ export default function Footer() {
         <div>
           <p className="font-serif text-3xl">Mehfill<span className="text-terracotta">.in</span></p>
           <p className="mt-3 text-sm text-charcoal/60 italic font-serif text-lg">More Than an Invitation. An Experience.</p>
+          <p className="mt-3 max-w-xs text-[13px] leading-relaxed text-charcoal/55">
+            Beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements and anniversaries across India.
+          </p>
           <div className="mt-5 flex flex-col gap-2.5">
             <a href={waLink(WA_MSG_GENERAL)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:text-terracotta">
               <WhatsAppIcon className="h-4 w-4" /> Chat on WhatsApp <ArrowUpRight className="h-3.5 w-3.5" />
@@ -24,23 +27,28 @@ export default function Footer() {
           </div>
         </div>
         <div>
+          <p className="text-[11px] font-bold tracking-[0.24em] text-charcoal/45">INVITATIONS</p>
+          <nav aria-label="Invitation categories" className="mt-4 flex flex-col gap-2.5 text-[14px] font-medium">
+            <Link href="/digital-wedding-invitations" className="hover:text-terracotta">Digital Wedding Invitations</Link>
+            <Link href="/nikah-invitations" className="hover:text-terracotta">Nikah Invitations</Link>
+            <Link href="/muslim-wedding-invitations" className="hover:text-terracotta">Muslim Wedding Invitations</Link>
+            <Link href="/birthday-invitations" className="hover:text-terracotta">Birthday Invitations</Link>
+            <Link href="/engagement-invitations" className="hover:text-terracotta">Engagement Invitations</Link>
+            <Link href="/anniversary-invitations" className="hover:text-terracotta">Anniversary Invitations</Link>
+            <Link href="/digital-invitations" className="hover:text-terracotta">All Digital Invitations</Link>
+          </nav>
+        </div>
+        <div>
           <p className="text-[11px] font-bold tracking-[0.24em] text-charcoal/45">EXPLORE</p>
           <div className="mt-4 flex flex-col gap-2.5 text-[14px] font-medium">
-            <Link href="#designs" className="hover:text-terracotta">View Demos</Link>
-            <Link href="#occasions" className="hover:text-terracotta">Occasions</Link>
+            <Link href="/demos" className="hover:text-terracotta">View Live Demos</Link>
+            <Link href="/demos/eternal" className="hover:text-terracotta">Eternal Wedding Demo</Link>
+            <Link href="/demos/bloom" className="hover:text-terracotta">Bloom Engagement Demo</Link>
+            <Link href="/demos/midnight" className="hover:text-terracotta">Midnight Birthday Demo</Link>
             <Link href="#how" className="hover:text-terracotta">How It Works</Link>
             <Link href="#pricing" className="hover:text-terracotta">Pricing</Link>
             <Link href="#faq" className="hover:text-terracotta">FAQ</Link>
-            <Link href="#cta" className="hover:text-terracotta">Contact</Link>
-          </div>
-        </div>
-        <div>
-          <p className="text-[11px] font-bold tracking-[0.24em] text-charcoal/45">CONTACT</p>
-          <div className="mt-4 flex flex-col gap-2.5 text-[14px] font-medium">
-            <a href={waLink(WA_MSG_GENERAL)} target="_blank" rel="noopener noreferrer" className="hover:text-terracotta">WhatsApp Us</a>
-            <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-terracotta break-all">{CONTACT_EMAIL}</a>
             <Link href="/login" className="hover:text-terracotta">Sign in / Account</Link>
-            <Link href="#top" className="hover:text-terracotta">Back to top ↑</Link>
           </div>
         </div>
         <div>

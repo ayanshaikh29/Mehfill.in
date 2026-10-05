@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { WhatsAppIcon } from "./BrandIcons";
@@ -125,12 +126,15 @@ export default function Hero() {
               className="relative mx-auto w-[270px] sm:w-[300px] rounded-[2.8rem] border-[10px] border-charcoal bg-charcoal shadow-[0_40px_90px_rgba(28,25,23,0.28)] overflow-hidden"
             >
               <div className="relative aspect-[9/19] overflow-hidden rounded-[2rem] bg-[#0f0e0d]">
-                <img
+                <Image
                   src="/images/hero/hero_wedding.jpg"
-                  alt="Eternal wedding invitation preview"
+                  alt="Digital wedding invitation preview — Aarav and Amara, Udaipur — by Mehfill"
+                  fill
+                  priority
                   fetchPriority="high"
-                  decoding="async"
-                  className="absolute inset-0 h-full w-full object-cover"
+                  sizes="(max-width: 640px) 270px, 300px"
+                  quality={78}
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/30" />
                 <div className="absolute top-3 left-1/2 -translate-x-1/2 h-6 w-24 rounded-full bg-black/90" />

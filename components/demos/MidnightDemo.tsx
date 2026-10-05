@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { WhatsAppIcon } from "../BrandIcons";
@@ -40,7 +41,9 @@ export default function MidnightDemo({ t }: { t: Template }) {
       </div>
 
       <section className="relative min-h-[100svh] flex flex-col justify-end overflow-hidden">
-        <motion.img initial={{ scale: 1.12 }} animate={{ scale: 1 }} transition={{ duration: 2 }} src={t.image} alt="Midnight birthday" className="absolute inset-0 h-full w-full object-cover" />
+        <motion.div initial={{ scale: 1.12 }} animate={{ scale: 1 }} transition={{ duration: 2 }} className="absolute inset-0">
+          <Image src={t.image} alt="Midnight birthday invitation — Aria at Midnight, Mumbai" fill priority sizes="100vw" quality={72} className="object-cover" />
+        </motion.div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0d] via-[#0e0e0d]/30 to-black/50" />
         <div className="relative p-6 md:p-14">
           <p className="text-[11px] tracking-[0.45em] text-[#E8D5A8] font-bold">25TH BIRTHDAY • MUMBAI</p>

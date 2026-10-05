@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
-import SmoothScroll from "@/components/SmoothScroll";
+import SmoothScrollLoader from "@/components/SmoothScrollLoader";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import IntroReveal from "@/components/IntroReveal";
 import VisitTracker from "@/components/VisitTracker";
@@ -13,7 +13,7 @@ import Script from "next/script";
 const serif = Cormorant_Garamond({
   variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   display: "swap",
 });
@@ -21,36 +21,21 @@ const serif = Cormorant_Garamond({
 const sans = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://mehfill.in"),
   title: {
-    default: "Mehfill.in — Digital Wedding Invitations | More Than an Invitation. An Experience.",
-    template: "%s | Mehfill.in",
+    default: "Digital Invitations for Weddings & Celebrations | Mehfill",
+    template: "%s | Mehfill",
   },
   description:
-    "Mehfill.in crafts cinematic digital wedding invitations for Indian celebrations — Nikah, Shaadi, Haldi, Mehndi, Sangeet, engagements, birthdays & anniversaries. Live demos, WhatsApp ordering, RSVP, maps & music in one beautiful link.",
-  keywords: [
-    "digital wedding invitation",
-    "online wedding invitation India",
-    "digital Nikah invitation",
-    "Muslim wedding invitation online",
-    "Haldi Mehndi invitation",
-    "Sangeet invitation online",
-    "engagement invitation digital",
-    "birthday invitation online",
-    "anniversary invitation",
-    "baby shower invitation",
-    "RSVP invitation website",
-    "wedding invitation video",
-    "mehfill",
-    "mehfill.in",
-  ],
+    "Mehfill creates beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements, anniversaries and celebrations in India. Cinematic designs, WhatsApp ordering, RSVP, maps & music in one shareable link.",
   authors: [{ name: "Mehfill.in" }],
   creator: "Mehfill.in",
+  publisher: "Mehfill.in",
   alternates: {
     canonical: "https://mehfill.in/",
   },
@@ -65,9 +50,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Mehfill.in — More Than an Invitation. An Experience.",
+    title: "Digital Invitations for Weddings & Celebrations | Mehfill",
     description:
-      "Cinematic digital invitations for weddings, Nikah, Haldi–Mehndi, engagements, birthdays & every celebration. Open a live demo and feel it.",
+      "Beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements, anniversaries and celebrations. Open a live demo and feel it.",
     url: "https://mehfill.in/",
     siteName: "Mehfill.in",
     locale: "en_IN",
@@ -77,13 +62,13 @@ export const metadata: Metadata = {
         url: "/og-cover.png",
         width: 1200,
         height: 630,
-        alt: "Mehfill.in — More Than an Invitation. An Experience.",
+        alt: "Mehfill — digital invitations for weddings and celebrations in India",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mehfill.in — More Than an Invitation. An Experience.",
+    title: "Digital Invitations for Weddings & Celebrations | Mehfill",
     description:
       "Cinematic digital invitations for Indian weddings & celebrations. Open a live demo.",
     images: ["/og-cover.png"],
@@ -92,6 +77,16 @@ export const metadata: Metadata = {
     icon: "/icon.png",
     apple: "/apple-icon.png",
   },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Mehfill",
+    statusBarStyle: "default",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  category: "events",
 };
 
 const JSON_LD = {
@@ -100,18 +95,19 @@ const JSON_LD = {
     {
       "@type": "Organization",
       "@id": "https://mehfill.in/#organization",
-      name: "Mehfill.in",
+      name: "Mehfill",
+      alternateName: "Mehfill.in",
       url: "https://mehfill.in/",
       logo: "https://mehfill.in/logo.png",
       description:
-        "Cinematic digital invitations for Indian weddings and celebrations.",
-      sameAs: ["https://www.instagram.com/build_with_ayan29"],
+        "Mehfill creates beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements, anniversaries and celebrations in India.",
+      sameAs: ["https://www.instagram.com/mehfill.inn"],
     },
     {
       "@type": "WebSite",
       "@id": "https://mehfill.in/#website",
       url: "https://mehfill.in/",
-      name: "Mehfill.in",
+      name: "Mehfill",
       publisher: { "@id": "https://mehfill.in/#organization" },
       inLanguage: "en-IN",
     },
@@ -148,12 +144,11 @@ export default function RootLayout({
           "frame-ancestors 'none'",
           "upgrade-insecure-requests",
         ].join("; ")} />
-        <link rel="preload" as="video" href="/intro-desktop-opt.mp4" media="(min-width: 768px)" />
-        <link rel="preload" as="video" href="/intro-mobile-opt.mp4" media="(max-width: 767px)" />
-        <link rel="preload" as="image" href="/icon.png" />
-        <link rel="preload" as="image" href="/logo.png" />
-        <link rel="preload" as="image" href="/logo-transparent.png" />
         <link rel="security.txt" href="/.well-known/security.txt" />
+        {/* NOTE: no <link rel="preload"> for videos or images here.
+            next/image `priority` emits exactly one preload for the real LCP
+            image. The intro film is deferred until after first paint
+            (see IntroReveal) so it never blocks LCP. */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
@@ -161,7 +156,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning className="min-h-screen bg-ivory text-charcoal antialiased">
         <a href="#main-content" className="skip-link">Skip to main content</a>
-        <SmoothScroll />
+        <SmoothScrollLoader />
         <VisitTracker />
         <LaunchGate>
           <div id="main-content" tabIndex={-1}>

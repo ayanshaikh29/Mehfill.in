@@ -38,7 +38,7 @@ export const SHOWCASE: Showcase[] = [
       "Cinematic wedding experience with tap-to-open reveal, live countdown, events, gallery and RSVP — a second live demo crafted for Indian wedding celebrations.",
     url: "https://mehfill.in/site-2/",
     // Custom cover provided (pink sunset terrace "You're Invited").
-    image: "/demos/aariz-zoya-cover.jpg?v=2",
+    image: "/demos/aariz-zoya-cover.jpg",
     badge: "LIVE DEMO",
     palette: { bg: "#3B0A0A", ink: "#FDF9F3", accent: "#C9A86A" },
   },

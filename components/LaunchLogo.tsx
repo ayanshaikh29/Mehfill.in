@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 // Wordmark display for the square logo.png (which carries large empty
@@ -95,11 +96,13 @@ export default function LaunchLogo({
           style={{ aspectRatio: "2.6 / 1" }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/logo.png"
             alt="Mehfill.in"
             width={640}
-            height={246}
+            height={640}
+            sizes="(max-width: 640px) 288px, (max-width: 768px) 384px, 480px"
+            quality={70}
             className="absolute inset-0 h-full w-full object-cover mix-blend-multiply"
             draggable={false}
           />

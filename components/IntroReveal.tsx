@@ -5,6 +5,10 @@ import { motion } from "framer-motion";
 // Cinematic entry: logo reveal film plays fullscreen on every fresh
 // page load (desktop film on large screens, portrait film on mobile),
 // then the curtain swipes up automatically revealing the site.
+//
+// PERFORMANCE: the film is deliberately deferred until AFTER first paint
+// (requestIdleCallback / window load) and never preloaded, so it can never
+// block LCP. On save-data / reduced-motion the film is skipped entirely.
 export default function IntroReveal() {
   const [visible, setVisible] = useState(true);
   const [leaving, setLeaving] = useState(false);
@@ -12,11 +16,43 @@ export default function IntroReveal() {
   const done = useRef(false);
 
   useEffect(() => {
-    setSrc(window.innerWidth < 768 ? "/intro-mobile-opt.mp4" : "/intro-desktop-opt.mp4");
+    // Cheap exit path: no film, reveal almost immediately.
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
+    ) {
+      setSrc(null);
+      const id = setTimeout(() => setVisible(false), 400);
+      return () => clearTimeout(id);
+    }
+    const pick = () =>
+      setSrc(window.innerWidth < 768 ? "/intro-mobile-opt.mp4" : "/intro-desktop-opt.mp4");
+    // Defer until the browser is idle / page loaded — never competes with LCP.
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    const hasRic = typeof w.requestIdleCallback === "function";
+    let idleId = 0;
+    const loadHandler = () => {
+      window.setTimeout(pick, 300);
+    };
+    if (hasRic) {
+      idleId = w.requestIdleCallback!(pick, { timeout: 2500 });
+    } else if (document.readyState === "complete") {
+      idleId = window.setTimeout(pick, 300);
+    } else {
+      window.addEventListener("load", loadHandler, { once: true });
+    }
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
+      if (hasRic) w.cancelIdleCallback?.(idleId);
+      else {
+        window.removeEventListener("load", loadHandler);
+        window.clearTimeout(idleId);
+      }
     };
   }, []);
 
@@ -59,7 +95,7 @@ export default function IntroReveal() {
           autoPlay
           muted
           playsInline
-          preload="auto"
+          preload="none"
           onEnded={finish}
           onError={finish}
           className="h-full w-full object-cover"
@@ -68,7 +104,7 @@ export default function IntroReveal() {
       {!leaving && (
         <button
           onClick={finish}
-          className="absolute bottom-15 right-6 rounded-full bg-terracotta px-5 py-2 text-[11px] font-bold tracking-[0.25em] text-ivory transition-colors hover:bg-terracotta-deep"
+          className="absolute bottom-15 right-6 min-h-[44px] min-w-[44px] rounded-full bg-terracotta px-5 py-2 text-[11px] font-bold tracking-[0.25em] text-ivory transition-colors hover:bg-terracotta-deep"
         >
           SKIP
         </button>

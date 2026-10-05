@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import type { Template } from "@/lib/templates";
@@ -14,12 +15,13 @@ export default function TemplateCard({ t, index }: { t: Template; index: number 
       className="group relative overflow-hidden rounded-[1.6rem] bg-white border hairline shadow-[0_10px_40px_rgba(28,25,23,0.07)] hover:shadow-[0_24px_60px_rgba(28,25,23,0.14)] transition-shadow duration-500"
     >
       <div className="relative overflow-hidden aspect-[4/5]">
-        <img
+        <Image
           src={t.image}
           alt={`${t.name} — ${t.occasion} invitation`}
-          loading="lazy"
-          decoding="async"
-          className="h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.06]"
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          quality={70}
+          className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.06]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-80" />
         <span className="absolute left-4 top-4 rounded-full bg-ivory/90 backdrop-blur px-3.5 py-1.5 text-[11px] font-bold tracking-[0.14em] uppercase">

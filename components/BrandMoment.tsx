@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Reveal } from "./Reveal";
 import MehfillAura from "./effects/MehfillAura";
@@ -11,17 +12,22 @@ export default function BrandMoment() {
       <MehfillAura variant="signature" />
       <Reveal className="relative">
         <p className="eyebrow text-terracotta">MEHFILL.IN</p>
-        <motion.img
-          src="/logo.png"
-          alt="Mehfill.in"
-          loading="lazy"
-          decoding="async"
+        <motion.div
           initial={{ opacity: 0, scale: 0.94, y: 18 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          className="mx-auto mt-8 w-64 sm:w-80 md:w-[26rem] max-w-full"
-        />
+          className="relative mx-auto mt-8 w-64 sm:w-80 md:w-[26rem] max-w-full aspect-square"
+        >
+          <Image
+            src="/logo.png"
+            alt="Mehfill — digital invitations for weddings and celebrations"
+            fill
+            sizes="(max-width: 640px) 256px, (max-width: 768px) 320px, 416px"
+            quality={75}
+            className="object-contain"
+          />
+        </motion.div>
         <h2 className="mx-auto mt-10 max-w-3xl font-serif font-light text-4xl md:text-6xl leading-[1.05]">
           Your celebration.<br /><span className="italic">Your story.</span><br />Your Mehfill.
         </h2>

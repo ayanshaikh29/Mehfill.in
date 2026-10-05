@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, CalendarDays } from "lucide-react";
 import { WhatsAppIcon } from "../BrandIcons";
@@ -19,7 +20,9 @@ export default function GenericDemo({ t }: { t: Template }) {
       </div>
 
       <section className="relative min-h-[88vh] flex flex-col justify-end overflow-hidden">
-        <motion.img initial={{ scale: 1.1 }} animate={{ scale: 1 }} transition={{ duration: 1.8 }} src={t.image} alt={t.name} className="absolute inset-0 h-full w-full object-cover" />
+        <motion.div initial={{ scale: 1.1 }} animate={{ scale: 1 }} transition={{ duration: 1.8 }} className="absolute inset-0">
+          <Image src={t.image} alt={`${t.data.names} — ${t.name} ${t.occasion} invitation demo`} fill priority sizes="100vw" quality={72} className="object-cover" />
+        </motion.div>
         <div className={`absolute inset-0 ${dark ? "bg-gradient-to-t from-black via-black/30 to-black/40" : "bg-gradient-to-t from-black/75 via-black/20 to-black/25"}`} />
         <div className="relative p-6 md:p-14 text-white">
           <p className="text-[11px] tracking-[0.4em] text-champagne-light font-bold">{t.occasion.toUpperCase()} • {t.name.toUpperCase()}</p>

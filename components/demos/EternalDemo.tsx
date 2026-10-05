@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, CalendarDays, ArrowLeft, Heart } from "lucide-react";
 import { WhatsAppIcon } from "../BrandIcons";
@@ -26,10 +27,14 @@ export default function EternalDemo({ t }: { t: Template }) {
             className="fixed inset-0 z-50 cursor-pointer"
             onClick={() => setEntered(true)}
           >
-            <img
+            <Image
               src="/images/templates/eternal_cover.jpg"
-              alt="Antique doors with flowers"
-              className="absolute inset-0 h-full w-full object-cover"
+              alt="Antique doors with marigold flowers — Eternal wedding invitation"
+              fill
+              priority
+              sizes="100vw"
+              quality={72}
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-black/55" />
             <MehfillAura variant="veil" />
@@ -59,14 +64,21 @@ export default function EternalDemo({ t }: { t: Template }) {
           <DemoNav />
           {/* reveal venue */}
           <section className="relative h-[92vh] overflow-hidden">
-            <motion.img
+            <motion.div
               initial={{ scale: 1.15 }}
               animate={{ scale: 1 }}
               transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
-              src="/images/hero/cinematic_banner.jpg"
-              alt="Venue"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
+              className="absolute inset-0"
+            >
+              <Image
+                src="/images/hero/cinematic_banner.jpg"
+                alt="Udaipur palace venue — Eternal wedding invitation demo"
+                fill
+                sizes="100vw"
+                quality={70}
+                className="object-cover"
+              />
+            </motion.div>
             <div className="absolute inset-0 bg-gradient-to-t from-[#141210] via-black/20 to-black/40" />
             <div className="relative h-full flex flex-col justify-end p-6 md:p-14">
               <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-[11px] tracking-[0.4em] text-[#E8D5A8]">TOGETHER WITH THEIR FAMILIES</motion.p>
@@ -124,17 +136,23 @@ export function GallerySection({ images }: { images: string[] }) {
       <h3 className="font-serif font-light text-4xl md:text-5xl text-white">Glimpses</h3>
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {images.map((src, i) => (
-          <motion.img
+          <motion.span
             key={i}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
-            src={src}
-            alt={`Gallery ${i + 1}`}
-            loading="lazy"
-            className="aspect-[4/5] w-full object-cover rounded-2xl"
-          />
+            className="relative block aspect-[4/5] overflow-hidden rounded-2xl"
+          >
+            <Image
+              src={src}
+              alt={`Wedding invitation gallery photo ${i + 1}`}
+              fill
+              sizes="(max-width: 640px) 100vw, 33vw"
+              quality={65}
+              className="object-cover"
+            />
+          </motion.span>
         ))}
       </div>
     </section>

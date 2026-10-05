@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { WhatsAppIcon } from "./BrandIcons";
@@ -21,14 +22,14 @@ export default function ShowcaseCard({ s, index }: { s: Showcase; index: number 
       {/* vertical portrait cover — phone-first invitation preview */}
       <div className="relative aspect-[4/5] overflow-hidden" style={{ background: s.palette.bg }}>
         {imgOk ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={s.image}
             alt={`${s.names} — live invitation cover`}
-            loading="lazy"
-            decoding="async"
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            quality={70}
             onError={() => setImgOk(false)}
-            className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-[1.2s] ease-out group-hover:scale-[1.05]"
+            className="object-cover object-top transition-transform duration-[1.2s] ease-out group-hover:scale-[1.05]"
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center" style={{ color: s.palette.ink }}>

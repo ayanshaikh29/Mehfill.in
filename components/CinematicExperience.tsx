@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
@@ -39,17 +40,22 @@ export default function CinematicExperience() {
 
         <Reveal delay={0.1} className="relative">
           <div className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl">
-            <motion.img
+            <motion.div
               initial={{ scale: 1.12 }}
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
-              src="/images/hero/cinematic_banner.jpg"
-              alt="Cinematic invitation venue"
-              loading="lazy"
-              decoding="async"
-              className="aspect-[4/5] sm:aspect-[5/5] w-full object-cover"
-            />
+              className="relative aspect-[4/5] sm:aspect-[5/5] w-full overflow-hidden"
+            >
+              <Image
+                src="/images/hero/cinematic_banner.jpg"
+                alt="Cinematic wedding invitation venue with warm lights"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                quality={70}
+                className="object-cover"
+              />
+            </motion.div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
             {/* door open effect overlay */}
             <motion.div

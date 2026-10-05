@@ -1,15 +1,17 @@
 import type { MetadataRoute } from "next";
 import { TEMPLATES } from "@/lib/templates";
+import { LANDING_PAGES } from "@/lib/landing-content";
 
 const BASE = "https://mehfill.in";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
+  const lastModified = new Date("2026-10-01");
   // Public, indexable pages only — private flows (login, dashboard,
-  // checkout, thank-you, admin, studio) stay out so crawlers spend
+  // checkout, thank-you, admin, studio, auth) stay out so crawlers spend
   // budget on pages that should rank.
   const statics: { path: string; priority: number; freq: "weekly" | "monthly" | "yearly" }[] = [
     { path: "/", priority: 1, freq: "weekly" },
+    { path: "/demos", priority: 0.8, freq: "weekly" },
     { path: "/privacy-policy", priority: 0.3, freq: "yearly" },
     { path: "/terms-and-conditions", priority: 0.3, freq: "yearly" },
     { path: "/cookie-policy", priority: 0.3, freq: "yearly" },
@@ -17,22 +19,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
   return [
     ...statics.map((p) => ({
-      url: `${BASE}${p.path}`,
-      lastModified: now,
+      url: `${BASE}${p.path === "/" ? "/" : p.path}`,
+      lastModified,
       changeFrequency: p.freq,
       priority: p.priority,
+    })),
+    // SEO landing pages — high-intent categories with genuinely useful content.
+    ...LANDING_PAGES.map((l) => ({
+      url: `${BASE}/${l.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.9,
     })),
     // Demo templates are part of the public catalogue.
     ...TEMPLATES.map((t) => ({
       url: `${BASE}/demos/${t.slug}`,
-      lastModified: now,
+      lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
     // Static HTML demo invitations (real designs guests open).
     ...["site-1", "site-2", "site-3", "site-4"].map((s) => ({
-      url: `${BASE}/${s}/`,
-      lastModified: now,
+      url: `${BASE}/${s}`,
+      lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),

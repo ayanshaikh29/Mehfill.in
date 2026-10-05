@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, CalendarDays } from "lucide-react";
 import { WhatsAppIcon } from "../BrandIcons";
@@ -29,8 +30,8 @@ export default function BloomDemo({ t }: { t: Template }) {
       </section>
 
       <section className="px-5 md:px-14 max-w-6xl mx-auto">
-        <motion.div initial={{ clipPath: "inset(8% 6% 8% 6% round 24px)", scale: 0.98 }} whileInView={{ clipPath: "inset(0% 0% 0% 0% round 24px)", scale: 1 }} viewport={{ once: true }} transition={{ duration: 1.1 }} className="overflow-hidden rounded-3xl">
-          <img src={t.image} alt="Engaged couple" className="aspect-[16/10] md:aspect-[21/10] w-full object-cover" />
+        <motion.div initial={{ clipPath: "inset(8% 6% 8% 6% round 24px)", scale: 0.98 }} whileInView={{ clipPath: "inset(0% 0% 0% 0% round 24px)", scale: 1 }} viewport={{ once: true }} transition={{ duration: 1.1 }} className="relative overflow-hidden rounded-3xl aspect-[16/10] md:aspect-[21/10]">
+          <Image src={t.image} alt="Zoya and Arham engagement — Bloom invitation demo" fill priority sizes="(max-width: 1024px) 100vw, 1152px" quality={72} className="object-cover" />
         </motion.div>
         <div className="mt-4 flex flex-wrap justify-center gap-3 text-sm">
           <span className="inline-flex items-center gap-2 rounded-full border hairline bg-white px-4 py-2"><CalendarDays className="h-4 w-4" /> Jan 09, 6 PM</span>
@@ -39,7 +40,9 @@ export default function BloomDemo({ t }: { t: Template }) {
       </section>
 
       <section className="px-5 md:px-14 py-16 max-w-4xl mx-auto grid md:grid-cols-2 gap-10 items-center">
-        <img src={t.gallery[1]} alt="Story" className="rounded-3xl aspect-[4/5] object-cover w-full" />
+        <div className="relative rounded-3xl aspect-[4/5] overflow-hidden">
+          <Image src={t.gallery[1]} alt="Couple story — Bloom engagement invitation" fill sizes="(max-width: 768px) 100vw, 50vw" quality={68} className="object-cover" />
+        </div>
         <div>
           <p className="text-[11px] tracking-[0.35em] text-terracotta font-bold">OUR STORY</p>
           <h2 className="mt-3 font-serif font-light text-4xl md:text-5xl leading-tight">It began with <span className="italic">chai and a long monsoon walk.</span></h2>
@@ -52,7 +55,9 @@ export default function BloomDemo({ t }: { t: Template }) {
       <section className="px-5 md:px-14 pb-16 max-w-6xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {t.gallery.map((src, i) => (
-            <img key={i} src={src} alt={`Bloom ${i}`} loading="lazy" className="rounded-2xl aspect-[4/5] object-cover w-full" />
+            <span key={i} className="relative block rounded-2xl aspect-[4/5] overflow-hidden">
+              <Image src={src} alt={`Bloom engagement invitation gallery ${i + 1}`} fill sizes="(max-width: 768px) 50vw, 33vw" quality={65} className="object-cover" />
+            </span>
           ))}
         </div>
       </section>

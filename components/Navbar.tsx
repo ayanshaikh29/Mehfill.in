@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { WhatsAppIcon } from "./BrandIcons";
@@ -30,11 +31,12 @@ function Wordmark({ className = "", light = false }: { className?: string; light
       role="img"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src="/logo-transparent.png"
         alt="Mehfill.in"
         width={452}
         height={160}
+        sizes="(max-width: 768px) 140px, 180px"
         draggable={false}
         className={`absolute inset-0 h-full w-full object-contain ${
           light ? "brightness-0 invert-[0.93]" : ""
