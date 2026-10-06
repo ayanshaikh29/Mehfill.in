@@ -16,6 +16,7 @@ const FeatureShowcase = dynamic(() => import("@/components/FeatureShowcase"));
 const Pricing = dynamic(() => import("@/components/Pricing"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const FAQ = dynamic(() => import("@/components/FAQ"));
+import SeoCopy from "@/components/SeoCopy";
 const BrandMoment = dynamic(() => import("@/components/BrandMoment"));
 const CTA = dynamic(() => import("@/components/CTA"));
 const Footer = dynamic(() => import("@/components/Footer"));
@@ -23,7 +24,7 @@ const Footer = dynamic(() => import("@/components/Footer"));
 export const metadata: Metadata = {
   title: "Digital Invitations for Weddings & Celebrations | Mehfill",
   description:
-    "Mehfill creates beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements, anniversaries and celebrations in India. View live demos and order on WhatsApp.",
+    "Beautiful digital invitations for weddings, Nikah, birthdays & celebrations in India. View live demos and order on WhatsApp.",
   alternates: { canonical: canonical("/") },
 };
 
@@ -100,6 +101,7 @@ export default function Home() {
       <Pricing />
       <Testimonials />
       <FAQ />
+      <SeoCopy />
       <BrandMoment />
       <CTA />
       <Footer />

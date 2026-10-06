@@ -24,7 +24,7 @@ export const LANDING_PAGES: LandingPage[] = [
     slug: "digital-wedding-invitations",
     title: "Digital Wedding Invitations in India — Cinematic & Shareable",
     description:
-      "Beautiful digital wedding invitations for Indian celebrations — cinematic reveal, events, RSVP, maps and music in one shareable link. View live demos and order on WhatsApp.",
+      "Cinematic digital wedding invitations for Indian celebrations — events, RSVP, maps & music in one link. View demos & order on WhatsApp.",
     h1: "Digital wedding invitations, made for India",
     intro:
       "Mehfill creates beautiful digital invitation experiences for weddings across India — Hindu, Muslim, Sikh, Christian and interfaith families. Instead of a paper card that gets lost, your guests open one elegant link with your story, events, venues, photos and RSVP.",

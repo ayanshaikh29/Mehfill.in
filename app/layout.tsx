@@ -9,6 +9,17 @@ import LaunchGate from "@/components/LaunchGate";
 import PostLaunch from "@/components/PostLaunch";
 import CookieNotice from "@/components/CookieNotice";
 import Script from "next/script";
+import { INSTAGRAM_URL, SOCIAL_PROFILES } from "@/lib/contact";
+
+// Social profiles for schema sameAs — only live URLs are emitted,
+// so the Organization graph never claims profiles that don't exist.
+const SOCIAL_URLS = [
+  INSTAGRAM_URL,
+  SOCIAL_PROFILES.facebook,
+  SOCIAL_PROFILES.x,
+  SOCIAL_PROFILES.linkedin,
+  SOCIAL_PROFILES.youtube,
+].filter((u): u is string => Boolean(u));
 
 const serif = Cormorant_Garamond({
   variable: "--font-serif",
@@ -32,7 +43,7 @@ export const metadata: Metadata = {
     template: "%s | Mehfill",
   },
   description:
-    "Mehfill creates beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements, anniversaries and celebrations in India. Cinematic designs, WhatsApp ordering, RSVP, maps & music in one shareable link.",
+    "Beautiful digital invitations for weddings, Nikah, birthdays & celebrations in India. View live demos and order on WhatsApp.",
   authors: [{ name: "Mehfill.in" }],
   creator: "Mehfill.in",
   publisher: "Mehfill.in",
@@ -101,7 +112,7 @@ const JSON_LD = {
       logo: "https://mehfill.in/logo.png",
       description:
         "Mehfill creates beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements, anniversaries and celebrations in India.",
-      sameAs: ["https://www.instagram.com/mehfill.inn"],
+      sameAs: SOCIAL_URLS,
     },
     {
       "@type": "WebSite",
@@ -110,6 +121,19 @@ const JSON_LD = {
       name: "Mehfill",
       publisher: { "@id": "https://mehfill.in/#organization" },
       inLanguage: "en-IN",
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": "https://mehfill.in/#local-business",
+      name: "Mehfill — Digital Invitations",
+      url: "https://mehfill.in/",
+      image: "https://mehfill.in/og-cover.png",
+      description:
+        "Custom digital invitation studio for weddings, Nikah, birthdays, engagements and anniversaries in India. WhatsApp ordering, 1–3 day delivery, RSVP and maps in one shareable link.",
+      priceRange: "₹₹",
+      areaServed: { "@type": "Country", name: "India" },
+      availableLanguage: ["en", "hi", "ur"],
+      sameAs: SOCIAL_URLS,
     },
   ],
 };

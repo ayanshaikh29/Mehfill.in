@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { Reveal } from "./Reveal";
 import MehfillAura from "./effects/MehfillAura";
 import { WhatsAppIcon } from "./BrandIcons";
-import { waLink, WA_MSG_GENERAL, CONTACT_EMAIL } from "@/lib/contact";
+import { waLink, WA_MSG_GENERAL } from "@/lib/contact";
+import EmailLink from "./EmailLink";
 
 export default function CTA() {
   const reduce = useReducedMotion();
@@ -39,7 +40,7 @@ export default function CTA() {
         </div>
         <p className="relative mt-6 text-[12px] tracking-[0.18em] text-ivory/40 font-semibold">CUSTOM-MADE • PERSONAL • READY TO SHARE</p>
         <p className="relative mt-3 text-sm text-ivory/55">
-          Prefer email? <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-champagne-light hover:text-ivory">{CONTACT_EMAIL}</a>
+          Prefer email? <EmailLink className="font-semibold text-champagne-light hover:text-ivory" />
         </p>
       </Reveal>
     </section>

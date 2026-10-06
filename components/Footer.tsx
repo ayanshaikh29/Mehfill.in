@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
-import { ArrowUpRight, Mail } from "lucide-react";
+import { ArrowUpRight, Mail, Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
 import { WhatsAppIcon, InstagramIcon } from "./BrandIcons";
-import { waLink, WA_MSG_GENERAL, INSTAGRAM_URL, CONTACT_EMAIL } from "@/lib/contact";
+import { waLink, WA_MSG_GENERAL, INSTAGRAM_URL, SOCIAL_PROFILES } from "@/lib/contact";
+import EmailLink from "./EmailLink";
 
 export default function Footer() {
   return (
@@ -21,9 +22,29 @@ export default function Footer() {
             <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:text-terracotta">
               <InstagramIcon className="h-4 w-4" /> @mehfill.inn <ArrowUpRight className="h-3.5 w-3.5" />
             </a>
-            <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center gap-2 text-sm font-semibold hover:text-terracotta">
-              <Mail className="h-4 w-4" /> {CONTACT_EMAIL} <ArrowUpRight className="h-3.5 w-3.5" />
-            </a>
+            {SOCIAL_PROFILES.facebook && (
+              <a href={SOCIAL_PROFILES.facebook} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:text-terracotta">
+                <Facebook className="h-4 w-4" /> Facebook <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            )}
+            {SOCIAL_PROFILES.x && (
+              <a href={SOCIAL_PROFILES.x} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:text-terracotta">
+                <Twitter className="h-4 w-4" /> X <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            )}
+            {SOCIAL_PROFILES.linkedin && (
+              <a href={SOCIAL_PROFILES.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:text-terracotta">
+                <Linkedin className="h-4 w-4" /> LinkedIn <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            )}
+            {SOCIAL_PROFILES.youtube && (
+              <a href={SOCIAL_PROFILES.youtube} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:text-terracotta">
+                <Youtube className="h-4 w-4" /> YouTube <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            )}
+            <span className="inline-flex items-center gap-2 text-sm font-semibold hover:text-terracotta">
+              <Mail className="h-4 w-4" /> <EmailLink className="hover:text-terracotta" /> <ArrowUpRight className="h-3.5 w-3.5" />
+            </span>
           </div>
         </div>
         <div>

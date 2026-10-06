@@ -11,6 +11,21 @@ export const CONTACT_EMAIL = "mehfill.in029@gmail.com";
 
 export const INSTAGRAM_URL = "https://www.instagram.com/mehfill.inn";
 
+// Social profiles — fill in the URL once the page/channel exists and it
+// appears automatically in the footer + Organization schema (sameAs).
+// Leave null until then: never link to a profile that doesn't exist.
+export const SOCIAL_PROFILES: {
+  facebook: string | null;
+  x: string | null;
+  linkedin: string | null;
+  youtube: string | null;
+} = {
+  facebook: null,
+  x: null,
+  linkedin: null,
+  youtube: null,
+};
+
 export function waLink(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
