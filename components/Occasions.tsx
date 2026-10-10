@@ -7,12 +7,12 @@ const OCCASIONS = [
   { name: "Weddings", sub: "Nikah, Anand Karaj, church & Hindu weddings", img: "/images/occasions/weddings.jpg", href: "/digital-wedding-invitations", alt: "Indian couple — digital wedding invitations by Mehfill" },
   { name: "Birthdays", sub: "First birthdays to fiftieths", img: "/images/occasions/birthdays.jpg", href: "/birthday-invitations", alt: "Birthday celebration — digital birthday invitation" },
   { name: "Engagements", sub: "Ring ceremonies & proposals", img: "/images/occasions/engagements.jpg", href: "/engagement-invitations", alt: "Couple rings — digital engagement invitation" },
-  { name: "Haldi & Mehndi", sub: "Joyful pre-wedding festivities", img: "/images/occasions/haldi_mehndi.jpg", href: "/digital-wedding-invitations", alt: "Haldi and Mehndi ceremony — pre-wedding digital invitation" },
+  { name: "Haldi & Mehndi", sub: "Joyful pre-wedding festivities", img: "/images/occasions/haldi_mehndi.jpg", href: "/haldi-invitations", alt: "Haldi and Mehndi ceremony — digital Haldi invitation by Mehfill.in" },
   { name: "Anniversaries", sub: "Silver, golden & every year", img: "/images/occasions/anniversaries.jpg", href: "/anniversary-invitations", alt: "Celebrating couple — digital anniversary invitation" },
-  { name: "Baby Showers", sub: "Godh Bharai & welcoming ceremonies", img: "/images/occasions/baby_showers.jpg", href: "/digital-invitations", alt: "Baby shower decorations — digital invitation" },
-  { name: "Parties", sub: "Festive nights & gatherings", img: "/images/occasions/parties.jpg", href: "/birthday-invitations", alt: "Festive party lights — digital party invitation" },
+  { name: "Baby Showers", sub: "Godh Bharai & welcoming ceremonies", img: "/images/occasions/baby_showers.jpg", href: "/event-invitations", alt: "Baby shower decorations — digital event invitation by Mehfill.in" },
+  { name: "Parties", sub: "Festive nights & gatherings", img: "/images/occasions/parties.jpg", href: "/event-invitations", alt: "Festive party lights — digital event invitation by Mehfill.in" },
   { name: "Faith & Prayer", sub: "Puja, Dawat, Baptism, Akhand Path & more", img: "/images/occasions/faith_prayer.jpg", href: "/nikah-invitations", alt: "Prayer ceremony — faith digital invitation" },
-  { name: "Corporate Events", sub: "Launches & celebrations at work", img: "/images/occasions/corporate.jpg", href: "/digital-invitations", alt: "Corporate event — digital event invitation" },
+  { name: "Corporate Events", sub: "Launches & celebrations at work", img: "/images/occasions/corporate.jpg", href: "/event-invitations", alt: "Corporate event — digital event invitation by Mehfill.in" },
 ];
 
 export default function Occasions() {

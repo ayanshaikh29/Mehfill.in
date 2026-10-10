@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
 import { CONTACT_EMAIL } from "@/lib/contact";
+import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Mehfill.in",
+  title: "Privacy Policy",
   description: "How Mehfill.in collects, uses, stores and protects your personal information.",
+  alternates: { canonical: canonical("/privacy-policy") },
 };
 
 export default function PrivacyPolicyPage() {

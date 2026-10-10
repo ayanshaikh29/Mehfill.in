@@ -1,6 +1,6 @@
 // Central SEO config — single source of truth for canonical base, titles, descriptions.
 export const SITE_URL = "https://mehfill.in";
-export const SITE_NAME = "Mehfill";
+export const SITE_NAME = "Mehfill.in";
 export const BRAND = "Mehfill.in";
 export const LOCALE = "en_IN";
 export const OG_IMAGE = "/og-cover.png";

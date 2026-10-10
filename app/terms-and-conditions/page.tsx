@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
 import { CONTACT_EMAIL } from "@/lib/contact";
+import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions — Mehfill.in",
+  title: "Terms & Conditions",
   description: "The terms for using Mehfill.in and ordering custom digital invitations.",
+  alternates: { canonical: canonical("/terms-and-conditions") },
 };
 
 export default function TermsPage() {

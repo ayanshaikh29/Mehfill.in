@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Mehfill — Digital Invitations for Weddings & Celebrations",
-    short_name: "Mehfill",
+    name: "Mehfill.in — Digital Wedding & Event Invitations",
+    short_name: "Mehfill.in",
     description:
       "Beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements and anniversaries in India.",
     start_url: "/",

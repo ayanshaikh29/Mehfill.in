@@ -39,11 +39,11 @@ const sans = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL("https://mehfill.in"),
   title: {
-    default: "Digital Invitations for Weddings & Celebrations | Mehfill",
-    template: "%s | Mehfill",
+    default: "Mehfill.in | Digital Wedding & Event Invitations",
+    template: "%s | Mehfill.in",
   },
   description:
-    "Beautiful digital invitations for weddings, Nikah, birthdays & celebrations in India. View live demos and order on WhatsApp.",
+    "Create beautiful digital wedding and event invitations with Mehfill.in. Modern, elegant and shareable invitations for weddings, engagements, birthdays and special celebrations.",
   authors: [{ name: "Mehfill.in" }],
   creator: "Mehfill.in",
   publisher: "Mehfill.in",
@@ -61,9 +61,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Digital Invitations for Weddings & Celebrations | Mehfill",
+    title: "Mehfill.in | Digital Wedding & Event Invitations",
     description:
-      "Beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements, anniversaries and celebrations. Open a live demo and feel it.",
+      "Create beautiful digital wedding and event invitations with Mehfill.in. Modern, elegant and shareable invitations for weddings, engagements, birthdays and special celebrations.",
     url: "https://mehfill.in/",
     siteName: "Mehfill.in",
     locale: "en_IN",
@@ -73,15 +73,15 @@ export const metadata: Metadata = {
         url: "/og-cover.png",
         width: 1200,
         height: 630,
-        alt: "Mehfill — digital invitations for weddings and celebrations in India",
+        alt: "Mehfill.in — digital wedding and event invitations for celebrations in India",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Digital Invitations for Weddings & Celebrations | Mehfill",
+    title: "Mehfill.in | Digital Wedding & Event Invitations",
     description:
-      "Cinematic digital invitations for Indian weddings & celebrations. Open a live demo.",
+      "Create beautiful digital wedding and event invitations with Mehfill.in — elegant, WhatsApp-ready links with RSVP, maps and photos.",
     images: ["/og-cover.png"],
   },
   icons: {
@@ -91,7 +91,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "Mehfill",
+    title: "Mehfill.in",
     statusBarStyle: "default",
   },
   formatDetection: {
@@ -106,30 +106,39 @@ const JSON_LD = {
     {
       "@type": "Organization",
       "@id": "https://mehfill.in/#organization",
-      name: "Mehfill",
-      alternateName: "Mehfill.in",
+      name: "Mehfill.in",
       url: "https://mehfill.in/",
       logo: "https://mehfill.in/logo.png",
       description:
-        "Mehfill creates beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements, anniversaries and celebrations in India.",
+        "Mehfill.in is a digital invitation platform for weddings, events and celebrations. We create beautiful digital wedding invitations, engagement invitations, birthday invitations and event invitations that are easy to share on WhatsApp.",
       sameAs: SOCIAL_URLS,
+      founder: {
+        "@type": "Person",
+        name: "Ayan Shaikh",
+      },
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Nashik",
+        addressRegion: "Maharashtra",
+        addressCountry: "IN",
+      },
     },
     {
       "@type": "WebSite",
       "@id": "https://mehfill.in/#website",
       url: "https://mehfill.in/",
-      name: "Mehfill",
+      name: "Mehfill.in",
       publisher: { "@id": "https://mehfill.in/#organization" },
       inLanguage: "en-IN",
     },
     {
       "@type": "ProfessionalService",
       "@id": "https://mehfill.in/#local-business",
-      name: "Mehfill — Digital Invitations",
+      name: "Mehfill.in — Digital Wedding & Event Invitations",
       url: "https://mehfill.in/",
       image: "https://mehfill.in/og-cover.png",
       description:
-        "Custom digital invitation studio for weddings, Nikah, birthdays, engagements and anniversaries in India. WhatsApp ordering, 1–3 day delivery, RSVP and maps in one shareable link.",
+        "Mehfill.in is an online digital invitation website for Indian weddings, Nikah, engagements, birthdays and events. Custom WhatsApp wedding invitations with RSVP and maps in one shareable link. An online invitation studio — not a restaurant or venue.",
       priceRange: "₹₹",
       areaServed: { "@type": "Country", name: "India" },
       availableLanguage: ["en", "hi", "ur"],

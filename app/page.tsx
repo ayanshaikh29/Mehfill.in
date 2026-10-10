@@ -22,9 +22,9 @@ const CTA = dynamic(() => import("@/components/CTA"));
 const Footer = dynamic(() => import("@/components/Footer"));
 
 export const metadata: Metadata = {
-  title: "Digital Invitations for Weddings & Celebrations | Mehfill",
+  title: "Mehfill.in | Digital Wedding & Event Invitations",
   description:
-    "Beautiful digital invitations for weddings, Nikah, birthdays & celebrations in India. View live demos and order on WhatsApp.",
+    "Create beautiful digital wedding and event invitations with Mehfill.in. Modern, elegant and shareable invitations for weddings, engagements, birthdays and special celebrations.",
   alternates: { canonical: canonical("/") },
 };
 

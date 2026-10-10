@@ -79,7 +79,6 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     relatedSlugs: ["nikah-invitations", "engagement-invitations", "birthday-invitations", "anniversary-invitations"],
-    demoSlug: "eternal",
     intent: "digital wedding invitation (broad)",
   },
   {
@@ -175,7 +174,7 @@ export const LANDING_PAGES: LandingPage[] = [
     slug: "birthday-invitations",
     title: "Birthday Invitations Online — Digital Birthday Cards",
     description:
-      "Fun digital birthday invitations for kids and adults — theme reveal, venue maps, RSVP and photos in one WhatsApp-ready link. View the Midnight demo.",
+      "Fun digital birthday invitations for kids and adults — theme reveal, venue maps, RSVP and photos in one WhatsApp-ready link. View live demos.",
     h1: "Birthday invitations that feel like a premiere",
     intro:
       "From first birthdays to fiftieths, Mehfill turns your birthday into a cinematic invite — a bold opening, party schedule, venue map, photos and RSVP in one link your friends will actually open.",
@@ -194,9 +193,9 @@ export const LANDING_PAGES: LandingPage[] = [
         ],
       },
       {
-        h2: "See the Midnight birthday demo",
+        h2: "See live birthday demos",
         body: [
-          "Our Midnight demo shows a modern dark-luxury birthday with cocktails and after-hours events. Love the vibe? We rebuild it with your name, age, date and venue.",
+          "Open our live demo invitations to feel the experience — modern designs with party schedules and after-hours events. Love the vibe? We rebuild it with your name, age, date and venue.",
         ],
       },
     ],
@@ -215,14 +214,13 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     relatedSlugs: ["digital-wedding-invitations", "engagement-invitations", "anniversary-invitations"],
-    demoSlug: "midnight",
     intent: "birthday invitation",
   },
   {
     slug: "engagement-invitations",
     title: "Engagement Invitations Online — Ring Ceremony Cards",
     description:
-      "Elegant digital engagement invitations for ring ceremonies and proposals — soft floral design, events, venues, photos and RSVP. View the Bloom demo.",
+      "Elegant digital engagement invitations for ring ceremonies and proposals — soft floral design, events, venues, photos and RSVP. View live demos.",
     h1: "Engagement invitations like a love letter",
     intro:
       "Your ring ceremony deserves more than a forwarded message. Mehfill designs soft, editorial engagement invitations with your story, ceremony schedule, venue and RSVP in one beautiful link.",
@@ -234,9 +232,9 @@ export const LANDING_PAGES: LandingPage[] = [
         ],
       },
       {
-        h2: "See the Bloom engagement demo",
+        h2: "See live engagement demos",
         body: [
-          "Bloom is our blush editorial engagement demo — modern, minimal and romantic. We customise it with your names, date and venue, or design something entirely new.",
+          "Open our live demo invitations to feel the experience — modern, minimal and romantic designs. We customise them with your names, date and venue, or design something entirely new.",
         ],
       },
     ],
@@ -255,7 +253,6 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     relatedSlugs: ["digital-wedding-invitations", "anniversary-invitations", "birthday-invitations"],
-    demoSlug: "bloom",
     intent: "engagement invitation",
   },
   {
@@ -344,8 +341,146 @@ export const LANDING_PAGES: LandingPage[] = [
         a: "Yes. Every invitation is a single link with a beautiful preview, made for WhatsApp sharing.",
       },
     ],
-    relatedSlugs: ["digital-wedding-invitations", "nikah-invitations", "birthday-invitations", "engagement-invitations", "anniversary-invitations"],
+    relatedSlugs: ["digital-wedding-invitations", "nikah-invitations", "birthday-invitations", "engagement-invitations", "anniversary-invitations", "haldi-invitations", "mehndi-invitations", "event-invitations"],
     intent: "broad digital invitation hub",
+  },
+  {
+    slug: "event-invitations",
+    title: "Digital Event Invitations Online — Parties, Pujas & Corporate Events",
+    description:
+      "Create digital event invitations for parties, pujas, baby showers, baptisms and corporate events — schedule, venue maps, photos and RSVP in one WhatsApp-ready link.",
+    h1: "Digital event invitations for every gathering",
+    intro:
+      "Mehfill.in creates digital event invitations for everything beyond weddings — housewarmings, baby showers, pujas, dawat gatherings, corporate launches and festive parties. One beautiful link carries your schedule, venue, photos and RSVP, ready to share on WhatsApp.",
+    sections: [
+      {
+        h2: "Made for all kinds of events",
+        body: [
+          "Every event gets the same care as a wedding — clear details guests can follow, and a design that matches the mood:",
+        ],
+        list: [
+          "Baby showers, Godh Bharai and naming ceremonies",
+          "Puja, Dawat, Baptism and prayer gatherings",
+          "Housewarmings, birthdays and festive parties",
+          "Corporate launches, farewells and team celebrations",
+          "Venue maps and one-tap RSVP for headcount",
+        ],
+      },
+      {
+        h2: "How ordering works",
+        body: [
+          "Message us on WhatsApp with your event name, date, venue and photos. We design your digital invitation card in 1–3 days with revisions, and you share one link with every guest.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: "Can I create an event invitation online?",
+        a: "Yes. Share your event name, date, venue and photos on WhatsApp and Mehfill.in designs a digital event invitation link with schedule, maps and RSVP.",
+      },
+      {
+        q: "Can guests open it without an app?",
+        a: "Yes. Guests open one link on any phone with no app or login needed, and can confirm RSVP in one tap.",
+      },
+      {
+        q: "How fast is delivery?",
+        a: "Essential in 3 days, Signature in 2 days, Royal in 24–48 hours on priority, with revisions included.",
+      },
+    ],
+    relatedSlugs: ["digital-invitations", "birthday-invitations", "anniversary-invitations", "digital-wedding-invitations"],
+    intent: "event invitation (broad non-wedding)",
+  },
+  {
+    slug: "haldi-invitations",
+    title: "Haldi Invitations Online — Bright Digital Haldi Cards",
+    description:
+      "Joyful digital Haldi invitations with yellow marigold themes — Haldi date, venue, family details, photos and RSVP in one shareable link. Order on WhatsApp.",
+    h1: "Haldi invitations full of sunshine",
+    intro:
+      "Mehfill.in designs bright digital Haldi invitations that capture the morning's joy — marigold yellows, marigold motifs and playful family photos, with your Haldi date, venue and schedule in one link guests love to open.",
+    sections: [
+      {
+        h2: "What your Haldi invitation includes",
+        body: [
+          "A focused card for the Haldi function — or part of a full wedding suite covering Haldi, Mehndi, Sangeet and wedding together:",
+        ],
+        list: [
+          "Haldi date, time and venue with maps",
+          "Family names and a warm welcome note",
+          "Photos, colours and festive motifs",
+          "Dress-code notes (yellows and whites)",
+          "One-tap RSVP and WhatsApp sharing",
+        ],
+      },
+      {
+        h2: "Combine Haldi with Mehndi and Sangeet",
+        body: [
+          "Most families order Haldi together with Mehndi and Sangeet in one wedding invitation link, so guests see every function in order. Ask us on WhatsApp and we will bundle your pre-wedding functions beautifully.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: "Can I create a Haldi invitation online?",
+        a: "Yes. Share your Haldi date, venue, family names and photos on WhatsApp and we design a bright digital Haldi invitation link with maps and RSVP.",
+      },
+      {
+        q: "Can Haldi, Mehndi and Sangeet be in one invitation?",
+        a: "Yes. We recommend one wedding link with Haldi, Mehndi, Sangeet, wedding and reception as separate events, each with its own time and venue.",
+      },
+      {
+        q: "How do I share it?",
+        a: "You get one link to share on WhatsApp. Guests open it on any phone with no app needed.",
+      },
+    ],
+    relatedSlugs: ["mehndi-invitations", "digital-wedding-invitations", "event-invitations"],
+    intent: "haldi invitation",
+  },
+  {
+    slug: "mehndi-invitations",
+    title: "Mehndi Invitations Online — Festive Digital Mehndi Cards",
+    description:
+      "Festive digital Mehndi invitations with green and colourful designs — Mehndi date, venue, Sangeet nights, photos and RSVP in one WhatsApp-ready link.",
+    h1: "Mehndi invitations, festive and colourful",
+    intro:
+      "Mehfill.in creates festive digital Mehndi invitations — rich greens, folk patterns and dhol-night energy, with your Mehndi date, venue, Sangeet schedule and family details in one elegant link.",
+    sections: [
+      {
+        h2: "What your Mehndi invitation includes",
+        body: [
+          "Everything your guests need for the Mehndi and Sangeet celebrations:",
+        ],
+        list: [
+          "Mehndi and Sangeet dates, times and venues with maps",
+          "Family names, welcome note and blessings",
+          "Photos and festive artwork",
+          "Music, dance-night and dress-code notes",
+          "RSVP and WhatsApp sharing in one link",
+        ],
+      },
+      {
+        h2: "Part of your wedding story",
+        body: [
+          "Mehndi invitations work beautifully standalone or inside a full digital wedding invitation with Haldi, wedding and reception. Share your functions on WhatsApp and we will structure them in the right order.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: "Can I create a Mehndi invitation online?",
+        a: "Yes. Share your Mehndi date, venue, Sangeet details and photos on WhatsApp and we design a festive digital Mehndi invitation with maps and RSVP.",
+      },
+      {
+        q: "Can I include Sangeet with Mehndi?",
+        a: "Yes. Mehndi and Sangeet are often combined in one invitation with separate timings and venues for each night.",
+      },
+      {
+        q: "How long does delivery take?",
+        a: "Essential in 3 days, Signature in 2 days, Royal in 24–48 hours on priority, with revisions included.",
+      },
+    ],
+    relatedSlugs: ["haldi-invitations", "digital-wedding-invitations", "event-invitations"],
+    intent: "mehndi invitation",
   },
 ];
 

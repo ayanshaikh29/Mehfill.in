@@ -5,17 +5,29 @@ import { WhatsAppIcon, InstagramIcon } from "./BrandIcons";
 import { waLink, WA_MSG_GENERAL, INSTAGRAM_URL, SOCIAL_PROFILES } from "@/lib/contact";
 import EmailLink from "./EmailLink";
 
+const DEMOS = [
+  { href: "/site-1", label: "Emerald Nikah" },
+  { href: "/site-2", label: "Rose Nikah" },
+  { href: "/site-3", label: "Royal Wedding" },
+  { href: "/site-4", label: "Cinematic Wedding" },
+  { href: "/site-5", label: "Reception" },
+];
+
 export default function Footer() {
   return (
     <footer className="border-t hairline bg-cream/50">
-      <div className="mx-auto max-w-7xl px-5 md:px-8 py-14 grid sm:grid-cols-2 md:grid-cols-[1.2fr_1fr_1fr_1fr] gap-10">
-        <div>
+      <div className="mx-auto max-w-7xl px-5 md:px-8 py-10 md:py-14 grid grid-cols-2 md:grid-cols-[1.2fr_1fr_1fr_1fr] gap-x-5 gap-y-8 md:gap-10">
+        <div className="col-span-2 md:col-span-1">
           <p className="font-serif text-3xl">Mehfill<span className="text-terracotta">.in</span></p>
+          <p className="mt-1 text-[11px] font-bold tracking-[0.24em] text-charcoal/45">DIGITAL WEDDING &amp; EVENT INVITATIONS</p>
           <p className="mt-3 text-sm text-charcoal/60 italic font-serif text-lg">More Than an Invitation. An Experience.</p>
-          <p className="mt-3 max-w-xs text-[13px] leading-relaxed text-charcoal/55">
-            Beautiful digital invitation experiences for weddings, Nikah, birthdays, engagements and anniversaries across India.
+          <p className="mt-3 hidden max-w-xs text-[13px] leading-relaxed text-charcoal/55 md:block">
+            Mehfill.in is a digital invitation platform for weddings, events and celebrations across India — digital wedding invitations, Nikah, birthdays, engagements and anniversaries.
           </p>
-          <div className="mt-5 flex flex-col gap-2.5">
+          <p className="mt-2 max-w-xs text-[12px] leading-relaxed text-charcoal/45">
+            Founded by Ayan Shaikh · Nashik, Maharashtra, India
+          </p>
+          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:flex sm:flex-col">
             <a href={waLink(WA_MSG_GENERAL)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:text-terracotta">
               <WhatsAppIcon className="h-4 w-4" /> Chat on WhatsApp <ArrowUpRight className="h-3.5 w-3.5" />
             </a>
@@ -49,32 +61,49 @@ export default function Footer() {
         </div>
         <div>
           <p className="text-[11px] font-bold tracking-[0.24em] text-charcoal/45">INVITATIONS</p>
-          <nav aria-label="Invitation categories" className="mt-4 flex flex-col gap-2.5 text-[14px] font-medium">
+          <nav aria-label="Invitation categories" className="mt-3 md:mt-4 flex flex-col gap-2 md:gap-2.5 text-[13px] md:text-[14px] font-medium">
             <Link href="/digital-wedding-invitations" className="hover:text-terracotta">Digital Wedding Invitations</Link>
             <Link href="/nikah-invitations" className="hover:text-terracotta">Nikah Invitations</Link>
             <Link href="/muslim-wedding-invitations" className="hover:text-terracotta">Muslim Wedding Invitations</Link>
             <Link href="/birthday-invitations" className="hover:text-terracotta">Birthday Invitations</Link>
             <Link href="/engagement-invitations" className="hover:text-terracotta">Engagement Invitations</Link>
             <Link href="/anniversary-invitations" className="hover:text-terracotta">Anniversary Invitations</Link>
+            <Link href="/haldi-invitations" className="hover:text-terracotta">Haldi Invitations</Link>
+            <Link href="/mehndi-invitations" className="hover:text-terracotta">Mehndi Invitations</Link>
+            <Link href="/event-invitations" className="hover:text-terracotta">Event Invitations</Link>
             <Link href="/digital-invitations" className="hover:text-terracotta">All Digital Invitations</Link>
           </nav>
         </div>
         <div>
           <p className="text-[11px] font-bold tracking-[0.24em] text-charcoal/45">EXPLORE</p>
-          <div className="mt-4 flex flex-col gap-2.5 text-[14px] font-medium">
+          <div className="mt-3 md:mt-4 flex flex-col gap-2 md:gap-2.5 text-[13px] md:text-[14px] font-medium">
+            <Link href="/" className="hover:text-terracotta">Home</Link>
             <Link href="/demos" className="hover:text-terracotta">View Live Demos</Link>
-            <Link href="/demos/eternal" className="hover:text-terracotta">Eternal Wedding Demo</Link>
-            <Link href="/demos/bloom" className="hover:text-terracotta">Bloom Engagement Demo</Link>
-            <Link href="/demos/midnight" className="hover:text-terracotta">Midnight Birthday Demo</Link>
-            <Link href="#how" className="hover:text-terracotta">How It Works</Link>
-            <Link href="#pricing" className="hover:text-terracotta">Pricing</Link>
-            <Link href="#faq" className="hover:text-terracotta">FAQ</Link>
+            <Link href="/how-it-works" className="hover:text-terracotta">How It Works</Link>
+            <Link href="/about" className="hover:text-terracotta">About Mehfill.in</Link>
+            <Link href="/contact" className="hover:text-terracotta">Contact</Link>
+            <Link href="/reviews" className="hover:text-terracotta">Customer Reviews</Link>
+            <Link href="/#pricing" className="hover:text-terracotta">Pricing</Link>
+            <Link href="/#faq" className="hover:text-terracotta">FAQ</Link>
             <Link href="/login" className="hover:text-terracotta">Sign in / Account</Link>
           </div>
         </div>
-        <div>
-          <p className="text-[11px] font-bold tracking-[0.24em] text-charcoal/45">LEGAL</p>
-          <div className="mt-4 flex flex-col gap-2.5 text-[14px] font-medium">
+        <div className="col-span-2 md:col-span-4">
+          <p className="text-[11px] font-bold tracking-[0.24em] text-charcoal/45">LIVE DEMOS</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:flex md:flex-wrap">
+            {DEMOS.map((d) => (
+              <Link
+                key={d.href}
+                href={d.href}
+                className="rounded-full border hairline bg-white/60 px-4 py-2 text-center text-[12.5px] font-semibold hover:border-terracotta hover:text-terracotta"
+              >
+                {d.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="col-span-2 md:col-span-4">
+          <div className="flex flex-row flex-wrap gap-x-5 gap-y-2 text-[13px] md:text-[14px] font-medium">
             <Link href="/privacy-policy" className="hover:text-terracotta">Privacy Policy</Link>
             <Link href="/terms-and-conditions" className="hover:text-terracotta">Terms &amp; Conditions</Link>
             <Link href="/refund-policy" className="hover:text-terracotta">Refund Policy</Link>

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getTemplate, TEMPLATES } from "@/lib/templates";
 import EternalDemo from "@/components/demos/EternalDemo";
@@ -27,13 +27,13 @@ export function generateMetadata({ params }: { params: Promise<{ slug: string }>
   if (!t) return { title: "Demo not found", robots: { index: false, follow: false } };
   const url = canonical(`/demos/${t.slug}`);
   const title = DEMO_TITLES[t.slug] ?? `${t.name} — ${t.occasion} Digital Invitation Demo`;
-  const description = `${t.description} Open the live ${t.name} ${t.occasion.toLowerCase()} invitation demo by Mehfill — ${t.data.names}, ${t.data.date} at ${t.data.venue}. Cinematic reveal, events, gallery and RSVP.`;
+  const description = `${t.description} Open the live ${t.name} ${t.occasion.toLowerCase()} invitation demo by Mehfill.in — ${t.data.names}, ${t.data.date} at ${t.data.venue}. Cinematic reveal, events, gallery and RSVP.`;
   return {
     title,
     description,
     alternates: { canonical: url },
     openGraph: {
-      title: `${title} | Mehfill`,
+      title: `${title} | Mehfill.in`,
       description,
       url,
       siteName: "Mehfill.in",
@@ -43,7 +43,7 @@ export function generateMetadata({ params }: { params: Promise<{ slug: string }>
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | Mehfill`,
+      title: `${title} | Mehfill.in`,
       description,
       images: [t.image],
     },
@@ -80,7 +80,7 @@ function DemoSeoFooter({ slug }: { slug: string }) {
             About this {t.occasion.toLowerCase()} invitation demo
           </h2>
           <p className="mt-4 leading-relaxed text-charcoal/70">
-            The {t.name} demo shows what a Mehfill {t.occasion.toLowerCase()} invitation feels like —
+            The {t.name} demo shows what a Mehfill.in {t.occasion.toLowerCase()} invitation feels like —
             {` ${t.data.names}`}, {t.data.date} at {t.data.venue} in {t.data.location}. {t.description} Every
             detail — names, dates, photos, venues and wording — is customised for your own celebration when you order.
           </p>
@@ -107,7 +107,7 @@ function DemoSeoFooter({ slug }: { slug: string }) {
                 Nikah Invitations
               </Link>
               <Link href="/" className="rounded-full border hairline bg-white px-5 py-2.5 text-[13px] font-semibold hover:border-charcoal/30">
-                Mehfill home
+                Mehfill.in home
               </Link>
             </div>
           </div>
@@ -119,6 +119,8 @@ function DemoSeoFooter({ slug }: { slug: string }) {
 
 export default async function DemoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  // Retired template demos — only site-1..5 are public now. Send users to /demos.
+  if (["eternal", "bloom", "midnight"].includes(slug)) redirect("/demos");
   const t = getTemplate(slug);
   if (!t) notFound();
 

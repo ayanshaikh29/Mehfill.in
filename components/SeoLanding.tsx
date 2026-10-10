@@ -1,10 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
 import { getLanding } from "@/lib/landing-content";
-import { getTemplate } from "@/lib/templates";
 import { waLink, WA_MSG_GENERAL } from "@/lib/contact";
 import { canonical } from "@/lib/seo";
 
@@ -40,7 +38,6 @@ export function LandingJsonLd({ slug }: { slug: string }) {
 export default function SeoLanding({ slug }: { slug: string }) {
   const l = getLanding(slug);
   if (!l) return null;
-  const demo = l.demoSlug ? getTemplate(l.demoSlug) : undefined;
 
   return (
     <main className="min-h-screen">
@@ -72,14 +69,6 @@ export default function SeoLanding({ slug }: { slug: string }) {
           >
             Chat on WhatsApp
           </a>
-          {demo && (
-            <Link
-              href={`/demos/${demo.slug}`}
-              className="inline-flex items-center rounded-full border hairline px-7 py-3.5 text-sm font-semibold"
-            >
-              Open {demo.name} demo
-            </Link>
-          )}
         </div>
 
         {l.sections.map((s) => (
@@ -100,34 +89,6 @@ export default function SeoLanding({ slug }: { slug: string }) {
             )}
           </section>
         ))}
-
-        {demo && (
-          <section className="mt-12 rounded-[1.6rem] border hairline bg-white overflow-hidden">
-            <div className="grid sm:grid-cols-[200px_1fr]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <Image
-                src={demo.image}
-                alt={`${demo.name} — ${demo.occasion} digital invitation demo by Mehfill`}
-                width={400}
-                height={500}
-                sizes="(max-width: 640px) 100vw, 200px"
-                quality={70}
-                className="h-48 sm:h-full w-full object-cover"
-              />
-              <div className="p-6 md:p-8">
-                <p className="eyebrow text-terracotta">LIVE DEMO</p>
-                <h2 className="mt-2 font-serif text-2xl md:text-3xl">{demo.name} — {demo.tagline}</h2>
-                <p className="mt-2 text-charcoal/65 leading-relaxed">{demo.description}</p>
-                <Link
-                  href={`/demos/${demo.slug}`}
-                  className="mt-4 inline-flex items-center rounded-full bg-charcoal px-6 py-3 text-sm font-semibold text-ivory"
-                >
-                  Open the {demo.name} demo
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
 
         <section className="mt-12">
           <h2 className="font-serif font-light text-3xl md:text-4xl">Questions, answered</h2>
@@ -170,7 +131,7 @@ export default function SeoLanding({ slug }: { slug: string }) {
               href="/"
               className="rounded-full border hairline bg-white/60 px-5 py-2.5 text-[13px] font-semibold hover:border-charcoal/30"
             >
-              Mehfill home
+              Mehfill.in home
             </Link>
           </div>
         </section>

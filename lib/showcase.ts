@@ -68,4 +68,17 @@ export const SHOWCASE: Showcase[] = [
     badge: "LIVE DEMO",
     palette: { bg: "#1F2A1D", ink: "#FFFDF7", accent: "#C7A75B" },
   },
+  {
+    slug: "amit-siya-reception",
+    names: "Amit & Siya",
+    occasion: "Wedding · Reception",
+    title: "A minimalist luxury reception invitation",
+    description:
+      "Ivory editorial luxury with animated hero, scratch-to-reveal date, live countdown, love story, reception details, gallery, maps and RSVP — a premium reception invitation.",
+    url: "https://mehfill.in/site-5/",
+    // Cover = actual film frame (local poster, fast).
+    image: "/site-5/opening-poster.jpg",
+    badge: "LIVE DEMO",
+    palette: { bg: "#EFE9DD", ink: "#24211D", accent: "#B89B63" },
+  },
 ];

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
-import { TEMPLATES } from "@/lib/templates";
+import ShowcaseCard from "@/components/ShowcaseCard";
+import { SHOWCASE } from "@/lib/showcase";
+import { WhatsAppIcon } from "@/components/BrandIcons";
+import { waLink } from "@/lib/contact";
 import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
     "Open live Mehfill invitation demos — cinematic wedding, Nikah-style, engagement and birthday designs with events, galleries and RSVP. Find the style for your celebration.",
   alternates: { canonical: canonical("/demos") },
   openGraph: {
-    title: "Live Invitation Demos | Mehfill",
+    title: "Live Invitation Demos | Mehfill.in",
     description: "Cinematic wedding, engagement and birthday invitation demos. Open and feel the experience.",
     url: canonical("/demos"),
     siteName: "Mehfill.in",
@@ -40,43 +42,34 @@ export default function DemosIndex() {
         <p className="eyebrow text-terracotta">LIVE DEMOS</p>
         <h1 className="mt-4 font-serif font-light text-4xl md:text-6xl">Open a demo. <span className="italic">Feel the experience.</span></h1>
         <p className="mt-4 max-w-2xl text-charcoal/65 leading-relaxed">
-          Real invitation designs your guests would open — weddings, engagements and birthdays.
-          Each demo includes events, galleries and RSVP. Love one? We customise it with your names, dates and photos.
+          Real, live invitations — open one and feel it.
         </p>
-        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
-          {TEMPLATES.map((t) => (
-            <Link key={t.slug} href={`/demos/${t.slug}`} className="group relative overflow-hidden rounded-[1.6rem] bg-white border hairline shadow-sm hover:shadow-xl transition-shadow">
-              <div className="relative aspect-[4/5] overflow-hidden">
-                <Image
-                  src={t.image}
-                  alt={`${t.name} — ${t.occasion} digital invitation demo by Mehfill`}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  quality={70}
-                  className="object-cover transition-transform duration-[1.2s] group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5 text-ivory">
-                  <p className="font-serif text-3xl">{t.name}</p>
-                  <p className="mt-1 text-[13px] text-ivory/80">{t.tagline}</p>
-                </div>
-              </div>
-              <div className="p-5">
-                <p className="text-sm text-charcoal/60 line-clamp-2">{t.description}</p>
-                <span className="mt-3 inline-block rounded-full bg-charcoal px-5 py-2.5 text-[12px] font-bold text-ivory">Open demo</span>
-              </div>
-            </Link>
+        <div className="mt-6 md:mt-10 grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-7">
+          {SHOWCASE.map((s, i) => (
+            <ShowcaseCard key={s.slug} s={s} index={i} />
           ))}
-        </div>
-        <div className="mt-12 rounded-[1.6rem] border hairline bg-cream/60 p-6 md:p-8">
-          <h2 className="font-serif text-2xl md:text-3xl">Static invitation showcases</h2>
-          <p className="mt-2 text-charcoal/65">Our handcrafted Nikah and wedding showcases — full cinematic pages:</p>
-          <div className="mt-4 flex flex-wrap gap-2.5">
-            {["site-1", "site-2", "site-3", "site-4"].map((s, i) => (
-              <Link key={s} href={`/${s}`} className="rounded-full bg-charcoal px-5 py-2.5 text-[13px] font-semibold text-ivory">
-                {["Emerald Nikah — Hamza & Maryam", "Rose Nikah — Arham & Zoya", "Royal Wedding showcase", "Cinematic Wedding showcase"][i]}
-              </Link>
-            ))}
+
+          {/* More demos coming soon */}
+          <div className="group relative overflow-hidden rounded-[1.6rem] bg-charcoal text-ivory border border-white/10 shadow-[0_10px_40px_rgba(28,25,23,0.12)] p-4 md:p-7 flex flex-col justify-between min-h-[240px] md:min-h-[340px]">
+            <div className="absolute inset-0 bg-gradient-to-br from-terracotta/20 via-transparent to-champagne/10 pointer-events-none" />
+            <div>
+              <span className="inline-block rounded-full bg-champagne/20 border border-champagne/30 backdrop-blur px-2.5 md:px-3.5 py-1 text-[9px] md:text-[11px] font-bold tracking-[0.14em] uppercase text-champagne-light">
+                COMING SOON
+              </span>
+              <h3 className="mt-4 md:mt-6 font-serif font-light text-xl md:text-3xl leading-snug text-ivory">
+                More Demos <span className="italic text-champagne-light">Coming Soon</span>
+              </h3>
+            </div>
+            <div className="pt-4 md:pt-6 border-t border-white/10">
+              <a
+                href={waLink("Hi Mehfill! I want to request a custom invitation theme for my upcoming celebration.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full rounded-full bg-ivory py-2.5 md:py-3 text-[11px] md:text-sm font-bold text-charcoal hover:bg-champagne-light transition-colors"
+              >
+                <WhatsAppIcon className="h-4 w-4" /> Request Custom Design
+              </a>
+            </div>
           </div>
         </div>
         <div className="mt-10">
@@ -87,6 +80,9 @@ export default function DemosIndex() {
             <Link href="/birthday-invitations" className="rounded-full border hairline bg-white/60 px-5 py-2.5 text-[13px] font-semibold">Birthday Invitations</Link>
             <Link href="/engagement-invitations" className="rounded-full border hairline bg-white/60 px-5 py-2.5 text-[13px] font-semibold">Engagement Invitations</Link>
             <Link href="/anniversary-invitations" className="rounded-full border hairline bg-white/60 px-5 py-2.5 text-[13px] font-semibold">Anniversary Invitations</Link>
+            <Link href="/haldi-invitations" className="rounded-full border hairline bg-white/60 px-5 py-2.5 text-[13px] font-semibold">Haldi Invitations</Link>
+            <Link href="/mehndi-invitations" className="rounded-full border hairline bg-white/60 px-5 py-2.5 text-[13px] font-semibold">Mehndi Invitations</Link>
+            <Link href="/event-invitations" className="rounded-full border hairline bg-white/60 px-5 py-2.5 text-[13px] font-semibold">Event Invitations</Link>
           </div>
         </div>
       </div>

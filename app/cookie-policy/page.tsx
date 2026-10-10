@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
 import { CONTACT_EMAIL } from "@/lib/contact";
+import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy — Mehfill.in",
+  title: "Cookie Policy",
   description: "What cookies and local storage Mehfill.in actually uses — and nothing more.",
+  alternates: { canonical: canonical("/cookie-policy") },
 };
 
 export default function CookiePolicyPage() {

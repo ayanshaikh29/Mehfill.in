@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
 import { CONTACT_EMAIL } from "@/lib/contact";
+import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Refund & Cancellation Policy — Mehfill.in",
+  title: "Refund & Cancellation Policy",
   description: "When Mehfill.in orders are confirmed, cancelled or refunded.",
+  alternates: { canonical: canonical("/refund-policy") },
 };
 
 export default function RefundPolicyPage() {

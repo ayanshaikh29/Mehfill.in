@@ -9,12 +9,12 @@ import AuthButton from "./AuthButton";
 import { waLink, WA_MSG_GENERAL } from "@/lib/contact";
 
 const LINKS = [
-  { label: "Home", href: "#top" },
-  { label: "View Demos", href: "#designs" },
-  { label: "How It Works", href: "#how" },
-  { label: "Occasions", href: "#occasions" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Contact", href: "#cta" },
+  { label: "Home", href: "/#top" },
+  { label: "View Demos", href: "/#designs" },
+  { label: "How It Works", href: "/how-it-works" },
+  { label: "Occasions", href: "/#occasions" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "Contact", href: "/contact" },
 ];
 
 function Wordmark({ className = "", light = false }: { className?: string; light?: boolean }) {
@@ -70,7 +70,7 @@ export default function Navbar() {
               : "border-white/40 bg-ivory/60 shadow-[0_8px_30px_rgba(28,25,23,0.06)] backdrop-blur-md md:backdrop-blur-lg"
           }`}
         >
-          <Link href="#top" className="group flex min-w-0 shrink-0 items-center" aria-label="Mehfill.in home">
+          <Link href="/#top" className="group flex min-w-0 shrink-0 items-center" aria-label="Mehfill.in home">
             <Wordmark className="w-[132px] transition-transform duration-500 group-hover:scale-[1.03] sm:w-[148px] md:w-[168px]" />
           </Link>
 

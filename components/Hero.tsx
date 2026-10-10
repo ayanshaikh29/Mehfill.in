@@ -69,17 +69,17 @@ export default function Hero() {
           <h1 className="mt-5 font-serif font-light leading-[0.98] tracking-tight text-[13.5vw] sm:text-6xl md:text-7xl xl:text-[5.4rem] text-balance">
             <span className="block overflow-hidden">
               <motion.span className="block" initial={{ y: "105%" }} animate={{ y: 0 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>
-                More Than an
+                Beautiful Digital
               </motion.span>
             </span>
             <span className="block overflow-hidden">
               <motion.span className="block italic font-medium" initial={{ y: "105%" }} animate={{ y: 0 }} transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}>
-                Invitation.
+                Invitations
               </motion.span>
             </span>
             <span className="block overflow-hidden">
               <motion.span className="block" initial={{ y: "105%" }} animate={{ y: 0 }} transition={{ duration: 0.9, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}>
-                An Experience.
+                for Every Celebration.
               </motion.span>
             </span>
           </h1>
@@ -89,7 +89,7 @@ export default function Hero() {
             transition={{ delay: 0.4, duration: 0.7 }}
             className="mt-6 max-w-md text-[15.5px] md:text-lg leading-relaxed text-charcoal/65"
           >
-            Beautiful digital invitations for every faith and family — Hindu, Muslim, Sikh, Christian weddings, birthdays, engagements & every celebration. Custom-made for you, just share your details on WhatsApp.
+            Create stunning digital wedding and event invitations with Mehfill.in — beautiful, easy to share and perfect for every celebration. An online wedding invitation website for Indian weddings, engagements and birthdays, delivered as a WhatsApp-ready link.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -128,7 +128,7 @@ export default function Hero() {
               <div className="relative aspect-[9/19] overflow-hidden rounded-[2rem] bg-[#0f0e0d]">
                 <Image
                   src="/images/hero/hero_wedding.jpg"
-                  alt="Digital wedding invitation preview — Aarav and Amara, Udaipur — by Mehfill"
+                  alt="Digital wedding invitation by Mehfill.in — Aarav and Amara, Udaipur"
                   fill
                   priority
                   fetchPriority="high"

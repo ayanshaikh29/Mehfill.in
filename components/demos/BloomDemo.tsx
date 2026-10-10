@@ -12,7 +12,7 @@ export default function BloomDemo({ t }: { t: Template }) {
   return (
     <main className="min-h-screen bg-[#FDF9F3] text-[#1C1917]">
       <div className="fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 md:px-8 py-3">
-        <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-white/80 border hairline backdrop-blur px-4 py-2 text-[12px] font-semibold"><ArrowLeft className="h-3.5 w-3.5" /> Back to Mehfill</Link>
+        <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-white/80 border hairline backdrop-blur px-4 py-2 text-[12px] font-semibold"><ArrowLeft className="h-3.5 w-3.5" /> Back to Mehfill.in</Link>
         <a href={waLink(WA_MSG_DEMO(t.name))} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-charcoal text-ivory px-4 py-2 text-[12px] font-bold"><WhatsAppIcon className="h-3.5 w-3.5" /> Get One Like This</a>
       </div>
 

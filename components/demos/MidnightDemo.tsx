@@ -36,7 +36,7 @@ export default function MidnightDemo({ t }: { t: Template }) {
   return (
     <main className="min-h-screen bg-[#0e0e0d] text-[#F5F0E6]">
       <div className="fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 md:px-8 py-3">
-        <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 backdrop-blur px-4 py-2 text-[12px] font-semibold"><ArrowLeft className="h-3.5 w-3.5" /> Back to Mehfill</Link>
+        <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 backdrop-blur px-4 py-2 text-[12px] font-semibold"><ArrowLeft className="h-3.5 w-3.5" /> Back to Mehfill.in</Link>
         <a href={waLink(WA_MSG_DEMO(t.name))} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-[#E8D5A8] text-black px-4 py-2 text-[12px] font-bold"><WhatsAppIcon className="h-3.5 w-3.5" /> Get One Like This</a>
       </div>
 

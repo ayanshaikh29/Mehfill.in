@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [360, 640, 750, 828, 1080, 1200],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com" }],
   },
   experimental: {
     // Tree-shake barrel imports — big JS saving, zero behaviour change.
@@ -76,6 +77,35 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      // Canonical-host enforcement (backup to middleware): www -> apex,
+      // path + query preserved. http -> https is forced by the platform (HSTS).
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.mehfill.in" }],
+        destination: "https://mehfill.in/:path*",
+        permanent: true,
+      },
+      // Old template demos retired — only site-1..5 are live.
+      // Anything under /demos/<old-slug> goes back to /demos (site-1..5 + coming soon).
+      {
+        source: "/demos/eternal",
+        destination: "/demos",
+        permanent: true,
+      },
+      {
+        source: "/demos/bloom",
+        destination: "/demos",
+        permanent: true,
+      },
+      {
+        source: "/demos/midnight",
+        destination: "/demos",
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       // Static demo sites live as plain files in public/site-N/.
@@ -89,6 +119,8 @@ const nextConfig: NextConfig = {
       { source: "/site-3/", destination: "/site-3/index.html" },
       { source: "/site-4", destination: "/site-4/index.html" },
       { source: "/site-4/", destination: "/site-4/index.html" },
+      { source: "/site-5", destination: "/site-5/index.html" },
+      { source: "/site-5/", destination: "/site-5/index.html" },
       {
         source: "/security.txt",
         destination: "/.well-known/security.txt",

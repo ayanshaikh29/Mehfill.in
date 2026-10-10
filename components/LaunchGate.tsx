@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import LaunchCountdown from "./LaunchCountdown";
 import LaunchLogo from "./LaunchLogo";
-import { getCountdownParts, isLaunched } from "@/lib/launch";
+import { getCountdownParts, isLaunched, LAUNCH_TIMESTAMP_MS } from "@/lib/launch";
 
 type Phase = "checking" | "countdown" | "transition" | "revealed";
 
@@ -59,7 +59,21 @@ function useNowMs() {
 export default function LaunchGate({ children }: { children: React.ReactNode }) {
   const nowMs = useNowMs();
   const [override] = useState<"preview" | "live" | null>(() => getTestOverride());
-  const [phase, setPhase] = useState<Phase>("checking");
+  // Post-launch the site reveals synchronously on first paint: crawlers and
+  // visitors never see a "checking" overlay, `inert` or `aria-hidden` content.
+  // Pre-launch behaviour (countdown gate) is unchanged.
+  const [phase, setPhase] = useState<Phase>(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const q = new URLSearchParams(window.location.search).get("launch");
+        if (q === "preview") return "countdown";
+        if (q === "live") return "revealed";
+      }
+      return Date.now() >= LAUNCH_TIMESTAMP_MS ? "revealed" : "checking";
+    } catch {
+      return "checking";
+    }
+  });
   const [transitionKey, setTransitionKey] = useState(0);
 
   const launched = useMemo(() => {
@@ -141,14 +155,14 @@ export default function LaunchGate({ children }: { children: React.ReactNode }) 
             {phase === "transition" ? (
               <div className="grain relative flex min-h-dvh flex-col items-center justify-center bg-ivory px-6 text-center">
                 <LaunchLogo instant />
-                <motion.h1
+                <motion.p
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.5 }}
                   className="font-serif mt-8 text-4xl font-medium text-charcoal sm:text-5xl"
                 >
                   The Wait Is Over.
-                </motion.h1>
+                </motion.p>
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}

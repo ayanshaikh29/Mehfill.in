@@ -3,8 +3,6 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import { WhatsAppIcon } from "./BrandIcons";
-import { waLink, WA_MSG_GENERAL } from "@/lib/contact";
 import type { Showcase } from "@/lib/showcase";
 
 export default function ShowcaseCard({ s, index }: { s: Showcase; index: number }) {
@@ -46,44 +44,33 @@ export default function ShowcaseCard({ s, index }: { s: Showcase; index: number 
           </div>
         )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10" />
-        <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-champagne px-3.5 py-1.5 text-[11px] font-bold tracking-[0.14em] text-charcoal">
+        <span className="absolute left-3 md:left-4 top-3 md:top-4 inline-flex items-center gap-1.5 rounded-full bg-champagne px-2.5 md:px-3.5 py-1 md:py-1.5 text-[9px] md:text-[11px] font-bold tracking-[0.14em] text-charcoal">
           <span className="relative flex h-1.5 w-1.5">
             <span className="absolute hidden h-full w-full animate-ping rounded-full bg-charcoal opacity-60 sm:inline-flex" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-charcoal" />
           </span>
           {s.badge}
         </span>
-        <span className="absolute right-5 top-4 font-serif text-lg italic text-ivory/80">
-          {String(index + 1).padStart(2, "0")}
+        <span className="absolute right-3 md:right-5 top-3 md:top-4 hidden font-serif text-sm md:text-lg italic text-ivory/80 md:block">
+          {s.occasion.split("·")[0].trim()}
         </span>
-        <div className="absolute inset-x-0 bottom-0 p-5 text-ivory">
-          <p className="text-[11px] font-bold tracking-[0.28em] text-champagne-light">{s.occasion.toUpperCase()}</p>
-          <p className="font-serif mt-1.5 text-3xl leading-none">{s.names}</p>
+        <div className="absolute inset-x-0 bottom-0 p-3 md:p-5 text-ivory">
+          <p className="font-serif mt-1.5 text-lg md:text-3xl leading-tight drop-shadow-[0_1px_8px_rgba(0,0,0,0.9)]">{s.names}</p>
         </div>
       </div>
 
-      {/* details */}
-      <div className="flex flex-1 flex-col p-6">
-        <h3 className="font-serif font-light text-2xl leading-tight">{s.title}</h3>
-        <p className="mt-3 text-[14px] leading-relaxed text-charcoal/60">{s.description}</p>
-        <div className="mt-5 flex flex-col gap-2.5 pt-1">
-          <a
-            href={s.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-charcoal py-3.5 text-sm font-bold text-ivory hover:bg-terracotta-deep transition-colors"
-          >
-            Open Live Invitation <ArrowUpRight className="h-4 w-4" />
-          </a>
-          <a
-            href={waLink(`${WA_MSG_GENERAL} (I loved the ${s.names} invitation — please make one like it for me.)`)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-full border hairline py-3.5 text-sm font-semibold hover:border-charcoal/30 transition-colors"
-          >
-            <WhatsAppIcon className="h-4 w-4" /> Make Mine Like This
-          </a>
-        </div>
+      {/* details — minimalist: single open button */}
+      <div className="p-3 md:p-5">
+        <a
+          href={s.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex w-full items-center justify-center gap-1.5 md:gap-2 whitespace-nowrap rounded-full bg-charcoal py-2.5 md:py-3.5 text-[11px] md:text-sm font-bold text-ivory hover:bg-terracotta-deep transition-colors"
+        >
+          <span className="md:hidden">Open Invitation</span>
+          <span className="hidden md:inline">Open Live Invitation</span>
+          <ArrowUpRight className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
+        </a>
       </div>
     </motion.article>
   );

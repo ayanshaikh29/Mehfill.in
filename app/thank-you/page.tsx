@@ -35,13 +35,35 @@ function Content() {
           Back to home <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
+      {/* Post-order feedback: after delivery, customers can share an honest
+          review — published on /reviews only after verification. */}
+      <div className="mt-5 w-full max-w-lg rounded-[1.4rem] border hairline bg-cream/60 p-6 text-center">
+        <p className="font-serif text-xl">How was your Mehfill.in experience?</p>
+        <p className="mt-2 text-[13px] leading-relaxed text-charcoal/60">
+          Once your invitation arrives, share your honest feedback — it helps other families
+          and appears on our reviews page after verification.
+        </p>
+        <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2.5">
+          <a
+            href={waLink(`Hello! I would like to share feedback on my Mehfill invitation experience${order ? ` (order ${order})` : ""}.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-full border hairline bg-white px-6 py-3 text-[13px] font-bold hover:border-charcoal/30"
+          >
+            <WhatsAppIcon className="h-4 w-4" /> Share feedback
+          </a>
+          <Link href="/reviews" className="inline-flex items-center justify-center gap-2 rounded-full border hairline bg-white px-6 py-3 text-[13px] font-bold hover:border-charcoal/30">
+            Read reviews <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function ThankYouPage() {
   return (
-    <main className="min-h-screen bg-ivory flex items-center justify-center px-5">
+    <main className="min-h-screen bg-ivory flex flex-col items-center justify-center gap-0 px-5 py-10">
       <Suspense fallback={<p className="font-serif text-2xl italic">Loading…</p>}>
         <Content />
       </Suspense>

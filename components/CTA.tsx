@@ -34,7 +34,7 @@ export default function CTA() {
           <a href={waLink(WA_MSG_GENERAL)} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-2 rounded-full bg-ivory px-8 py-4 text-sm font-bold text-charcoal hover:bg-champagne-light transition-colors">
             <WhatsAppIcon className="h-4 w-4" /> Chat on WhatsApp
           </a>
-          <a href="#designs" className="inline-flex items-center rounded-full border border-white/20 px-8 py-4 text-sm font-semibold text-ivory hover:border-white/40 transition-colors">
+          <a href="/#designs" className="inline-flex items-center rounded-full border border-white/20 px-8 py-4 text-sm font-semibold text-ivory hover:border-white/40 transition-colors">
             View Demos Again
           </a>
         </div>

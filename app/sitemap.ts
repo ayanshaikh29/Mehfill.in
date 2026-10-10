@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import { TEMPLATES } from "@/lib/templates";
 import { LANDING_PAGES } from "@/lib/landing-content";
 
 const BASE = "https://mehfill.in";
@@ -12,6 +11,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const statics: { path: string; priority: number; freq: "weekly" | "monthly" | "yearly" }[] = [
     { path: "/", priority: 1, freq: "weekly" },
     { path: "/demos", priority: 0.8, freq: "weekly" },
+    { path: "/about", priority: 0.8, freq: "monthly" },
+    { path: "/how-it-works", priority: 0.8, freq: "monthly" },
+    { path: "/contact", priority: 0.5, freq: "yearly" },
+    { path: "/reviews", priority: 0.5, freq: "weekly" },
     { path: "/privacy-policy", priority: 0.3, freq: "yearly" },
     { path: "/terms-and-conditions", priority: 0.3, freq: "yearly" },
     { path: "/cookie-policy", priority: 0.3, freq: "yearly" },
@@ -31,15 +34,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.9,
     })),
-    // Demo templates are part of the public catalogue.
-    ...TEMPLATES.map((t) => ({
-      url: `${BASE}/demos/${t.slug}`,
-      lastModified,
-      changeFrequency: "monthly" as const,
-      priority: 0.8,
-    })),
-    // Static HTML demo invitations (real designs guests open).
-    ...["site-1", "site-2", "site-3", "site-4"].map((s) => ({
+    // Static HTML demo invitations (real designs guests open) — only site-1..5.
+    ...["site-1", "site-2", "site-3", "site-4", "site-5"].map((s) => ({
       url: `${BASE}/${s}`,
       lastModified,
       changeFrequency: "monthly" as const,
