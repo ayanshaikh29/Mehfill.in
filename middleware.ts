@@ -14,16 +14,9 @@ export async function middleware(request: NextRequest) {
     url.host = "mehfill.in";
     return NextResponse.redirect(url, 301);
   }
-  if (
-    process.env.NODE_ENV === "production" &&
-    request.headers.get("x-forwarded-proto") === "http" &&
-    hostname === "mehfill.in"
-  ) {
-    const url = request.nextUrl.clone();
-    url.protocol = "https:";
-    url.host = "mehfill.in";
-    return NextResponse.redirect(url, 301);
-  }
+  // NOTE: no http->https upgrade here — the platform (Vercel + HSTS) already
+  // forces HTTPS. An x-forwarded-proto check causes infinite redirect loops
+  // behind proxies that forward internal http with the header intact.
   // Skip entirely when Supabase isn't configured yet.
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return NextResponse.next();
