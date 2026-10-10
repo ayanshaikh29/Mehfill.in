@@ -11,6 +11,8 @@ const DEMOS = [
   { href: "/site-3", label: "Royal Wedding" },
   { href: "/site-4", label: "Cinematic Wedding" },
   { href: "/site-5", label: "Reception" },
+  { href: "/site-6", label: "Garden Wedding" },
+  { href: "/site-7", label: "Royal Mandap" },
 ];
 
 export default function Footer() {

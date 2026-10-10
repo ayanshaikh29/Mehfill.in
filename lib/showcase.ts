@@ -81,4 +81,30 @@ export const SHOWCASE: Showcase[] = [
     badge: "LIVE DEMO",
     palette: { bg: "#EFE9DD", ink: "#24211D", accent: "#B89B63" },
   },
+  {
+    slug: "vihaan-anaya-garden",
+    names: "Vihaan & Anaya",
+    occasion: "Wedding · Garden",
+    title: "A blush-garden wedding invitation",
+    description:
+      "Ivory and champagne florals with cinematic video opening, triple scratch date reveal, countdown, gallery, events, maps and RSVP — a neutral garden celebration.",
+    url: "https://mehfill.in/site-6/",
+    // Cover = actual film frame (local poster, fast).
+    image: "/site-6/cover.jpg",
+    badge: "LIVE DEMO",
+    palette: { bg: "#FFF9F0", ink: "#44352D", accent: "#C6A15B" },
+  },
+  {
+    slug: "aditya-diya-mandap",
+    names: "Aditya & Diya",
+    occasion: "Wedding · Traditional",
+    title: "A royal mandap wedding invitation",
+    description:
+      "Deep red and antique gold with cinematic video opening, triple scratch date reveal, countdown, ceremonies, gallery, maps and RSVP — a traditional celebration.",
+    url: "https://mehfill.in/site-7/",
+    // Cover = actual film frame (local poster, fast).
+    image: "/site-7/cover.jpg",
+    badge: "LIVE DEMO",
+    palette: { bg: "#FFF4E2", ink: "#38251B", accent: "#B8893B" },
+  },
 ];

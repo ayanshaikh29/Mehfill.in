@@ -121,6 +121,10 @@ const nextConfig: NextConfig = {
       { source: "/site-4/", destination: "/site-4/index.html" },
       { source: "/site-5", destination: "/site-5/index.html" },
       { source: "/site-5/", destination: "/site-5/index.html" },
+      { source: "/site-6", destination: "/site-6/index.html" },
+      { source: "/site-6/", destination: "/site-6/index.html" },
+      { source: "/site-7", destination: "/site-7/index.html" },
+      { source: "/site-7/", destination: "/site-7/index.html" },
       {
         source: "/security.txt",
         destination: "/.well-known/security.txt",

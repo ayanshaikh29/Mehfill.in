@@ -34,8 +34,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.9,
     })),
-    // Static HTML demo invitations (real designs guests open) — only site-1..5.
-    ...["site-1", "site-2", "site-3", "site-4", "site-5"].map((s) => ({
+    // Static HTML demo invitations (real designs guests open).
+    ...["site-1", "site-2", "site-3", "site-4", "site-5", "site-6", "site-7"].map((s) => ({
       url: `${BASE}/${s}`,
       lastModified,
       changeFrequency: "monthly" as const,
