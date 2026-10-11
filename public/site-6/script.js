@@ -13,7 +13,7 @@ var WEDDING = {
   mapsQuery: "Celebration Gardens Mumbai", // EDIT ME — used for maps links
   venuePhoto: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1000&auto=format&fit=crop",
   whatsapp: "", // EDIT ME — e.g. "919876543210" to enable WhatsApp RSVP confirm (empty = hidden)
-  music: "bg-music.m4a", // Laavan wedding song — starts at 0:15 with the film
+  music: "bg-music.m4a", // Laavan wedding song — always starts at 0:30 with the film
   events: [ // EDIT ME — add/remove/reorder freely; empty items are hidden
     { title: "Welcome Evening", date: "12 February 2027", time: "6:00 PM", venue: "Garden Lawns", desc: "An easy evening of music and conversation as our families meet." },
     { title: "Wedding Ceremony", date: "14 February 2027", time: "11:00 AM", venue: "Flower Pavilion", desc: "Our vows beneath an arch of roses and jasmine." },
@@ -194,7 +194,10 @@ var WEDDING = {
     })();
   })();
 
-  /* ---------- cinematic cover: tap -> play -> reveal at 4s -> dock ---------- */
+  /* ---------- cinematic cover: tap -> play -> reveal at 4s -> dock ----------
+     Buffer-aware: preloads on page load, shows real buffer %, only starts when
+     enough is buffered, and debounces 'waiting' so "Loading film…" doesn't
+     flicker on every micro-stall. Fixes beech-beech me atakna on slow 4G. */
   (function cover() {
     var c = document.getElementById('cover');
     var video = document.getElementById('coverVideo');
@@ -209,6 +212,7 @@ var WEDDING = {
     function say(m) { if (status) { status.hidden = false; status.textContent = m; } }
     function quiet() { if (status) status.hidden = true; }
     var opened = false, entered = false, revealed = false;
+    var ready = false, wantPlay = false, waitTimer = null, readyTimer = null;
     function reveal() {
       if (revealed) return; revealed = true;
       if (invite) { invite.classList.remove('show'); invite.classList.add('hide'); }
@@ -216,26 +220,68 @@ var WEDDING = {
     }
     function enter(dock) {
       if (entered) return; entered = true;
+      clearTimeout(waitTimer); clearTimeout(readyTimer);
       if (dock !== false && video && !video.paused) { try { video.pause(); } catch (e) {} }
       if (invite) { invite.classList.remove('show'); invite.classList.add('hide'); }
       c.classList.add('docked');
       document.body.classList.remove('locked');
     }
+    function bufferedSec() {
+      try {
+        if (!video.buffered || !video.buffered.length) return 0;
+        var end = video.buffered.end(video.buffered.length - 1);
+        var start = 0;
+        try { start = video.buffered.start(0); } catch (e) {}
+        return Math.max(0, end - Math.max(start, video.currentTime || 0));
+      } catch (e) { return 0; }
+    }
+    function bufferedPct() {
+      try {
+        if (!video.buffered || !video.buffered.length || !video.duration) return 0;
+        return Math.min(100, Math.round(video.buffered.end(video.buffered.length - 1) / video.duration * 100));
+      } catch (e) { return 0; }
+    }
+    function markReady() {
+      if (ready || entered) return;
+      ready = true;
+      if (bar) bar.style.width = '100%';
+      if (wantPlay) { doPlay(); }
+      else quiet();
+    }
+    function paintLoadUI() {
+      if (opened || entered || ready) return;
+      var p = bufferedPct();
+      if (p > 0 && bar) bar.style.width = p + '%';
+      say(p > 0 ? ('Loading film… ' + p + '%') : 'Loading film…');
+    }
+    function doPlay() {
+      if (entered) return;
+      quiet();
+      try { if (video.currentTime > 0.1 && video.paused) { /* resume */ } else { try { video.currentTime = 0; } catch (e) {} } } catch (e) {}
+      var pr = null;
+      try { pr = video.play(); } catch (e) { pr = null; }
+      if (pr && pr.catch) pr.catch(function () {
+        opened = false; wantPlay = false;
+        say('Tap again to retry.');
+      });
+    }
     if (reduceMotion) { reveal(); enter(false); quiet(); return; }
     document.body.classList.add('locked');
     window.scrollTo(0, 0);
     function start() {
-      if (opened) return; opened = true;
+      if (opened) return; opened = true; wantPlay = true;
       if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
-      say('Starting film\u2026');
       if (typeof window.startSiteMusic === 'function') window.startSiteMusic();
-      try { video.currentTime = 0; } catch (e) {}
-      var pr = null;
-      try { pr = video.play(); } catch (e) { pr = null; }
-      if (pr && pr.catch) pr.catch(function () {
-        opened = false;
-        say('Tap again to retry.');
-      });
+      // Enough buffered (>=4s or full) or metadata ready? play now, else wait.
+      if (ready || bufferedSec() >= REVEAL_AT || video.readyState >= 3) { doPlay(); }
+      else {
+        say('Buffering film…');
+        var onCanPlay = function () { if (wantPlay && !entered) doPlay(); };
+        video.addEventListener('canplaythrough', onCanPlay, { once: true });
+        // Fallback: play anyway after 9s so users never get stuck.
+        clearTimeout(readyTimer);
+        readyTimer = setTimeout(function () { if (wantPlay && !entered && video.paused) doPlay(); }, 9000);
+      }
       // fallback sync: if timeupdate lags, reveal from play-time (guarded by currentTime)
       setTimeout(function () {
         try { if (!video.paused && video.currentTime >= REVEAL_AT) reveal(); } catch (e) {}
@@ -247,6 +293,19 @@ var WEDDING = {
       if (e.target.closest && e.target.closest('button, a')) return;
       start();
     });
+    // Start preloading immediately so Tap -> instant play (was: 0% buffered on tap).
+    try { video.preload = 'auto'; video.load(); } catch (e) {}
+    video.addEventListener('progress', paintLoadUI);
+    video.addEventListener('loadedmetadata', paintLoadUI);
+    video.addEventListener('canplay', paintLoadUI);
+    video.addEventListener('canplaythrough', markReady);
+    // Some browsers never fire canplaythrough on slow networks — poll buffer.
+    var loadPoll = setInterval(function () {
+      paintLoadUI();
+      if (ready || entered) { clearInterval(loadPoll); return; }
+      if (bufferedPct() >= 90 || bufferedSec() >= 8 || video.readyState >= 4) { markReady(); clearInterval(loadPoll); }
+    }, 500);
+    setTimeout(function () { clearInterval(loadPoll); if (!ready && !entered) markReady(); }, 12000);
     video.addEventListener('play', function () {
       c.classList.add('playing');
       if (invite) invite.classList.add('show');
@@ -261,9 +320,23 @@ var WEDDING = {
     video.addEventListener('seeked', function () {
       try { if (video.currentTime >= REVEAL_AT) reveal(); } catch (e) {}
     });
-    video.addEventListener('waiting', function () { if (opened && !entered) say('Loading film\u2026'); });
-    video.addEventListener('playing', quiet);
-    video.addEventListener('ended', function () { celebrate(130); enter(false); });
+    // Debounced stall UI: ignore micro-stalls <400ms so "Loading film…" stops flickering.
+    function onStall() {
+      if (!opened || entered || !wantPlay) return;
+      clearTimeout(waitTimer);
+      waitTimer = setTimeout(function () {
+        if (!video.paused && !video.ended && !entered) say('Loading film…');
+      }, 400);
+    }
+    function onFlow() {
+      clearTimeout(waitTimer);
+      if (opened && !entered && !video.paused) quiet();
+    }
+    video.addEventListener('waiting', onStall);
+    video.addEventListener('stalled', onStall);
+    video.addEventListener('playing', onFlow);
+    video.addEventListener('canplay', onFlow);
+    video.addEventListener('ended', function () { clearTimeout(waitTimer); celebrate(130); enter(false); });
     video.addEventListener('error', function () { reveal(); enter(true); }, true);
     if (skip) skip.addEventListener('click', function (e) {
       e.stopPropagation(); reveal(); enter(true);
@@ -272,41 +345,84 @@ var WEDDING = {
     });
     if (replay) replay.addEventListener('click', function (e) {
       e.stopPropagation();
-      entered = false; revealed = false; opened = false;
+      entered = false; revealed = false; opened = false; ready = false; wantPlay = false;
+      clearTimeout(waitTimer); clearTimeout(readyTimer);
       c.classList.remove('docked', 'playing', 'shownames');
       document.body.classList.add('locked');
       window.scrollTo(0, 0);
+      try { video.currentTime = 0; } catch (err) {}
       start();
     });
   })();
 
-  /* ---------- background music: starts at 0:15 with the film ---------- */
-  var MUSIC_OFFSET = 15, MUSIC_VOL = 0.55;
+  /* ---------- background music: always starts at 0:30 with the film ---------- */
+  var MUSIC_OFFSET = 30, MUSIC_VOL = 0.55;
   (function music() {
     var b = document.getElementById('musicBtn');
     if (!b || !WEDDING.music) { if (b) b.hidden = true; return; }
     var a = new Audio(WEDDING.music);
-    a.loop = true; a.preload = 'metadata';
+    a.loop = false; a.preload = 'auto'; // loop manually so every repeat starts at 0:30, never 0:00
     try { a.volume = MUSIC_VOL; } catch (e) {}
-    try { a.load(); } catch (e) {}
     var started = false, on = false;
     function setBtn(v) {
       on = v;
       b.classList.toggle('on', v);
       b.setAttribute('aria-label', v ? 'Mute background music' : 'Play background music');
     }
-    function jump() {
-      try { if (a.duration && a.duration > MUSIC_OFFSET) a.currentTime = MUSIC_OFFSET; } catch (e) {}
+    function seekToOffset() {
+      try {
+        if (a.duration && isFinite(a.duration) && a.duration > MUSIC_OFFSET + 0.5) {
+          var t = Math.min(MUSIC_OFFSET, a.duration - 1);
+          try { if (Math.abs(a.currentTime - t) > 0.5) a.currentTime = t; } catch (e) {}
+          return true;
+        }
+      } catch (e) {}
+      return false;
     }
-    a.addEventListener('loadedmetadata', jump);
+    // Metadata late arrival: snap to 0:30 even if play already began from 0.
+    a.addEventListener('loadedmetadata', function () {
+      if (started && !a.paused) seekToOffset();
+    });
+    // Manual loop at 0:30.
+    a.addEventListener('ended', function () {
+      try { seekToOffset(); } catch (e) {}
+      var pr = null; try { pr = a.play(); } catch (e) {}
+      if (pr && pr.catch) pr.catch(function () {});
+    });
+    try { a.load(); } catch (e) {}
     window.startSiteMusic = function () {
-      if (started) return; started = true;
-      jump();
-      var pr = null;
-      try { pr = a.play(); } catch (e) {}
+      if (started) { try { if (!a.paused && a.currentTime < MUSIC_OFFSET - 1) seekToOffset(); } catch (e) {} return; }
+      started = true;
       setBtn(true);
-      if (pr && pr.then) pr.then(function () { setBtn(true); },
-        function () { setBtn(false); started = false; });
+      var doPlay = function () {
+        var pr = null;
+        try { pr = a.play(); } catch (e) {}
+        if (pr && pr.then) pr.then(function () { setBtn(true); },
+          function () { setBtn(false); started = false; });
+      };
+      var playFromOffset = function () { seekToOffset(); doPlay(); };
+      try {
+        if (a.readyState >= 1 && a.duration && isFinite(a.duration)) {
+          seekToOffset();
+          var fellBack = false;
+          var onSeeked = function () { if (!fellBack) { fellBack = true; doPlay(); } };
+          a.addEventListener('seeked', onSeeked, { once: true });
+          setTimeout(function () {
+            if (!fellBack) {
+              fellBack = true;
+              try { a.removeEventListener('seeked', onSeeked); } catch (e) {}
+              playFromOffset();
+            }
+          }, 800);
+        } else {
+          // Metadata not ready yet: WAIT for it, then seek + play (never play from 0).
+          var done = false;
+          var onMeta = function () { if (done) return; done = true; playFromOffset(); };
+          a.addEventListener('loadedmetadata', onMeta, { once: true });
+          try { a.load(); } catch (e) {}
+          setTimeout(function () { if (!done) { done = true; playFromOffset(); } }, 4000);
+        }
+      } catch (e) { doPlay(); }
     };
     b.addEventListener('click', function () {
       if (a.paused) {
