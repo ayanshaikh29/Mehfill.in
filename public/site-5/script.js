@@ -155,7 +155,7 @@
   /* ---------- cinematic opening (video gate + music) ---------- */
   /* Reveal timing (ms) - configurable. Names fade in after tap, details
      follow, music starts musicDelay after playback begins. */
-  var OPENING = { nameStart: 3000, nameFull: 3600, detailsStart: 4100, musicDelay: 0, musicOffset: 32, musicVolume: 0.55 };
+  var OPENING = { nameStart: 3000, nameFull: 3600, detailsStart: 4100, musicDelay: 0, musicOffset: 0, musicVolume: 0.55 };
   (function cinema() {
     var v = document.getElementById('veil');
     var video = document.getElementById('opening-video');
@@ -188,7 +188,7 @@
     function playMusic() {
       if (!music) return;
       try { music.volume = OPENING.musicVolume; } catch (e) {}
-      try { if (music.duration && music.duration > OPENING.musicOffset) music.currentTime = OPENING.musicOffset; } catch (e) {}
+      try { music.currentTime = 0; } catch (e) {}
       var pr = null;
       try { pr = music.play(); } catch (e) { setMusicBtn(false); return; }
       setMusicBtn(true);

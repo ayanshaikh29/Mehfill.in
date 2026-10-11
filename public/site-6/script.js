@@ -272,8 +272,9 @@ var WEDDING = {
       if (opened) return; opened = true; wantPlay = true;
       if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
       if (typeof window.startSiteMusic === 'function') window.startSiteMusic();
-      // Enough buffered (>=4s or full) or metadata ready? play now, else wait.
-      if (ready || bufferedSec() >= REVEAL_AT || video.readyState >= 3) { doPlay(); }
+      // HQ film (~3Mbps): play only with deep buffer so it never stalls mid-way.
+      // canplaythrough (markReady) or >=7s buffered or >=75% or HAVE_ENOUGH_DATA.
+      if (ready || bufferedSec() >= 7 || bufferedPct() >= 75 || video.readyState >= 4) { doPlay(); }
       else {
         say('Buffering film…');
         var onCanPlay = function () { if (wantPlay && !entered) doPlay(); };
@@ -355,74 +356,28 @@ var WEDDING = {
     });
   })();
 
-  /* ---------- background music: always starts at 0:30 with the film ---------- */
-  var MUSIC_OFFSET = 30, MUSIC_VOL = 0.55;
+  /* ---------- background music: full track from 0:00, no cuts ---------- */
+  var MUSIC_VOL = 0.55;
   (function music() {
     var b = document.getElementById('musicBtn');
     if (!b || !WEDDING.music) { if (b) b.hidden = true; return; }
     var a = new Audio(WEDDING.music);
-    a.loop = false; a.preload = 'auto'; // loop manually so every repeat starts at 0:30, never 0:00
+    a.loop = true; a.preload = 'auto'; // full track, repeat from start
     try { a.volume = MUSIC_VOL; } catch (e) {}
+    try { a.load(); } catch (e) {}
     var started = false, on = false;
     function setBtn(v) {
       on = v;
       b.classList.toggle('on', v);
       b.setAttribute('aria-label', v ? 'Mute background music' : 'Play background music');
     }
-    function seekToOffset() {
-      try {
-        if (a.duration && isFinite(a.duration) && a.duration > MUSIC_OFFSET + 0.5) {
-          var t = Math.min(MUSIC_OFFSET, a.duration - 1);
-          try { if (Math.abs(a.currentTime - t) > 0.5) a.currentTime = t; } catch (e) {}
-          return true;
-        }
-      } catch (e) {}
-      return false;
-    }
-    // Metadata late arrival: snap to 0:30 even if play already began from 0.
-    a.addEventListener('loadedmetadata', function () {
-      if (started && !a.paused) seekToOffset();
-    });
-    // Manual loop at 0:30.
-    a.addEventListener('ended', function () {
-      try { seekToOffset(); } catch (e) {}
-      var pr = null; try { pr = a.play(); } catch (e) {}
-      if (pr && pr.catch) pr.catch(function () {});
-    });
-    try { a.load(); } catch (e) {}
     window.startSiteMusic = function () {
-      if (started) { try { if (!a.paused && a.currentTime < MUSIC_OFFSET - 1) seekToOffset(); } catch (e) {} return; }
-      started = true;
+      if (started) return; started = true;
       setBtn(true);
-      var doPlay = function () {
-        var pr = null;
-        try { pr = a.play(); } catch (e) {}
-        if (pr && pr.then) pr.then(function () { setBtn(true); },
-          function () { setBtn(false); started = false; });
-      };
-      var playFromOffset = function () { seekToOffset(); doPlay(); };
-      try {
-        if (a.readyState >= 1 && a.duration && isFinite(a.duration)) {
-          seekToOffset();
-          var fellBack = false;
-          var onSeeked = function () { if (!fellBack) { fellBack = true; doPlay(); } };
-          a.addEventListener('seeked', onSeeked, { once: true });
-          setTimeout(function () {
-            if (!fellBack) {
-              fellBack = true;
-              try { a.removeEventListener('seeked', onSeeked); } catch (e) {}
-              playFromOffset();
-            }
-          }, 800);
-        } else {
-          // Metadata not ready yet: WAIT for it, then seek + play (never play from 0).
-          var done = false;
-          var onMeta = function () { if (done) return; done = true; playFromOffset(); };
-          a.addEventListener('loadedmetadata', onMeta, { once: true });
-          try { a.load(); } catch (e) {}
-          setTimeout(function () { if (!done) { done = true; playFromOffset(); } }, 4000);
-        }
-      } catch (e) { doPlay(); }
+      var pr = null;
+      try { pr = a.play(); } catch (e) {}
+      if (pr && pr.then) pr.then(function () { setBtn(true); },
+        function () { setBtn(false); started = false; });
     };
     b.addEventListener('click', function () {
       if (a.paused) {
