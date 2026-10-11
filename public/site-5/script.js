@@ -82,6 +82,8 @@
 
     (function tick() {
 
+      if (window.__filmPlaying) { requestAnimationFrame(tick); return; } // pause FX while veil film plays
+
       ctx.clearRect(0, 0, W, H);
 
       var i, p;
@@ -212,7 +214,9 @@
         else { music.muted = !music.muted; setMusicBtn(!music.muted); }
       });
     }
-    video.addEventListener('playing', function () { quiet(); });
+    video.addEventListener('playing', function () { quiet(); window.__filmPlaying = true; });
+    video.addEventListener('pause', function () { window.__filmPlaying = false; });
+    video.addEventListener('ended', function () { window.__filmPlaying = false; });
     video.addEventListener('waiting', function () { if (started && !finished) say('Loading film\u2026'); });
     video.addEventListener('error', function () {
       v.classList.add('failed');

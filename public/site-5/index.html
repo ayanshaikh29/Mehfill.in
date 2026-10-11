@@ -733,7 +733,7 @@ body.locked .hero, body.locked .hero * { animation-play-state: paused !important
   <div class="veil-progress" aria-hidden="true"><span id="veil-bar"></span></div>
   <a class="veil-scroll" id="veil-scroll" href="#secret" hidden><span>Scroll to Explore</span><i aria-hidden="true"></i></a>
 </div>
-<audio id="bg-music" src="bg-music.m4a" preload="metadata" loop></audio>
+<audio id="bg-music" src="music.m4a" preload="none" loop></audio>
 <button type="button" id="music-toggle" class="off" hidden aria-label="Play background music" aria-pressed="false">♫</button>
 
 
@@ -1216,6 +1216,8 @@ body.locked .hero, body.locked .hero * { animation-play-state: paused !important
 
     (function tick() {
 
+      if (window.__filmPlaying) { requestAnimationFrame(tick); return; } // pause FX while veil film plays
+
       ctx.clearRect(0, 0, W, H);
 
       var i, p;
@@ -1289,7 +1291,7 @@ body.locked .hero, body.locked .hero * { animation-play-state: paused !important
   /* ---------- cinematic opening (video gate + music) ---------- */
   /* Reveal timing (ms) - configurable. Names fade in after tap, details
      follow, music starts musicDelay after playback begins. */
-  var OPENING = { nameStart: 3000, nameFull: 3600, detailsStart: 4100, musicDelay: 0, musicOffset: 32, musicVolume: 0.55 };
+  var OPENING = { nameStart: 3000, nameFull: 3600, detailsStart: 4100, musicDelay: 0, musicOffset: 0, musicVolume: 0.55 };
   (function cinema() {
     var v = document.getElementById('veil');
     var video = document.getElementById('opening-video');
@@ -1322,7 +1324,7 @@ body.locked .hero, body.locked .hero * { animation-play-state: paused !important
     function playMusic() {
       if (!music) return;
       try { music.volume = OPENING.musicVolume; } catch (e) {}
-      try { if (music.duration && music.duration > OPENING.musicOffset) music.currentTime = OPENING.musicOffset; } catch (e) {}
+      try { music.currentTime = 0; } catch (e) {}
       var pr = null;
       try { pr = music.play(); } catch (e) { setMusicBtn(false); return; }
       setMusicBtn(true);
@@ -1346,7 +1348,9 @@ body.locked .hero, body.locked .hero * { animation-play-state: paused !important
         else { music.muted = !music.muted; setMusicBtn(!music.muted); }
       });
     }
-    video.addEventListener('playing', function () { quiet(); });
+    video.addEventListener('playing', function () { quiet(); window.__filmPlaying = true; });
+    video.addEventListener('pause', function () { window.__filmPlaying = false; });
+    video.addEventListener('ended', function () { window.__filmPlaying = false; });
     video.addEventListener('waiting', function () { if (started && !finished) say('Loading film\u2026'); });
     video.addEventListener('error', function () {
       v.classList.add('failed');

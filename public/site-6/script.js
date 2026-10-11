@@ -13,7 +13,7 @@ var WEDDING = {
   mapsQuery: "Celebration Gardens Mumbai", // EDIT ME — used for maps links
   venuePhoto: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1000&auto=format&fit=crop",
   whatsapp: "", // EDIT ME — e.g. "919876543210" to enable WhatsApp RSVP confirm (empty = hidden)
-  music: "bg-music.m4a", // Laavan wedding song — always starts at 0:30 with the film
+  music: "music.m4a", // Laavan wedding song — full track from 0:00, no cuts
   events: [ // EDIT ME — add/remove/reorder freely; empty items are hidden
     { title: "Welcome Evening", date: "12 February 2027", time: "6:00 PM", venue: "Garden Lawns", desc: "An easy evening of music and conversation as our families meet." },
     { title: "Wedding Ceremony", date: "14 February 2027", time: "11:00 AM", venue: "Flower Pavilion", desc: "Our vows beneath an arch of roses and jasmine." },
@@ -68,6 +68,7 @@ var WEDDING = {
     (function tick() {
       requestAnimationFrame(tick);
       if (hidden) return;
+      if (window.__filmPlaying) return; // pause FX while cover film plays — smooth video on low-end phones
       ctx.clearRect(0, 0, W, H);
       for (var k = 0; k < ps.length; k++) {
         var p = ps[k];
@@ -178,6 +179,7 @@ var WEDDING = {
     (function tick() {
       requestAnimationFrame(tick);
       if (hidden) return;
+      if (window.__filmPlaying) return; // pause FX while cover film plays — smooth video on low-end phones
       ctx.clearRect(0, 0, W, H);
       for (var k = 0; k < stars.length; k++) {
         var st = stars[k];
@@ -270,8 +272,9 @@ var WEDDING = {
     window.scrollTo(0, 0);
     function start() {
       if (opened) return; opened = true; wantPlay = true;
-      if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
+      // Music FIRST: must run inside the tap gesture with zero delay.
       if (typeof window.startSiteMusic === 'function') window.startSiteMusic();
+      if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
       // HQ film (~3Mbps): play only with deep buffer so it never stalls mid-way.
       // canplaythrough (markReady) or >=7s buffered or >=75% or HAVE_ENOUGH_DATA.
       if (ready || bufferedSec() >= 7 || bufferedPct() >= 75 || video.readyState >= 4) { doPlay(); }
@@ -309,6 +312,7 @@ var WEDDING = {
     setTimeout(function () { clearInterval(loadPoll); if (!ready && !entered) markReady(); }, 12000);
     video.addEventListener('play', function () {
       c.classList.add('playing');
+      window.__filmPlaying = true;
       if (invite) invite.classList.add('show');
       quiet();
     });
@@ -337,7 +341,8 @@ var WEDDING = {
     video.addEventListener('stalled', onStall);
     video.addEventListener('playing', onFlow);
     video.addEventListener('canplay', onFlow);
-    video.addEventListener('ended', function () { clearTimeout(waitTimer); celebrate(130); enter(false); });
+    video.addEventListener('pause', function () { window.__filmPlaying = false; });
+    video.addEventListener('ended', function () { clearTimeout(waitTimer); window.__filmPlaying = false; celebrate(130); enter(false); });
     video.addEventListener('error', function () { reveal(); enter(true); }, true);
     if (skip) skip.addEventListener('click', function (e) {
       e.stopPropagation(); reveal(); enter(true);
@@ -362,9 +367,8 @@ var WEDDING = {
     var b = document.getElementById('musicBtn');
     if (!b || !WEDDING.music) { if (b) b.hidden = true; return; }
     var a = new Audio(WEDDING.music);
-    a.loop = true; a.preload = 'auto'; // full track, repeat from start
+    a.loop = true; a.preload = 'none'; // fetch starts on tap — video preload keeps full bandwidth till then
     try { a.volume = MUSIC_VOL; } catch (e) {}
-    try { a.load(); } catch (e) {}
     var started = false, on = false;
     function setBtn(v) {
       on = v;
