@@ -128,6 +128,7 @@ const JSON_LD = {
       "@id": "https://mehfill.in/#website",
       url: "https://mehfill.in/",
       name: "Mehfill.in",
+      alternateName: "Mehfill",
       publisher: { "@id": "https://mehfill.in/#organization" },
       inLanguage: "en-IN",
     },
