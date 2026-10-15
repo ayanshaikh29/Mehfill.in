@@ -24,8 +24,20 @@ const Footer = dynamic(() => import("@/components/Footer"));
 export const metadata: Metadata = {
   title: "Mehfill.in | Digital Wedding & Event Invitations",
   description:
-    "Create beautiful digital wedding and event invitations with Mehfill.in. Modern, elegant and shareable invitations for weddings, engagements, birthdays and special celebrations.",
+    "Create beautiful digital wedding, Nikah, birthday and event invitations with Mehfill.in. Explore live demos and get a personalized invitation to share on WhatsApp.",
   alternates: { canonical: canonical("/") },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: "website",
+    url: canonical("/"),
+    siteName: "Mehfill.in",
+    title: "Mehfill.in | Digital Wedding & Event Invitations",
+    description:
+      "Explore beautiful digital wedding and event invitations. Choose a live demo and get your personalized invitation.",
+  },
 };
 
 // Visible FAQs are in components/FAQ.tsx — keep this JSON-LD in sync.
