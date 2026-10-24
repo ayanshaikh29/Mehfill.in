@@ -15,17 +15,16 @@ export default function PrivacyPolicyPage() {
       <h2>1. Who operates Mehfill</h2>
       <p>
         Mehfill.in (&ldquo;Mehfill&rdquo;, &ldquo;we&rdquo;) is a digital invitation service that
-        creates custom online invitations for weddings, engagements, birthdays, anniversaries and
+        creates online invitations for weddings, engagements, birthdays, anniversaries and
         other celebrations.
       </p>
       <p>
-        Operator: <code>[LEGAL BUSINESS NAME]</code>
+        Operator: <strong>Ayan Shaikh</strong> — individual operator of an unregistered
+        sole-proprietorship business trading as Mehfill.in
         <br />
-        Address: <code>[BUSINESS ADDRESS]</code>
+        Location: Nashik, Maharashtra, India
         <br />
         Support email: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
-        <br />
-        Contact number: <code>[CONTACT NUMBER]</code>
       </p>
       <p>
         If you have any question about your personal information, write to us at the support email
@@ -82,6 +81,12 @@ export default function PrivacyPolicyPage() {
         </li>
         <li>
           <strong>Vercel</strong> — website hosting.
+        </li>
+        <li>
+          <strong>Razorpay</strong> — payment processing for card, net-banking and UPI
+          checkout payments (when enabled). Razorpay receives the amount and your payment
+          instrument details as required to process the transaction; we receive the payment
+          status and IDs.
         </li>
         <li>
           <strong>WhatsApp</strong> — order communication, when you message us or we confirm your
@@ -143,8 +148,8 @@ export default function PrivacyPolicyPage() {
       <p>
         This policy is a good-faith, plain-English description of actual practices. It is{" "}
         <strong>not legal advice</strong>. Data-protection, e-commerce and tax obligations depend on
-        the final business structure — professional legal review is required (see{" "}
-        <code>[LEGAL REVIEW REQUIRED]</code> items shared with the business owner).
+        the final business structure — professional legal review is recommended before treating
+        this page as final.
       </p>
     </LegalPage>
   );

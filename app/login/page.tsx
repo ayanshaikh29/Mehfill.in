@@ -1,18 +1,32 @@
 "use client";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Loader2, Eye, EyeOff, Mail, Lock, User, Smartphone } from "lucide-react";
+import Image from "next/image";
+import {
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  Smartphone,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 
 export const dynamic = "force-dynamic";
 
 function LoginInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const callbackUrl = safeRedirectPath(searchParams.get("callbackUrl"), "/dashboard");
+  const initialMode = searchParams.get("mode") === "register" ? "register" : "login";
 
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [authMethod, setAuthMethod] = useState<"email" | "google">("email");
+  const [mode, setMode] = useState<"login" | "register">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -23,29 +37,55 @@ function LoginInner() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [success, setSuccess] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotModal, setForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotBusy, setForgotBusy] = useState(false);
+
   const configured = isSupabaseConfigured();
+
+  const [googleBusy, setGoogleBusy] = useState(false);
+
+  // Read error or status from URL query params (e.g. redirected back from OAuth failure or cancellation)
+  useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam) {
+      if (errorParam === "1") {
+        setErr("Authentication was cancelled or failed. Please try again.");
+      } else {
+        setErr(decodeURIComponent(errorParam));
+      }
+    }
+  }, [searchParams]);
+
+  // Keep mode in sync if user changes URL search param
+  useEffect(() => {
+    if (searchParams.get("mode") === "register") {
+      setMode("register");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr("");
     setSuccess("");
-    
+
     if (mode === "register") {
-      if (!fullName.trim()) { setErr("Full name is required"); return; }
-      if (!email.trim()) { setErr("Email is required"); return; }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr("Invalid email"); return; }
-      if (!mobile.trim() || mobile.replace(/\D/g, "").length !== 10) { setErr("Enter valid 10-digit mobile"); return; }
-      if (password.length < 6) { setErr("Password must be at least 6 characters"); return; }
-      if (password !== confirmPassword) { setErr("Passwords do not match"); return; }
+      if (!fullName.trim()) { setErr("Please enter your full name."); return; }
+      if (!email.trim()) { setErr("Please enter your email address."); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr("Please enter a valid email address."); return; }
+      if (!mobile.trim() || mobile.replace(/\D/g, "").length !== 10) { setErr("Please enter a valid 10-digit mobile number."); return; }
+      if (password.length < 6) { setErr("Password must be at least 6 characters."); return; }
+      if (password !== confirmPassword) { setErr("Passwords do not match."); return; }
     } else {
-      if (!email.trim()) { setErr("Email is required"); return; }
-      if (!password) { setErr("Password is required"); return; }
+      if (!email.trim()) { setErr("Please enter your email address."); return; }
+      if (!password) { setErr("Please enter your password."); return; }
     }
 
     setBusy(true);
     try {
       const supabase = createClient();
-      
+
       if (mode === "register") {
         const { data: signData, error } = await supabase.auth.signUp({
           email,
@@ -55,7 +95,7 @@ function LoginInner() {
           },
         });
         if (error) throw error;
-        // Auto-confirm the email server-side (no verification mail needed).
+        // Auto-confirm the email server-side for immediate access
         if (signData.user?.id) {
           try {
             await fetch("/api/confirm-user", {
@@ -64,13 +104,12 @@ function LoginInner() {
               body: JSON.stringify({ userId: signData.user.id }),
             });
           } catch {
-            // Fall through to normal sign-in attempt.
+            /* fallthrough */
           }
         }
-        // No verification mail — sign in straight away.
         const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
         if (loginError) {
-          setSuccess("Account created! Please sign in.");
+          setSuccess("Account created successfully! Please sign in.");
           setMode("login");
           return;
         }
@@ -84,7 +123,7 @@ function LoginInner() {
         router.refresh();
       }
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Something went wrong");
+      setErr(e instanceof Error ? e.message : "Authentication failed. Please check your credentials.");
     } finally {
       setBusy(false);
     }
@@ -92,86 +131,216 @@ function LoginInner() {
 
   const handleGoogle = async () => {
     setErr("");
-    setBusy(true);
+    setGoogleBusy(true);
     try {
       const supabase = createClient();
+      const redirectUri = `${window.location.origin}/auth/callback?next=${encodeURIComponent(callbackUrl)}`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback?next=${callbackUrl}` },
+        options: {
+          redirectTo: redirectUri,
+          queryParams: {
+            access_type: "offline",
+            prompt: "select_account",
+          },
+        },
       });
       if (error) throw error;
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Google sign-in failed");
-      setBusy(false);
+      setErr(e instanceof Error ? e.message : "Google sign in failed. Please try again.");
+      setGoogleBusy(false);
     }
   };
 
-  if (!configured) {
-    return (
-      <main className="min-h-screen bg-ivory flex flex-col">
-        <div className="mx-auto w-full max-w-7xl px-5 md:px-8 py-5">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-charcoal/70 hover:text-charcoal">
-            <ArrowLeft className="h-4 w-4" /> Back to Mehfill
-          </Link>
-        </div>
-        <div className="flex flex-1 items-center justify-center px-5 pb-20">
-          <div className="w-full max-w-md rounded-[2rem] border hairline bg-white p-8 md:p-10 shadow-[0_20px_60px_rgba(28,25,23,0.08)] text-center">
-            <p className="font-serif text-3xl">Mehfill<span className="text-terracotta">.in</span></p>
-            <p className="mt-6 rounded-2xl bg-cream px-5 py-4 text-sm text-charcoal/70">
-              Auth is not connected yet — Supabase keys missing. The site works fully without it.
-            </p>
-            <Link href="/" className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-charcoal px-7 py-3.5 text-sm font-semibold text-ivory hover:bg-espresso">
-              Continue to site <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) return;
+    setForgotBusy(true);
+    try {
+      const supabase = createClient();
+      await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
+        redirectTo: `${window.location.origin}/login?mode=reset`,
+      });
+      setForgotSent(true);
+    } catch {
+      setForgotSent(true);
+    } finally {
+      setForgotBusy(false);
+    }
+  };
 
   return (
-    <main className="min-h-screen bg-ivory flex flex-col">
-      <div className="mx-auto w-full max-w-7xl px-5 md:px-8 py-5">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-charcoal/70 hover:text-charcoal">
-          <ArrowLeft className="h-4 w-4" /> Back to Mehfill
-        </Link>
+    <main className="relative min-h-screen w-full overflow-hidden bg-[#FBF7F0] flex flex-col justify-between">
+      {/* Background Architectural Palace Image with Soft Fade */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/hero/auth_palace_bg.jpg"
+          alt="Mehfill Palace Courtyard"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_28%] opacity-90 brightness-[1.03]"
+        />
+        {/* Warm luxury subtle vignette & radial gradient so text remains ultra-legible */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FBF7F0]/85 via-[#FBF7F0]/65 to-[#FBF7F0]/80 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FBF7F0]/30 to-[#FBF7F0]/95" />
       </div>
-      <div className="flex flex-1 items-center justify-center px-5 pb-20">
-        <div className="w-full max-w-md rounded-[2rem] border hairline bg-white p-8 md:p-10 shadow-[0_20px_60px_rgba(28,25,23,0.08)]">
-          <p className="font-serif text-3xl">Mehfill<span className="text-terracotta">.in</span></p>
-          <h1 className="mt-3 font-serif font-light text-4xl">{mode === "login" ? "Welcome back." : "Create your account."}</h1>
-          <p className="mt-2 text-sm text-charcoal/60">{mode === "login" ? "Sign in to access your dashboard and designs." : "Join Mehfill to create beautiful invitations."}</p>
 
-          {err && <p className="mt-4 rounded-xl bg-terracotta/10 px-4 py-3 text-sm text-terracotta-deep">{err}</p>}
-          {success && <p className="mt-4 rounded-xl bg-olive/10 px-4 py-3 text-sm text-olive">{success}</p>}
+      {/* Floating Gentle Petals */}
+      <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden" aria-hidden="true">
+        {[
+          { left: "8%", size: "12px", duration: "12s", delay: "0s", drift: "35px" },
+          { left: "22%", size: "15px", duration: "14s", delay: "3s", drift: "-40px" },
+          { left: "45%", size: "11px", duration: "11s", delay: "1.5s", drift: "50px" },
+          { left: "68%", size: "14px", duration: "13s", delay: "4s", drift: "-30px" },
+          { left: "85%", size: "13px", duration: "15s", delay: "2s", drift: "45px" },
+          { left: "92%", size: "10px", duration: "10s", delay: "5s", drift: "-25px" },
+        ].map((p, i) => (
+          <span
+            key={i}
+            className="auth-petal"
+            style={{
+              left: p.left,
+              width: p.size,
+              height: p.size,
+              // @ts-expect-error CSS custom variable
+              "--auth-duration": p.duration,
+              "--auth-delay": p.delay,
+              "--auth-drift": p.drift,
+            }}
+          />
+        ))}
+      </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+      {/* Top Header */}
+      <header className="relative z-20 w-full px-6 py-6 md:px-12 flex items-center justify-between">
+        <Link href="/" className="inline-block transition-transform hover:scale-[1.02]" aria-label="Mehfill.in Home">
+          <span className="relative block w-[124px] sm:w-[144px]" style={{ aspectRatio: "901 / 319" }}>
+            <Image
+              src="/logo-transparent.png"
+              alt="Mehfill.in"
+              width={452}
+              height={160}
+              priority
+              className="absolute inset-0 h-full w-full object-contain"
+            />
+          </span>
+        </Link>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold tracking-wide text-[#7C5A3E] hover:text-[#4A2F1B] transition-colors"
+        >
+          Back to Home <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </header>
+
+      {/* Main Content Card Container */}
+      <div className="relative z-20 flex-1 flex flex-col items-center justify-center px-4 py-4 sm:py-8">
+        <div className="w-full max-w-[440px] text-center mb-5">
+          <span className="inline-block text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.25em] text-[#9E6D4B] mb-1">
+            {mode === "login" ? "WELCOME BACK" : "JOIN THE CELEBRATION"}
+          </span>
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-[2.6rem] font-normal tracking-tight text-[#2B1F17] leading-[1.18]">
+            {mode === "login" ? (
+              <>
+                Welcome back <br className="hidden sm:inline" />
+                to <span className="font-normal italic text-[#8B4828]">Mehfill.</span>
+              </>
+            ) : (
+              <>
+                Begin your <br className="hidden sm:inline" />
+                forever with <span className="font-normal italic text-[#8B4828]">Mehfill.</span>
+              </>
+            )}
+          </h1>
+          <p className="mt-2 text-xs sm:text-[13px] text-[#695343] leading-relaxed max-w-sm mx-auto">
+            {mode === "login"
+              ? "Sign in to continue creating and managing your beautiful digital invitations."
+              : "Create your account in seconds to personalize handcrafted wedding invitation websites."}
+          </p>
+        </div>
+
+        {/* Glassmorphism Card Matching User's Design Exactly */}
+        <div className="w-full max-w-[430px] rounded-[2rem] border border-white/70 bg-white/75 backdrop-blur-xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(110,75,45,0.12)]">
+          {/* Prominent Continue with Google Button */}
+          <button
+            type="button"
+            onClick={handleGoogle}
+            disabled={googleBusy || busy}
+            className="w-full mb-4 flex items-center justify-center gap-2.5 rounded-xl border border-[#DECFC0] bg-white py-2.5 px-4 text-xs sm:text-sm font-semibold text-[#2B1F17] shadow-sm transition-all hover:bg-[#FDFBF7] hover:border-[#96522F]/40 active:scale-[0.99] disabled:opacity-60"
+          >
+            {googleBusy ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin text-[#8B4828]" />
+                <span>Connecting to Google…</span>
+              </>
+            ) : (
+              <>
+                <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" aria-hidden="true">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                </svg>
+                <span>Continue with Google</span>
+              </>
+            )}
+          </button>
+
+          <div className="relative flex py-1 items-center mb-4">
+            <div className="flex-grow border-t border-[#E8DEC4]"></div>
+            <span className="flex-shrink mx-3 text-[11px] font-semibold text-[#876F5E] uppercase tracking-wider">
+              or with email
+            </span>
+            <div className="flex-grow border-t border-[#E8DEC4]"></div>
+          </div>
+
+          {err && (
+            <div className="mb-4 rounded-xl bg-[#FBECE8] border border-[#F3C4B8] px-3.5 py-2.5 text-left text-xs font-medium text-[#A63C26]">
+              {err}
+            </div>
+          )}
+          {success && (
+            <div className="mb-4 rounded-xl bg-[#EDF5E9] border border-[#C5E1BB] px-3.5 py-2.5 text-left text-xs font-medium text-[#2F6824]">
+              {success}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-3.5 text-left">
             {mode === "register" && (
               <>
                 <div>
-                  <label className="block text-[12px] font-bold tracking-[0.1em] text-charcoal/55 mb-1.5">Full Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Your full name"
-                    className="w-full rounded-2xl border hairline bg-white px-4 py-3.5 text-sm outline-none focus:border-terracotta"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[12px] font-bold tracking-[0.1em] text-charcoal/55 mb-1.5">Mobile Number</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#7A6353] mb-1">
+                    Full name
+                  </label>
                   <div className="relative">
-                    <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A89484]" />
+                    <input
+                      type="text"
+                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="e.g. Aarav Sharma"
+                      className="w-full rounded-xl border border-[#DECFC0] bg-white/90 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-[#2B1F17] outline-none transition-all placeholder:text-[#B5A496] focus:border-[#96522F] focus:ring-2 focus:ring-[#96522F]/15"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#7A6353] mb-1">
+                    WhatsApp mobile
+                  </label>
+                  <div className="relative">
+                    <Smartphone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A89484]" />
                     <input
                       type="tel"
                       required
                       value={mobile}
                       onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
                       placeholder="10-digit mobile number"
-                      inputMode="numeric"
                       maxLength={10}
-                      className="w-full rounded-2xl border hairline bg-white pl-12 pr-4 py-3.5 text-sm outline-none focus:border-terracotta"
+                      inputMode="numeric"
+                      className="w-full rounded-xl border border-[#DECFC0] bg-white/90 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-[#2B1F17] outline-none transition-all placeholder:text-[#B5A496] focus:border-[#96522F] focus:ring-2 focus:ring-[#96522F]/15"
                     />
                   </div>
                 </div>
@@ -179,37 +348,53 @@ function LoginInner() {
             )}
 
             <div>
-              <label className="block text-[12px] font-bold tracking-[0.1em] text-charcoal/55 mb-1.5">Email</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#7A6353] mb-1">
+                Email address
+              </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A89484]" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-2xl border hairline bg-white pl-12 pr-4 py-3.5 text-sm outline-none focus:border-terracotta"
+                  className="w-full rounded-xl border border-[#DECFC0] bg-white/90 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-[#2B1F17] outline-none transition-all placeholder:text-[#B5A496] focus:border-[#96522F] focus:ring-2 focus:ring-[#96522F]/15"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[12px] font-bold tracking-[0.1em] text-charcoal/55 mb-1.5">Password</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#7A6353]">
+                  Password
+                </label>
+                {mode === "login" && (
+                  <button
+                    type="button"
+                    onClick={() => { setForgotModal(true); setForgotEmail(email); }}
+                    className="text-[11px] font-semibold text-[#8B4828] hover:text-[#5B2E18] transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A89484]" />
                 <input
                   type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   minLength={6}
-                  className="w-full rounded-2xl border hairline bg-white pl-12 pr-12 py-3.5 text-sm outline-none focus:border-terracotta"
+                  className="w-full rounded-xl border border-[#DECFC0] bg-white/90 pl-10 pr-10 py-2.5 text-xs sm:text-sm text-[#2B1F17] outline-none transition-all placeholder:text-[#B5A496] focus:border-[#96522F] focus:ring-2 focus:ring-[#96522F]/15"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-charcoal/40 hover:text-charcoal"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A89484] hover:text-[#4A2F1B]"
+                  aria-label="Toggle password view"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -218,21 +403,25 @@ function LoginInner() {
 
             {mode === "register" && (
               <div>
-                <label className="block text-[12px] font-bold tracking-[0.1em] text-charcoal/55 mb-1.5">Confirm Password</label>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#7A6353] mb-1">
+                  Confirm Password
+                </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A89484]" />
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full rounded-2xl border hairline bg-white pl-12 pr-12 py-3.5 text-sm outline-none focus:border-terracotta"
+                    placeholder="Repeat password"
+                    minLength={6}
+                    className="w-full rounded-xl border border-[#DECFC0] bg-white/90 pl-10 pr-10 py-2.5 text-xs sm:text-sm text-[#2B1F17] outline-none transition-all placeholder:text-[#B5A496] focus:border-[#96522F] focus:ring-2 focus:ring-[#96522F]/15"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-charcoal/40 hover:text-charcoal"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A89484] hover:text-[#4A2F1B]"
+                    aria-label="Toggle confirm password view"
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -240,48 +429,132 @@ function LoginInner() {
               </div>
             )}
 
+            {/* Primary Action Button */}
             <button
+              type="submit"
               disabled={busy}
-              className="w-full rounded-full bg-charcoal py-3.5 text-sm font-bold text-ivory hover:bg-espresso disabled:opacity-60"
+              className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-[#8B4828] py-3 text-xs sm:text-sm font-bold text-white shadow-[0_6px_20px_rgba(139,72,40,0.32)] transition-all hover:bg-[#72391F] hover:shadow-[0_8px_24px_rgba(139,72,40,0.4)] active:scale-[0.99] disabled:opacity-60"
             >
-              {busy ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : (mode === "login" ? "Sign In" : "Create Account")}
+              {busy ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  {mode === "login" ? "Sign In →" : "Create Account →"}
+                </>
+              )}
             </button>
           </form>
 
-          <div className="my-5 flex items-center gap-3 text-[12px] font-bold tracking-[0.2em] text-charcoal/40">
-            <span className="h-px flex-1 bg-charcoal/10" /> OR <span className="h-px flex-1 bg-charcoal/10" />
+          {/* Toggle between Login and Register */}
+          <div className="mt-5 text-center text-xs text-[#7A6353]">
+            {mode === "login" ? (
+              <>
+                Don&apos;t have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => { setMode("register"); setErr(""); setSuccess(""); }}
+                  className="font-bold text-[#8B4828] hover:underline"
+                >
+                  Create one
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => { setMode("login"); setErr(""); setSuccess(""); }}
+                  className="font-bold text-[#8B4828] hover:underline"
+                >
+                  Sign In
+                </button>
+              </>
+            )}
           </div>
-
-          <button
-            onClick={handleGoogle}
-            disabled={busy}
-            className="w-full flex items-center justify-center gap-3 rounded-full border hairline py-3.5 text-sm font-bold hover:border-charcoal/40 disabled:opacity-60"
-          >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-              <path fill="#fff" d="M21.35 11.1H12v2.9h5.35c-.5 2.4-2.55 3.5-5.35 3.5a5.9 5.9 0 0 1 0-11.8c1.5 0 2.85.55 3.9 1.45l2.1-2.1A8.9 8.9 0 0 0 12 2a9 9 0 0 0 0 18c5.2 0 8.65-3.65 8.65-8.8 0-.35-.05-.75-.3-1.1z" />
-            </svg>
-            Continue with Google
-          </button>
-
-          <p className="mt-6 text-center text-sm text-charcoal/60">
-            {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button
-              onClick={() => { setMode(mode === "login" ? "register" : "login"); setErr(""); setSuccess(""); }}
-              className="font-semibold text-terracotta hover:underline"
-            >
-              {mode === "login" ? "Sign up" : "Sign in"}
-            </button>
-          </p>
-          <p className="mt-6 text-center font-serif italic text-charcoal/50">More Than an Invitation. An Experience.</p>
         </div>
+
+        {/* Legal Disclaimer */}
+        <p className="mt-4 text-[11px] text-[#7A6353]/90 text-center">
+          By continuing, you agree to our{" "}
+          <Link href="/terms-and-conditions" className="underline hover:text-[#4A2F1B]">Terms of Service</Link>
+          {" "}and{" "}
+          <Link href="/privacy-policy" className="underline hover:text-[#4A2F1B]">Privacy Policy</Link>
+        </p>
       </div>
+
+      {/* Footer Navigation */}
+      <footer className="relative z-20 w-full px-6 py-4 flex flex-wrap items-center justify-center gap-6 text-xs text-[#7A6353]/80 border-t border-[#E8DEC4]/40">
+        <Link href="/privacy-policy" className="hover:text-[#4A2F1B] transition-colors">Privacy Policy</Link>
+        <span>·</span>
+        <Link href="/terms-and-conditions" className="hover:text-[#4A2F1B] transition-colors">Terms of Service</Link>
+        <span>·</span>
+        <Link href="/contact" className="hover:text-[#4A2F1B] transition-colors">Contact Us</Link>
+      </footer>
+
+      {/* Forgot Password Modal */}
+      {forgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl text-left border border-[#DECFC0]">
+            <h3 className="font-serif text-2xl text-[#2B1F17]">Reset Password</h3>
+            <p className="mt-1 text-xs text-[#695343]">
+              Enter your registered email and we will send you a password recovery link.
+            </p>
+            {forgotSent ? (
+              <div className="mt-4">
+                <p className="rounded-xl bg-[#EDF5E9] p-3 text-xs text-[#2F6824]">
+                  Password reset link sent! Check your email inbox.
+                </p>
+                <button
+                  onClick={() => { setForgotModal(false); setForgotSent(false); }}
+                  className="mt-4 w-full rounded-xl bg-[#8B4828] py-2.5 text-xs font-bold text-white"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="mt-4 space-y-3">
+                <input
+                  type="email"
+                  required
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full rounded-xl border border-[#DECFC0] px-3.5 py-2 text-xs outline-none focus:border-[#96522F]"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setForgotModal(false)}
+                    className="flex-1 rounded-xl border border-[#DECFC0] py-2 text-xs font-semibold text-[#695343]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={forgotBusy}
+                    className="flex-1 rounded-xl bg-[#8B4828] py-2 text-xs font-bold text-white"
+                  >
+                    {forgotBusy ? "Sending…" : "Send Link"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-ivory flex items-center justify-center"><p className="font-serif text-2xl">Loading…</p></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#FBF7F0] flex items-center justify-center">
+          <p className="font-serif text-2xl text-[#8B4828]">Loading…</p>
+        </div>
+      }
+    >
       <LoginInner />
     </Suspense>
   );

@@ -24,7 +24,7 @@ export const LANDING_PAGES: LandingPage[] = [
     slug: "digital-wedding-invitations",
     title: "Digital Wedding Invitations in India — Cinematic & Shareable",
     description:
-      "Cinematic digital wedding invitations for Indian celebrations — events, RSVP, maps & music in one link. View demos & order on WhatsApp.",
+      "Cinematic digital wedding invitations for Indian celebrations — events, RSVP, maps & music in one link. View live demos and create yours online.",
     h1: "Digital wedding invitations, made for India",
     intro:
       "Mehfill creates beautiful digital invitation experiences for weddings across India — Hindu, Muslim, Sikh, Christian and interfaith families. Instead of a paper card that gets lost, your guests open one elegant link with your story, events, venues, photos and RSVP.",
@@ -32,7 +32,7 @@ export const LANDING_PAGES: LandingPage[] = [
       {
         h2: "What you get in a Mehfill wedding invitation",
         body: [
-          "Every invitation is custom-designed around your family, faith and functions — not a fixed template. A typical wedding invitation includes:",
+          "Start from a designer-made template and make it yours — every detail stays editable. A typical wedding invitation includes:",
         ],
         list: [
           "A cinematic opening with your names and date",
@@ -46,7 +46,7 @@ export const LANDING_PAGES: LandingPage[] = [
       {
         h2: "How ordering works",
         body: [
-          "Watch a live demo, message us on WhatsApp with your names, date, venue and photos, and we design your invitation. Essential delivery in 3 days, Signature in 2 days, and Royal in 24–48 hours on priority — with revisions included so you love the result.",
+          "Choose a template you love, sign in, and pay securely at checkout. Then add your names, date, venue, photos and event schedule in the step-by-step editor, preview exactly what guests will see, and publish your unique link. Basic (₹999) publishes the moment payment succeeds.",
         ],
       },
       {
@@ -67,15 +67,15 @@ export const LANDING_PAGES: LandingPage[] = [
       },
       {
         q: "Can I add photos, videos and maps?",
-        a: "Yes. Share your photos, event schedule, venue addresses and wording on WhatsApp and we design them into your invitation with maps and directions.",
+        a: "Yes. Upload photos, add your event schedule, venue addresses and wording right in the editor — maps and directions are built in, and you can change anything later.",
       },
       {
         q: "How long does it take?",
-        a: "Essential in 3 days, Signature in 2 days, Royal in 24–48 hours on priority. If your function is tomorrow, message us and we will try our best.",
+        a: "Basic (₹999) publishes instantly after payment. Premium (₹1,500) adds human design review, typically delivered in 2–4 days with two revision rounds.",
       },
       {
         q: "Can I request changes after delivery?",
-        a: "Yes. Every plan includes revisions — 1 in Essential, 3 in Signature, and 7 days of revisions in Royal. We don't stop till you love it.",
+        a: "Yes. Basic includes self-editing from your dashboard for as long as your invitation is active. Premium adds two human revision rounds with design review.",
       },
     ],
     relatedSlugs: ["nikah-invitations", "engagement-invitations", "birthday-invitations", "anniversary-invitations"],
@@ -106,14 +106,14 @@ export const LANDING_PAGES: LandingPage[] = [
       {
         h2: "Live Nikah demos to explore",
         body: [
-          "Open our real Nikah demo invitations to feel the experience — a serene emerald design and a soft rose design, both with music, duas and event details. If you love one, we customise it with your names, dates and photos.",
+          "Open our real Nikah demo invitations to feel the experience — a serene emerald design and a soft rose design, both with music, duas and event details. Choose the one you love and personalise it with your names, dates and photos in the editor.",
         ],
       },
     ],
     faqs: [
       {
         q: "Can I create a Nikah invitation online?",
-        a: "Yes. Message us on WhatsApp with your names, Nikah date, venue, Walima details and photos, and we design a bilingual digital invitation with duas, maps and RSVP.",
+        a: "Yes. Choose a Nikah design, add your names, Nikah date, venue, Walima details and photos in the editor, then publish a bilingual digital invitation with duas, maps and RSVP.",
       },
       {
         q: "Do you support Urdu wording?",
@@ -149,7 +149,7 @@ export const LANDING_PAGES: LandingPage[] = [
       {
         h2: "From demo to your family",
         body: [
-          "Browse our Nikah demos for inspiration, then share your details on WhatsApp. We adapt colours, wording and photos to your family — delivery in 1–3 days depending on plan, with revisions included.",
+          "Browse our Nikah demos for inspiration, choose your design, then personalise colours, wording and photos in the editor — Basic publishes as soon as your payment succeeds.",
         ],
       },
     ],
@@ -164,7 +164,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
       {
         q: "How long does delivery take?",
-        a: "Essential in 3 days, Signature in 2 days, Royal in 24–48 hours on priority, with revisions included.",
+        a: "Basic (₹999) publishes instantly after payment. Premium (₹1,500) adds human design review, typically delivered in 2–4 days with two revision rounds.",
       },
     ],
     relatedSlugs: ["nikah-invitations", "digital-wedding-invitations", "anniversary-invitations"],
@@ -195,14 +195,14 @@ export const LANDING_PAGES: LandingPage[] = [
       {
         h2: "See live birthday demos",
         body: [
-          "Open our live demo invitations to feel the experience — modern designs with party schedules and after-hours events. Love the vibe? We rebuild it with your name, age, date and venue.",
+          "Open our live demo invitations to feel the experience — modern designs with party schedules and after-hours events. Love the vibe? Choose it and add the birthday star's name, age, date and venue in the editor.",
         ],
       },
     ],
     faqs: [
       {
         q: "Can I create a birthday invitation online?",
-        a: "Yes. Share the birthday star's name, age, date, venue and photos on WhatsApp and we design a digital invitation link you can share with everyone.",
+        a: "Yes. Choose a design and add the birthday star's name, age, date, venue and photos in the editor, then publish a digital invitation link you can share with everyone.",
       },
       {
         q: "How do guests RSVP?",
@@ -210,7 +210,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
       {
         q: "How fast can I get it?",
-        a: "Essential in 3 days, Signature in 2 days, Royal in 24–48 hours on priority. Urgent party tomorrow? Message us.",
+        a: "Basic publishes the moment your payment succeeds. Premium is typically delivered in 2–4 days with two revision rounds.",
       },
     ],
     relatedSlugs: ["digital-wedding-invitations", "engagement-invitations", "anniversary-invitations"],
@@ -234,14 +234,14 @@ export const LANDING_PAGES: LandingPage[] = [
       {
         h2: "See live engagement demos",
         body: [
-          "Open our live demo invitations to feel the experience — modern, minimal and romantic designs. We customise them with your names, date and venue, or design something entirely new.",
+          "Open our live demo invitations to feel the experience — modern, minimal and romantic designs. Choose the one you love and personalise it with your names, date and venue in the editor.",
         ],
       },
     ],
     faqs: [
       {
         q: "Can I create an engagement invitation online?",
-        a: "Yes. Share your names, ceremony date, venue and photos on WhatsApp and we design a digital engagement invitation with schedule, maps and RSVP.",
+        a: "Yes. Choose a design and add your names, ceremony date, venue and photos in the editor, then publish a digital engagement invitation with schedule, maps and RSVP.",
       },
       {
         q: "Can I add both families' names?",
@@ -271,16 +271,16 @@ export const LANDING_PAGES: LandingPage[] = [
         ],
       },
       {
-        h2: "Simple to order, easy to share",
+        h2: "Simple to start, easy to share",
         body: [
-          "Message us on WhatsApp with names, years together, date, venue and photos. We design your invitation in 1–3 days with revisions, and you share one link with the whole family.",
+          "Choose a design, add names, years together, date, venue and photos in the editor, pay securely, and publish in minutes — then share one link with the whole family.",
         ],
       },
     ],
     faqs: [
       {
         q: "Can I create an anniversary invitation online?",
-        a: "Yes. Share names, anniversary year, celebration date, venue and photos on WhatsApp and we design a warm digital invitation with maps and RSVP.",
+        a: "Yes. Choose a design and add names, anniversary year, celebration date, venue and photos in the editor, then publish a warm digital invitation with maps and RSVP.",
       },
       {
         q: "Can elders open it?",
@@ -301,7 +301,7 @@ export const LANDING_PAGES: LandingPage[] = [
       "One studio for all digital invitations — weddings, Nikah, Haldi-Mehndi, engagements, birthdays, anniversaries, baby showers and corporate events.",
     h1: "One link for every celebration",
     intro:
-      "Mehfill is a digital invitation studio for every celebration in India. Weddings, Nikah, Haldi and Mehndi, Sangeet, engagements, birthdays, anniversaries, baby showers, faith ceremonies and corporate events — each gets a custom-designed link with schedule, venues, photos and RSVP.",
+      "Mehfill is a digital invitation studio for every celebration in India. Weddings, Nikah, Haldi and Mehndi, Sangeet, engagements, birthdays, anniversaries, baby showers, faith ceremonies and corporate events — each gets its own shareable link with schedule, venues, photos and RSVP.",
     sections: [
       {
         h2: "Browse by celebration",
@@ -319,7 +319,7 @@ export const LANDING_PAGES: LandingPage[] = [
       {
         h2: "Why Mehfill",
         body: [
-          "Custom design (not a DIY template), WhatsApp ordering, fast 1–3 day delivery with revisions, maps and RSVP built in, and sharing that simply works on Indian mobile networks.",
+          "Designer-made templates you personalise yourself, transparent one-time pricing, instant publishing after payment with Basic, maps and RSVP built in, and sharing that simply works on Indian mobile networks.",
         ],
       },
     ],
@@ -334,7 +334,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
       {
         q: "How does ordering work?",
-        a: "Watch a live demo, message us on WhatsApp with your details, pay online, and we design and deliver your shareable invitation link with revisions included.",
+        a: "Choose a template, add your details in the editor, pay securely at checkout, and publish your shareable invitation link — instantly with Basic.",
       },
       {
         q: "Can I share on WhatsApp?",
@@ -369,14 +369,14 @@ export const LANDING_PAGES: LandingPage[] = [
       {
         h2: "How ordering works",
         body: [
-          "Message us on WhatsApp with your event name, date, venue and photos. We design your digital invitation card in 1–3 days with revisions, and you share one link with every guest.",
+          "Pick a template, add your event name, date, venue and photos in the editor, and publish your digital invitation card — then share one link with every guest.",
         ],
       },
     ],
     faqs: [
       {
         q: "Can I create an event invitation online?",
-        a: "Yes. Share your event name, date, venue and photos on WhatsApp and Mehfill.in designs a digital event invitation link with schedule, maps and RSVP.",
+        a: "Yes. Choose a design and add your event name, date, venue and photos in the editor to publish a digital event invitation link with schedule, maps and RSVP.",
       },
       {
         q: "Can guests open it without an app?",
@@ -384,7 +384,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
       {
         q: "How fast is delivery?",
-        a: "Essential in 3 days, Signature in 2 days, Royal in 24–48 hours on priority, with revisions included.",
+        a: "Basic (₹999) publishes instantly after payment. Premium (₹1,500) is typically delivered in 2–4 days with two revision rounds.",
       },
     ],
     relatedSlugs: ["digital-invitations", "birthday-invitations", "anniversary-invitations", "digital-wedding-invitations"],
@@ -394,7 +394,7 @@ export const LANDING_PAGES: LandingPage[] = [
     slug: "haldi-invitations",
     title: "Haldi Invitations Online — Bright Digital Haldi Cards",
     description:
-      "Joyful digital Haldi invitations with yellow marigold themes — Haldi date, venue, family details, photos and RSVP in one shareable link. Order on WhatsApp.",
+      "Joyful digital Haldi invitations with yellow marigold themes — Haldi date, venue, family details, photos and RSVP in one shareable link. Create yours online.",
     h1: "Haldi invitations full of sunshine",
     intro:
       "Mehfill.in designs bright digital Haldi invitations that capture the morning's joy — marigold yellows, marigold motifs and playful family photos, with your Haldi date, venue and schedule in one link guests love to open.",
@@ -415,14 +415,14 @@ export const LANDING_PAGES: LandingPage[] = [
       {
         h2: "Combine Haldi with Mehndi and Sangeet",
         body: [
-          "Most families order Haldi together with Mehndi and Sangeet in one wedding invitation link, so guests see every function in order. Ask us on WhatsApp and we will bundle your pre-wedding functions beautifully.",
+          "Most families keep Haldi, Mehndi and Sangeet in one wedding invitation link, so guests see every function in order. Add each function as its own event in the editor — every function gets its own date, time, venue and map.",
         ],
       },
     ],
     faqs: [
       {
         q: "Can I create a Haldi invitation online?",
-        a: "Yes. Share your Haldi date, venue, family names and photos on WhatsApp and we design a bright digital Haldi invitation link with maps and RSVP.",
+        a: "Yes. Choose a design and add your Haldi date, venue, family names and photos in the editor, then publish a bright digital Haldi invitation with maps and RSVP.",
       },
       {
         q: "Can Haldi, Mehndi and Sangeet be in one invitation?",
@@ -461,14 +461,14 @@ export const LANDING_PAGES: LandingPage[] = [
       {
         h2: "Part of your wedding story",
         body: [
-          "Mehndi invitations work beautifully standalone or inside a full digital wedding invitation with Haldi, wedding and reception. Share your functions on WhatsApp and we will structure them in the right order.",
+          "Mehndi invitations work beautifully standalone or inside a full digital wedding invitation with Haldi, wedding and reception. Add each function as a separate event in the editor so guests see them in the right order.",
         ],
       },
     ],
     faqs: [
       {
         q: "Can I create a Mehndi invitation online?",
-        a: "Yes. Share your Mehndi date, venue, Sangeet details and photos on WhatsApp and we design a festive digital Mehndi invitation with maps and RSVP.",
+        a: "Yes. Choose a design and add your Mehndi date, venue, Sangeet details and photos in the editor, then publish a festive digital invitation with maps and RSVP.",
       },
       {
         q: "Can I include Sangeet with Mehndi?",
@@ -476,7 +476,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
       {
         q: "How long does delivery take?",
-        a: "Essential in 3 days, Signature in 2 days, Royal in 24–48 hours on priority, with revisions included.",
+        a: "Basic (₹999) publishes instantly after payment. Premium (₹1,500) adds human design review, typically delivered in 2–4 days with two revision rounds.",
       },
     ],
     relatedSlugs: ["haldi-invitations", "digital-wedding-invitations", "event-invitations"],

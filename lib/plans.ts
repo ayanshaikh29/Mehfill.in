@@ -4,62 +4,78 @@ export interface Plan {
   price: number;
   mrp: number;
   blurb: string;
+  tagline: string;
   features: string[];
+  exclusions: string[];
   popular?: boolean;
   delivery: string;
+  workflow: "self_service" | "custom_service";
 }
 
 export const PLANS: Plan[] = [
   {
-    id: "essential",
-    name: "Essential",
+    id: "basic",
+    name: "Basic",
     price: 999,
-    mrp: 1999,
-    blurb: "A beautiful single celebration, done right.",
-    delivery: "Delivery in 3 days",
+    mrp: 1299,
+    blurb: "Choose a design. Make it yours. Share your celebration.",
+    tagline: "Template personalisation",
     features: [
-      "Tap-to-reveal opening",
-      "1-page digital invitation",
-      "Names, date, venue & story",
-      "Photo gallery (up to 10 photos)",
-      "WhatsApp-ready share link",
-      "1 design revision",
+      "Choose one pre-designed invitation template",
+      "Personalise bride & groom names",
+      "Edit family names and invitation message",
+      "Edit wedding date, time & events",
+      "Venue name, address & Google Maps link",
+      "Upload & replace photos in gallery slots",
+      "Configure RSVP options",
+      "Preview before publishing",
+      "Unique shareable invitation URL",
+      "WhatsApp & link sharing",
+      "Customer dashboard — edit anytime",
     ],
+    exclusions: [
+      "Custom theme or colour redesign",
+      "Custom animation changes",
+      "Layout rearrangement beyond the template",
+      "Human design review",
+    ],
+    delivery: "Publish instantly after payment",
+    workflow: "self_service",
   },
   {
-    id: "signature",
-    name: "Signature",
-    price: 1700,
+    id: "premium",
+    name: "Premium",
+    price: 1500,
     mrp: 2999,
-    blurb: "Our most loved experience — cinematic and complete.",
-    delivery: "Delivery in 2 days",
+    blurb: "Your story. Your style. Your invitation.",
+    tagline: "Fully customised design service",
     popular: true,
     features: [
-      "Everything in Essential",
-      "Cinematic tap-to-enter reveal",
-      "Background music & event timeline",
-      "RSVP + Maps & venue",
-      "Gallery up to 30 photos",
-      "3 design revisions",
+      "Everything in Basic",
+      "Customised visual theme & colour palette",
+      "Personalised typography & decorative styling",
+      "Custom animations & transitions (within scope)",
+      "Custom section layout & arrangement",
+      "Personalised opening experience & cover",
+      "Custom gallery, countdown & RSVP styling",
+      "Human design review by Mehfill team",
+      "Preview & approval before publishing",
+      "Unique shareable invitation URL",
+      "2 revision rounds included",
     ],
-  },
-  {
-    id: "royal",
-    name: "Royal",
-    price: 2500,
-    mrp: 4999,
-    blurb: "Fully custom, white-glove, unforgettable.",
-    delivery: "Priority delivery in 24–48 hrs",
-    features: [
-      "Everything in Signature",
-      "Fully custom design, made from scratch",
-      "Unlimited photos & events",
-      "Dedicated designer on WhatsApp",
-      "Revisions for 7 days",
+    exclusions: [
+      "Unlimited revisions (extra revisions priced separately)",
+      "Delivery timelines confirmed after brief review",
     ],
+    delivery: "Delivered after brief review · 2–4 days typical",
+    workflow: "custom_service",
   },
 ];
 
 export function formatINR(n: number) {
   return "₹" + n.toLocaleString("en-IN");
+}
+
+export function getPlan(id: string): Plan | undefined {
+  return PLANS.find((p) => p.id === id);
 }

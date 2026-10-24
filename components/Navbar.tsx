@@ -6,16 +6,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { WhatsAppIcon } from "./BrandIcons";
 import AuthButton from "./AuthButton";
+import LanguageSwitcher from "./i18n/LanguageSwitcher";
+import CurrencySwitcher from "./i18n/CurrencySwitcher";
+import { useT } from "./i18n/I18nProvider";
 import { waLink, WA_MSG_GENERAL } from "@/lib/contact";
-
-const LINKS = [
-  { label: "Home", href: "/#top" },
-  { label: "View Demos", href: "/#designs" },
-  { label: "How It Works", href: "/how-it-works" },
-  { label: "Occasions", href: "/#occasions" },
-  { label: "Pricing", href: "/#pricing" },
-  { label: "Contact", href: "/contact" },
-];
 
 function Wordmark({ className = "", light = false }: { className?: string; light?: boolean }) {
   // Transparent wordmark (no background) — sits cleanly on the floating pill.
@@ -49,6 +43,16 @@ function Wordmark({ className = "", light = false }: { className?: string; light
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const t = useT();
+
+  const LINKS = [
+    { label: t("nav.home"), href: "/#top" },
+    { label: t("nav.designs"), href: "/templates" },
+    { label: t("nav.demos"), href: "/#designs" },
+    { label: t("nav.how"), href: "/how-it-works" },
+    { label: t("nav.pricing"), href: "/#pricing" },
+    { label: t("nav.contact"), href: "/contact" },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -91,6 +95,8 @@ export default function Navbar() {
           </div>
 
           <div className="hidden items-center gap-3 lg:flex">
+            <LanguageSwitcher />
+            <CurrencySwitcher />
             <AuthButton />
             <a
               href={waLink(WA_MSG_GENERAL)}
@@ -103,13 +109,13 @@ export default function Navbar() {
                 className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
               />
               <WhatsAppIcon className="h-4 w-4" />
-              Get Your Invitation
+              {t("nav.order")}
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
           </div>
 
           <button
-            aria-label="Open menu"
+            aria-label={t("nav.menuOpen")}
             onClick={() => setOpen(true)}
             className="shrink-0 rounded-full border border-charcoal/10 bg-white/70 p-2.5 text-charcoal backdrop-blur transition-colors hover:bg-white active:scale-95 lg:hidden"
           >
@@ -129,45 +135,51 @@ export default function Navbar() {
             <div className="flex shrink-0 items-center justify-between px-4 py-3 sm:px-5 sm:py-4">
               <Wordmark light className="w-[132px] sm:w-[150px]" />
               <button
-                aria-label="Close menu"
+                aria-label={t("nav.menuClose")}
                 onClick={() => setOpen(false)}
                 className="rounded-full border border-white/20 p-2.5 transition-colors hover:bg-white/10 active:scale-95"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="flex min-h-0 flex-1 flex-col justify-center gap-1 px-6 py-6 sm:gap-2 sm:px-8">
-              {LINKS.map((l, i) => (
-                <motion.div
-                  key={l.label}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.08 + i * 0.06 }}
-                >
-                  <Link
-                    href={l.href}
-                    onClick={() => setOpen(false)}
-                    className="block py-1.5 font-serif text-4xl font-light leading-[1.05] transition-colors hover:text-champagne sm:py-2 sm:text-5xl"
+            <div className="flex min-h-0 flex-1 flex-col justify-between px-6 py-6 sm:px-8">
+              <div className="flex flex-col gap-1 sm:gap-2 my-auto">
+                {LINKS.map((l, i) => (
+                  <motion.div
+                    key={l.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 + i * 0.04 }}
                   >
-                    {l.label}
-                  </Link>
-                </motion.div>
-              ))}
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="pt-6 sm:pt-8">
-                <a
-                  href={waLink(WA_MSG_GENERAL)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                    <Link
+                      href={l.href}
+                      onClick={() => setOpen(false)}
+                      className="block py-1.5 font-serif text-3xl sm:text-4xl font-light leading-snug transition-colors hover:text-champagne"
+                    >
+                      {l.label}
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="pt-4 border-t border-white/10 shrink-0">
+                <Link
+                  href="/templates"
                   onClick={() => setOpen(false)}
-                  className="inline-flex items-center gap-2 rounded-full bg-ivory px-6 py-3 text-sm font-semibold text-charcoal sm:px-7 sm:py-3.5 sm:text-base"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-ivory px-6 py-3 text-sm font-semibold text-charcoal shadow-md hover:bg-champagne-light transition-all"
                 >
-                  <WhatsAppIcon className="h-4 w-4" /> Get Your Invitation <ArrowUpRight className="h-4 w-4" />
-                </a>
-                <div className="mt-4">
+                  <span>Get Your Invitation</span>
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+                <div className="mt-3 flex items-center justify-between">
                   <AuthButton dark />
+                  <div className="flex items-center gap-2">
+                    <LanguageSwitcher dark compact />
+                    <CurrencySwitcher dark />
+                  </div>
                 </div>
-                <p className="mt-6 font-serif text-sm italic text-ivory/50 tracking-wide">
-                  More Than an Invitation. An Experience.
+                <p className="mt-4 font-serif text-xs italic text-ivory/50 tracking-wide text-center">
+                  {t("nav.tagline")}
                 </p>
               </motion.div>
             </div>

@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { UserRound } from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { useT } from "./i18n/I18nProvider";
 
 // Shows "Account" when signed in, "Sign in" otherwise.
 export default function AuthButton({ dark = false }: { dark?: boolean }) {
   const [email, setEmail] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
@@ -35,7 +37,7 @@ export default function AuthButton({ dark = false }: { dark?: boolean }) {
           dark ? "text-ivory/80 hover:text-ivory" : "text-charcoal/70 hover:text-charcoal"
         }`}
       >
-        <UserRound className="h-4 w-4" /> Account
+        <UserRound className="h-4 w-4" /> {t("auth.account")}
       </Link>
     );
   }
@@ -46,7 +48,7 @@ export default function AuthButton({ dark = false }: { dark?: boolean }) {
         dark ? "text-ivory/80 hover:text-ivory" : "text-charcoal/70 hover:text-charcoal"
       }`}
     >
-      <UserRound className="h-4 w-4" /> Sign in
+      <UserRound className="h-4 w-4" /> {t("auth.signIn")}
     </Link>
   );
 }

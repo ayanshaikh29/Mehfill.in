@@ -1,0 +1,16 @@
+{
+  "name": "Mehfill.in | Digital Wedding & Event Invitations",
+  "short_name": "Mehfill.in",
+  "description": "Create beautiful digital wedding and event invitations with Mehfill.in. Elegant, WhatsApp-ready links with RSVP, maps and photos.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FDF9F3",
+  "theme_color": "#FDF9F3",
+  "icons": [
+    { "src": "/icon.png", "sizes": "any", "type": "image/png" },
+    { "src": "/apple-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/logo.png", "sizes": "any", "type": "image/png", "purpose": "maskable" }
+  ]
+}

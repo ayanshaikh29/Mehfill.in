@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // budget on pages that should rank.
   const statics: { path: string; priority: number; freq: "weekly" | "monthly" | "yearly" }[] = [
     { path: "/", priority: 1, freq: "weekly" },
+    { path: "/templates", priority: 0.9, freq: "weekly" },
     { path: "/demos", priority: 0.8, freq: "weekly" },
     { path: "/about", priority: 0.8, freq: "monthly" },
     { path: "/how-it-works", priority: 0.8, freq: "monthly" },
@@ -35,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     })),
     // Static HTML demo invitations (real designs guests open).
-    ...["site-1", "site-2", "site-3", "site-4", "site-5", "site-6", "site-7"].map((s) => ({
+    ...["site-1", "site-2", "site-3", "site-4", "site-5", "site-6", "site-7", "site-8"].map((s) => ({
       url: `${BASE}/${s}`,
       lastModified,
       changeFrequency: "monthly" as const,

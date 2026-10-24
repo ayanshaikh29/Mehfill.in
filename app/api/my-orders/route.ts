@@ -9,7 +9,9 @@ export async function GET() {
     if (!userData.user?.email) return NextResponse.json({ orders: [] });
     const { data, error } = await supabase
       .from("orders")
-      .select("id, plan, amount, status, created_at")
+      .select(
+        "id, plan, package, amount, status, created_at, template_slug, razorpay_payment_id, payment_method"
+      )
       .order("created_at", { ascending: false })
       .limit(20);
     if (error) return NextResponse.json({ orders: [] });

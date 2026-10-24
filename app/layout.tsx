@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
+import { Cormorant_Garamond, Manrope, Noto_Nastaliq_Urdu, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import SmoothScrollLoader from "@/components/SmoothScrollLoader";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
@@ -8,6 +8,8 @@ import VisitTracker from "@/components/VisitTracker";
 import LaunchGate from "@/components/LaunchGate";
 import PostLaunch from "@/components/PostLaunch";
 import CookieNotice from "@/components/CookieNotice";
+import I18nProvider from "@/components/i18n/I18nProvider";
+import CurrencyProvider from "@/components/i18n/CurrencyProvider";
 import Script from "next/script";
 import { INSTAGRAM_URL, SOCIAL_PROFILES } from "@/lib/contact";
 
@@ -33,6 +35,22 @@ const sans = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Scripts & locales beyond Latin — swapped in per language via CSS
+// (html[lang="hi"] etc.), so Devanagari/Nastaliq readers get proper glyphs.
+const devanagari = Noto_Sans_Devanagari({
+  variable: "--font-devanagari",
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const nastaliq = Noto_Nastaliq_Urdu({
+  variable: "--font-nastaliq",
+  subsets: ["arabic"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -156,22 +174,32 @@ export default function RootLayout({
   const nonce = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : Math.random().toString(36).substring(2);
 
   return (
-    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
+    <html
+      lang="en"
+      className={`${serif.variable} ${sans.variable} ${devanagari.variable} ${nastaliq.variable}`}
+    >
       <head>
         <meta charSet="utf-8" />
         <meta name="theme-color" content="#FDF9F3" />
+        {/* Apply the stored language before first paint so RTL (Urdu) never
+            flashes LTR. Kept tiny and dependency-free. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var m=document.cookie.match(/(?:^|;\\s*)mf_locale=([a-z]{2})/);var l=m&&m[1]||null;if(!l){l=localStorage.getItem('mf_locale')}if(l==='hi'||l==='mr'||l==='ur'){document.documentElement.lang=l;if(l==='ur'){document.documentElement.dir='rtl'}}}catch(e){}})();",
+          }}
+        />
         <meta httpEquiv="Content-Security-Policy" content={[
           "default-src 'self'",
-          // NOTE: only services actually used are allowlisted. No Google
-          // Analytics, Meta Pixel, YouTube embeds or Razorpay checkout exists
-          // in the codebase — if added later, extend this list deliberately.
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+          // NOTE: only services actually used are allowlisted. Razorpay checkout
+          // is loaded on /checkout when gateway keys are configured.
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com data:",
           "img-src 'self' data: https: blob:",
           "media-src 'self' https: blob:",
-          "connect-src 'self' https://owrylcdcaywlsolqszho.supabase.co https://api.qrserver.com",
-          "frame-src 'self'",
+          "connect-src 'self' https://owrylcdcaywlsolqszho.supabase.co https://api.qrserver.com https://api.razorpay.com https://lumberjack.razorpay.com",
+          "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com",
           "object-src 'none'",
           "base-uri 'self'",
           "form-action 'self'",
@@ -189,19 +217,23 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning className="min-h-screen bg-ivory text-charcoal antialiased">
-        <a href="#main-content" className="skip-link">Skip to main content</a>
-        <SmoothScrollLoader />
-        <VisitTracker />
-        <LaunchGate>
-          <div id="main-content" tabIndex={-1}>
-            {children}
-          </div>
-        </LaunchGate>
-        <CookieNotice />
-        <PostLaunch>
-          <IntroReveal />
-          <WhatsAppFloat />
-        </PostLaunch>
+        <I18nProvider>
+          <CurrencyProvider>
+            <a href="#main-content" className="skip-link">Skip to main content</a>
+            <SmoothScrollLoader />
+            <VisitTracker />
+            <LaunchGate>
+              <div id="main-content" tabIndex={-1}>
+                {children}
+              </div>
+            </LaunchGate>
+            <CookieNotice />
+            <PostLaunch>
+              <IntroReveal />
+              <WhatsAppFloat />
+            </PostLaunch>
+          </CurrencyProvider>
+        </I18nProvider>
         <Script
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{

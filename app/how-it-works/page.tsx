@@ -4,48 +4,32 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
 import { canonical } from "@/lib/seo";
-import { waLink, WA_MSG_GENERAL } from "@/lib/contact";
 
 const SLUG = "how-it-works";
 
 const STEPS = [
   {
-    title: "Explore invitations on the website",
-    text: "Open our live demos and invitation collections — digital wedding invitations, Nikah, engagements, birthdays, anniversaries and events. Find the style that feels like your celebration. No account needed to browse.",
-    cta: { label: "Explore Invitations", href: "/demos" },
+    title: "Choose your template",
+    text: "Explore our invitation designs and choose the one that matches your celebration. Every template is mobile-friendly, with live demos you can open and feel before deciding — no account needed to browse.",
+    cta: { label: "Explore Designs", href: "/templates" },
   },
   {
-    title: "Choose your plan",
-    text: "Pick Essential (₹999, delivery in 3 days), Signature (₹1,700, delivery in 2 days) or Royal (₹2,500, priority 24–48 hours). Every plan includes design revisions and transparent pricing on the website — no hidden charges.",
-    cta: { label: "See Pricing", href: "/#pricing" },
+    title: "Add your details",
+    text: "Personalise names, event dates, venue, photos and other supported details in a simple step-by-step editor. Preview exactly what your guests will see, and edit again anytime from your dashboard.",
+    cta: { label: "Customise Your Invitation", href: "/templates" },
   },
   {
-    title: "Share your celebration details",
-    text: "Message us on WhatsApp with your names, date, venue, event schedule, photos and any special wording, blessings or music. Just forward everything — we organise it into your invitation.",
-    cta: { label: "Chat on WhatsApp", href: waLink(WA_MSG_GENERAL), external: true },
-  },
-  {
-    title: "Pay securely and get confirmed",
-    text: "Pay directly by UPI transfer and submit your transaction ID on this website. We verify every payment manually and confirm your order personally on WhatsApp or email before design begins.",
-    cta: { label: "Contact Us", href: "/contact" },
-  },
-  {
-    title: "Review the design and request changes",
-    text: "We design your custom invitation and share a preview. Request revisions — 1 in Essential, 3 in Signature, 7 days of revisions in Royal — until you love it.",
-    cta: { label: "About Our Craft", href: "/about" },
-  },
-  {
-    title: "Receive your link and share it",
-    text: "Get one beautiful link for your invitation — events, maps, photos, music and RSVP included. Share it on WhatsApp with every guest; it opens on any phone with no app needed.",
-    cta: { label: "View Demo", href: "/site-1" },
+    title: "Publish & share",
+    text: "Preview your invitation, complete the required checkout, publish it and share its unique link with your guests. Payment is verified on our server before publishing unlocks — no invitation is live before payment and publishing succeed.",
+    cta: { label: "Create Your Invitation", href: "/templates" },
   },
 ];
 
 export function generateMetadata(): Metadata {
   const url = canonical(`/${SLUG}`);
-  const title = "How It Works — Order Your Digital Invitation";
+  const title = "How It Works — Create Your Digital Invitation";
   const description =
-    "How ordering a Mehfill.in digital invitation works: explore demos, choose a plan, share details on WhatsApp, pay by UPI, review the design, and share your link.";
+    "How Mehfill.in works: choose your template, add your details, publish and share your digital invitation with a unique link.";
   return {
     title,
     description,
@@ -81,10 +65,10 @@ function JsonLd() {
   const howTo = {
     "@context": "https://schema.org",
     "@type": "HowTo",
-    name: "How to order a digital invitation from Mehfill.in",
+    name: "How to create a digital invitation with Mehfill.in",
     description:
-      "Order a custom digital wedding or event invitation from Mehfill.in: explore demos, choose a plan, share details, pay, review the design, and share your link.",
-    totalTime: "P3D",
+      "Create a digital wedding or event invitation with Mehfill.in: choose a template, add your details, complete checkout, and publish your shareable link.",
+    totalTime: "PT15M",
     step: STEPS.map((s, i) => ({
       "@type": "HowToStep",
       position: i + 1,
@@ -113,12 +97,12 @@ export default function HowItWorksPage() {
         </nav>
         <p className="eyebrow mt-5 text-terracotta">HOW IT WORKS</p>
         <h1 className="mt-4 font-serif font-light text-4xl md:text-6xl leading-[1.02] tracking-tight text-balance">
-          From demo to doorbell in six steps
+          Choose. Personalise. Publish.
         </h1>
         <p className="mt-5 text-[16px] md:text-lg leading-relaxed text-charcoal/70">
-          Ordering a Mehfill.in digital invitation is a guided, done-for-you service — you explore
-          and choose on this website, and our designers handle the rest with personal support on
-          WhatsApp at every step.
+          Creating a Mehfill.in digital invitation takes minutes: pick a design you love, add your
+          celebration details in the editor, pay securely, and publish the unique link you can share
+          with every guest.
         </p>
 
         <div className="mt-10 grid gap-4">
@@ -149,11 +133,12 @@ export default function HowItWorksPage() {
         </div>
 
         <section className="mt-12 rounded-[1.4rem] border hairline bg-cream/60 p-6 md:p-8">
-          <h2 className="font-serif font-light text-2xl md:text-3xl">Delivery and revisions, honestly stated</h2>
+          <h2 className="font-serif font-light text-2xl md:text-3xl">Pricing and publishing, honestly stated</h2>
           <p className="mt-3 leading-relaxed text-charcoal/70">
-            Essential delivers in 3 days, Signature in 2 days, Royal in 24–48 hours on priority —
-            with 1, 3, and 7 days of revisions respectively. Festival and wedding-season rush may
-            take longer; we tell you upfront before confirmation. Read the{" "}
+            Basic (₹999) is self-service and publishes the moment your payment succeeds; Premium
+            (₹1,500) adds human design review, typically delivered in 2–4 days with two revision
+            rounds. Payment is always verified on our server before an invitation can be published.
+            Read the{" "}
             <Link href="/refund-policy" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">refund &amp; cancellation policy</Link>
             {" "}and <Link href="/about" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">about Mehfill.in</Link>{" "}
             for the full picture.

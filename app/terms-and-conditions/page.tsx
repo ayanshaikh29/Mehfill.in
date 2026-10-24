@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import LegalPage from "@/components/LegalPage";
 import { CONTACT_EMAIL } from "@/lib/contact";
 import { canonical } from "@/lib/seo";
@@ -46,17 +47,47 @@ export default function TermsPage() {
 
       <h2>4. Orders &amp; payments</h2>
       <ul>
-        <li>Prices are shown on the <a href="/#pricing">pricing section</a> and at checkout. Prices may be negotiated on WhatsApp — the confirmed price is what you actually pay.</li>
-        <li>Payment is currently by direct UPI transfer, followed by manual verification of your transaction ID and payment screenshot.</li>
-        <li>Your order is <strong>confirmed</strong> only after we verify your payment and confirm on WhatsApp/email.</li>
-        <li>After confirmation, our design work begins as discussed with you.</li>
+        <li>
+          Two packages are offered: <strong>Basic (₹999)</strong> — self-service template
+          personalisation — and <strong>Premium (₹1,500)</strong> — a customisation service with
+          human design review. Features of each are listed on the <Link href="/#pricing">pricing section</Link>{" "}
+          and at checkout.
+        </li>
+        <li>
+          Payment is accepted via Razorpay (card, net-banking, UPI) when enabled, or by direct
+          UPI transfer with manual verification of your transaction ID and payment screenshot.
+        </li>
+        <li>
+          For Razorpay payments, confirmation is automatic after server-side payment
+          verification. For manual UPI, confirmation happens after we verify your payment.
+        </li>
+        <li>
+          <strong>Basic:</strong> your personalisation editor unlocks after confirmation;
+          publishing is done by you. <strong>Premium:</strong> after confirmation you submit a
+          design brief; our team reviews it, confirms scope and shares a preview before
+          publishing.
+        </li>
+        <li>The package price covers one selected design per order.</li>
       </ul>
 
       <h2>5. Customisation &amp; revisions</h2>
       <ul>
-        <li>Each plan includes a fair number of design revisions: <code>[NUMBER OF REVISIONS]</code>.</li>
-        <li>Revision requests should be shared together where possible so delivery stays on schedule.</li>
-        <li>Delivery timelines are estimates shared before confirmation: <code>[DELIVERY TIMELINE]</code>. Festival/wedding-season rush may take longer — we will tell you upfront.</li>
+        <li>
+          <strong>Basic:</strong> edit supported fields (names, dates, venue, events, photos,
+          RSVP) anytime from your dashboard at no extra cost.
+        </li>
+        <li>
+          <strong>Premium:</strong> includes 2 revision rounds after the first preview.
+          Additional revisions are quoted separately before work continues.
+        </li>
+        <li>
+          Revision requests should be shared together where possible so delivery stays on
+          schedule.
+        </li>
+        <li>
+          Premium delivery timelines are confirmed after brief review — typically 2–4 days.
+          Festival/wedding-season rush may take longer; we will tell you upfront.
+        </li>
       </ul>
 
       <h2>6. Cancellations &amp; refunds</h2>
@@ -69,7 +100,7 @@ export default function TermsPage() {
       <ul>
         <li>We aim to keep the website and hosted invitations available, but we do not guarantee uninterrupted uptime.</li>
         <li>Maintenance, hosting issues or third-party outages (for example Supabase or Vercel) may cause temporary unavailability.</li>
-        <li>Your invitation link stays hosted for the period included in your plan: <code>[HOSTING PERIOD]</code>.</li>
+        <li>Your invitation link stays hosted for as long as Mehfill.in operates the service. We may retire the hosting platform with advance notice; if that happens we will give you reasonable time to export or re-host your invitation content.</li>
       </ul>
 
       <h2>8. Intellectual property</h2>

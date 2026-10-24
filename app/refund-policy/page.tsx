@@ -11,72 +11,125 @@ export const metadata: Metadata = {
 
 export default function RefundPolicyPage() {
   return (
-    <LegalPage eyebrow="LEGAL" title="Refund & Cancellation Policy" updated="28 September 2026">
+    <LegalPage eyebrow="LEGAL" title="Refund & Cancellation Policy" updated="20 October 2026">
       <h2>1. How ordering works</h2>
       <ul>
-        <li>You choose a design and plan, share your details, and pay by direct UPI transfer.</li>
-        <li>You then submit your UPI transaction ID and payment screenshot for verification.</li>
-        <li>Your order is <strong>confirmed</strong> only after we verify the payment and confirm back to you on WhatsApp or email.</li>
-        <li>Design work begins after confirmation, exactly as discussed with you.</li>
+        <li>
+          You choose a design and a package — <strong>Basic (₹999)</strong> self-service
+          personalisation or <strong>Premium (₹1,500)</strong> custom design service.
+        </li>
+        <li>
+          Payment is made either through Razorpay (card, net-banking, UPI) or by direct UPI
+          transfer with transaction-ID verification.
+        </li>
+        <li>
+          For Razorpay payments, your order is confirmed automatically after server-side payment
+          verification. For manual UPI, confirmation happens after we verify your transaction —
+          usually within a few hours on business days.
+        </li>
+        <li>
+          <strong>Basic:</strong> after confirmation, your personalisation editor unlocks
+          immediately and you publish the invitation yourself.
+        </li>
+        <li>
+          <strong>Premium:</strong> after confirmation, you submit a design brief. Our team
+          reviews it, confirms scope, shares a preview and publishes after your approval.
+        </li>
       </ul>
 
       <h2>2. Cancellation before confirmation</h2>
       <p>
-        If you paid but we have <strong>not yet confirmed</strong> your order (for example payment
-        could not be verified), you may cancel for a full refund of the amount received.
+        If you paid but your order has <strong>not yet been confirmed</strong> (for example a
+        failed payment, or a UPI transaction we could not verify), you may cancel for a full
+        refund of the amount received.
       </p>
 
       <h2>3. Cancellation after confirmation</h2>
       <ul>
         <li>
-          Within <code>[CANCELLATION PERIOD]</code> of confirmation and <strong>before design work
-          begins</strong> — full refund of the amount received.
+          <strong>Basic package:</strong> because the Basic package is an instant self-service
+          product, cancellations are accepted only <strong>before you publish</strong> your
+          invitation. Once published, the order is complete and non-refundable. You may still
+          edit your details anytime after publishing at no extra cost.
         </li>
         <li>
-          After design work has begun — the effort already put in is non-refundable; any remaining
-          balance for unstarted work is refunded. We will give you an honest, itemised split.
+          <strong>Premium package:</strong> cancellations accepted before design work begins —
+          full refund. After design work has begun, the effort already put in is
+          non-refundable; any remaining balance for unstarted work is refunded with an honest,
+          itemised split.
         </li>
-        <li>Once your final invitation link is delivered and approved, the order is complete and non-refundable.</li>
+        <li>
+          Design switching: the package price covers <strong>one selected design</strong>.
+          Switching to a completely different design after publication may attract a
+          design-change fee, discussed with you in advance — or you may purchase a new package.
+        </li>
       </ul>
 
       <h2>4. Revisions</h2>
-      <p>
-        Each plan includes <code>[NUMBER OF REVISIONS]</code> fair design revisions. If we cannot
-        deliver what was promised even after revisions, we will make it right — including a partial
-        or full refund where fair.
-      </p>
+      <ul>
+        <li>
+          <strong>Basic:</strong> unlimited self-service edits to supported fields via your
+          dashboard, for as long as your invitation stays live.
+        </li>
+        <li>
+          <strong>Premium:</strong> 2 revision rounds are included after the first preview.
+          Additional revisions are quoted separately before work continues. If we cannot
+          deliver what was agreed even after the included revisions, we will make it right —
+          including a partial or full refund where fair.
+        </li>
+      </ul>
 
       <h2>5. Failed &amp; duplicate payments</h2>
       <ul>
-        <li><strong>Failed payment</strong> (money left your account but never reached us) — no order is created; please claim reversal through your UPI app/bank. We will help with any proof you need from our side.</li>
-        <li><strong>Duplicate payment</strong> (paid twice for one order) — the extra amount is refunded in full within <code>[REFUND WINDOW]</code> of you informing us with both transaction IDs.</li>
+        <li>
+          <strong>Failed payment</strong> (money debited but the payment did not complete) —
+          no order is created. For Razorpay payments, the amount is auto-reversed by your bank
+          per RBI guidelines. For UPI, claim reversal through your UPI app/bank; we will help
+          with any proof you need from our side.
+        </li>
+        <li>
+          <strong>Duplicate payment</strong> (paid twice for one order) — the extra amount is
+          refunded in full within <strong>7 working days</strong> of you informing us with both
+          transaction/payment IDs.
+        </li>
       </ul>
 
       <h2>6. Technical failures on our side</h2>
       <p>
-        If we cannot deliver your invitation due to our own technical failure, you choose: rework
-        with priority delivery, or a full refund.
+        If we cannot deliver your invitation due to our own technical failure, you choose:
+        priority rework, or a full refund.
       </p>
 
       <h2>7. How refunds are paid &amp; how long they take</h2>
-      <p>
-        Refunds go back via UPI to the same account that paid, within <code>[REFUND WINDOW]</code>{" "}
-        of approval. Write to <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> or message us
-        on WhatsApp with your transaction ID to start a refund.
-      </p>
+      <ul>
+        <li>
+          <strong>Razorpay payments</strong> are refunded to the original payment method
+          through Razorpay&apos;s refund system; banks typically take 5–7 working days.
+        </li>
+        <li>
+          <strong>Manual UPI payments</strong> are refunded via UPI to the same VPA that paid,
+          within <strong>7 working days</strong> of approval.
+        </li>
+        <li>
+          To start a refund, write to <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>{" "}
+          or message us on WhatsApp with your order reference and payment ID.
+        </li>
+      </ul>
 
       <h2>8. What is never refundable</h2>
       <ul>
-        <li>Custom design work already completed and approved by you.</li>
+        <li>Basic-package orders after the invitation has been published.</li>
+        <li>Premium custom design work already completed and approved by you.</li>
         <li>Third-party costs already incurred for your order, if any were agreed upfront.</li>
       </ul>
 
-      <h2>9. Please note</h2>
+      <h2>9. Note on business status</h2>
       <p>
-        Time windows and revision counts marked like <code>[THIS]</code> are the business rules
-        being finalised with the owner — they will be replaced with exact commitments before
-        launch-scale sales. Nothing here creates a legal guarantee beyond what consumer law already
-        provides. Professional legal/CA review is required before treating this page as final.
+        Mehfill.in is operated by an individual (unregistered sole proprietorship). Payments are
+        processed via Razorpay and/or direct UPI. This policy is written in plain language and
+        complies with standard consumer-fairness expectations; it does not limit any rights you
+        have under applicable Indian consumer law. Professional legal review is recommended
+        before treating this page as final.
       </p>
     </LegalPage>
   );

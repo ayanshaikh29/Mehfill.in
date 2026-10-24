@@ -57,6 +57,19 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Invitations are rendered inside the editor's same-origin preview
+      // iframe (and are safe to frame for sharing). DENY above would block
+      // that — SAMEORIGIN lets the editor preview work while still stopping
+      // third-party sites from framing the page.
+      {
+        source: "/i/:path*",
+        headers: [
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+        ],
+      },
       {
         source: "/api/:path*",
         headers: [
@@ -125,6 +138,8 @@ const nextConfig: NextConfig = {
       { source: "/site-6/", destination: "/site-6/index.html" },
       { source: "/site-7", destination: "/site-7/index.html" },
       { source: "/site-7/", destination: "/site-7/index.html" },
+      { source: "/site-8", destination: "/site-8/index.html" },
+      { source: "/site-8/", destination: "/site-8/index.html" },
       {
         source: "/security.txt",
         destination: "/.well-known/security.txt",

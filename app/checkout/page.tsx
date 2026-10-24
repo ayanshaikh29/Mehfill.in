@@ -2,287 +2,598 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Copy, Check, Loader2, QrCode } from "lucide-react";
+import { ArrowLeft, Check, Loader2, ShieldCheck, Sparkles, Tag, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { PLANS, formatINR } from "@/lib/plans";
-import { TEMPLATES } from "@/lib/templates";
-import { UPI_ID, upiPayLink, upiQrImage } from "@/lib/payment";
-import { WhatsAppIcon, GooglePayIcon, PhonePeIcon, PaytmIcon } from "@/components/BrandIcons";
-import PremiumSelect from "@/components/PremiumSelect";
-import { waLink } from "@/lib/contact";
+import { getPlan, formatINR, type Plan } from "@/lib/plans";
+import { getCatalogTemplate, type CatalogTemplate } from "@/lib/catalog";
+import { UPI_ID } from "@/lib/payment";
+import { useT } from "@/components/i18n/I18nProvider";
+import { useCurrency } from "@/components/i18n/CurrencyProvider";
 
-const OCCASIONS = ["Wedding", "Engagement", "Haldi", "Mehndi", "Sangeet", "Birthday", "Anniversary", "Baby Shower", "Housewarming", "Naming Ceremony", "Thread Ceremony", "Retirement", "Corporate Event", "Other"];
-const STATES = ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Delhi", "Jammu & Kashmir", "Ladakh", "Chandigarh", "Dadra & Nagar Haveli", "Daman & Diu", "Lakshadweep", "Puducherry"];
-
-interface Item {
-  templateId: string;
-  planId: string;
-  qty: number;
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => {
+      open: () => void;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      on: (event: string, handler: (response: any) => void) => void;
+    };
+  }
 }
+
+type Step = "summary" | "done";
 
 function CheckoutInner() {
   const router = useRouter();
   const params = useSearchParams();
-  const [user, setUser] = useState<any>(null);
+  const templateSlug = params.get("template") || "";
+  const packageId = params.get("package") || "basic";
+  const invitationId = params.get("invitationId") || "";
+  const t = useT();
+  const { format: money, converted } = useCurrency();
+
   const [checking, setChecking] = useState(true);
-  const [step, setStep] = useState<"details" | "pay" | "done">("details");
-  const [copied, setCopied] = useState(false);
-  const [qrFailed, setQrFailed] = useState(false);
+  const [step, setStep] = useState<Step>("summary");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  const [txn, setTxn] = useState("");
-  const [shot, setShot] = useState<File | null>(null);
-  const [privacyOk, setPrivacyOk] = useState(false);
 
-  const [f, setF] = useState({
-    fullName: "", email: "", mobile: "", whatsapp: "",
-    city: "", state: "", pincode: "", occasion: "",
-    eventDate: "", venueName: "", venueAddress: "",
+  const [contact, setContact] = useState({
+    fullName: "",
+    email: "",
+    mobile: "",
+    whatsapp: "",
   });
 
-  const items: Item[] = useMemo(() => {
+  // Coupon state
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [couponErr, setCouponErr] = useState("");
+
+  // Manual UPI payment (posts to /api/upi-submit for admin verification)
+  const [upiOpen, setUpiOpen] = useState(false);
+  const [upiBusy, setUpiBusy] = useState(false);
+  const [upiDone, setUpiDone] = useState(false);
+  const [upiErr, setUpiErr] = useState("");
+  const [upiForm, setUpiForm] = useState({ name: "", email: "", whatsapp: "", txnId: "" });
+  const [upiShot, setUpiShot] = useState<File | null>(null);
+
+  const template: CatalogTemplate | undefined = useMemo(
+    () => getCatalogTemplate(templateSlug),
+    [templateSlug]
+  );
+  const plan: Plan | undefined = useMemo(() => getPlan(packageId), [packageId]);
+
+  const discount = coupon?.discountAmount ?? 0;
+  // A 100% coupon is valid — payable may be ₹0 (no gateway call needed).
+  const payable = plan ? Math.max(0, plan.price - discount) : 0;
+  const isFree = payable === 0;
+
+  const applyCoupon = async () => {
+    if (!plan || !couponInput.trim()) return;
+    setCouponBusy(true);
+    setCouponErr("");
     try {
-      const raw = params.get("cart");
-      if (raw) {
-        const arr = JSON.parse(raw);
-        if (Array.isArray(arr)) return arr.filter((x) => x.templateId && x.planId);
-      }
-      const plan = params.get("plan");
-      const template = params.get("template");
-      if (plan && template) return [{ templateId: template, planId: plan, qty: Number(params.get("qty") || 1) }];
-    } catch { /* ignore */ }
-    return [];
-  }, [params]);
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponInput.trim(), packageId: plan.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data?.error || "Could not apply coupon.");
+      setCoupon({ code: data.coupon.code, discountAmount: data.coupon.discountAmount });
+      setCouponInput("");
+    } catch (e) {
+      setCoupon(null);
+      setCouponErr(e instanceof Error ? e.message : "Could not apply coupon.");
+    } finally {
+      setCouponBusy(false);
+    }
+  };
 
-  const lines = items.map((it) => ({
-    ...it,
-    plan: PLANS.find((p) => p.id === it.planId),
-    template: TEMPLATES.find((t) => t.slug === it.templateId),
-  })).filter((l) => l.plan && l.template);
-
-  const total = lines.reduce((s, l) => s + (l.plan?.price || 0) * l.qty, 0);
+  const removeCoupon = () => {
+    setCoupon(null);
+    setCouponErr("");
+    setCouponInput("");
+  };
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getSession().then(({ data }) => {
       const u = data.session?.user ?? null;
       if (!u) {
-        router.replace("/login?callbackUrl=" + encodeURIComponent("/checkout?" + params.toString()));
+        router.replace(
+          "/login?callbackUrl=" + encodeURIComponent("/checkout?" + params.toString())
+        );
         return;
       }
-      setUser(u);
-      setF((prev) => ({
-        ...prev,
+      setContact({
         fullName: (u.user_metadata?.full_name as string) || "",
         email: u.email || "",
         mobile: (u.user_metadata?.mobile as string) || "",
         whatsapp: (u.user_metadata?.mobile as string) || "",
-      }));
+      });
+      setUpiForm({
+        name: (u.user_metadata?.full_name as string) || "",
+        email: u.email || "",
+        whatsapp: (u.user_metadata?.mobile as string) || "",
+        txnId: "",
+      });
       setChecking(false);
     });
   }, [router, params]);
 
-  const set = (k: keyof typeof f, v: string) => setF((p) => ({ ...p, [k]: v }));
+  // Load Razorpay checkout.js once; payment call checks window.Razorpay at click time.
+  useEffect(() => {
+    if (typeof window === "undefined" || window.Razorpay) return;
+    const existing = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+    if (existing) return;
+    const s = document.createElement("script");
+    s.src = "https://checkout.razorpay.com/v1/checkout.js";
+    s.async = true;
+    document.body.appendChild(s);
+  }, []);
 
-  const detailsValid =
-    f.fullName.trim() && /.+@.+\..+/.test(f.email) &&
-    f.mobile.replace(/\D/g, "").length === 10 &&
-    f.whatsapp.replace(/\D/g, "").length === 10 &&
-    f.occasion && f.eventDate && f.venueName.trim() && f.city.trim() && f.state && privacyOk;
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-ivory flex items-center justify-center">
+        <p className="font-serif text-2xl">{t("checkout.loading")}</p>
+      </div>
+    );
+  }
 
-  const copyId = async () => {
-    try { await navigator.clipboard.writeText(UPI_ID); } catch { /* ignore */ }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const submitTxn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!txn.trim()) { setErr("Transaction ID is required"); return; }
-    if (!shot) { setErr("Payment screenshot is required — please upload it."); return; }
-    if (shot.size > 5 * 1024 * 1024) { setErr("Screenshot must be under 5MB."); return; }
-    setErr("");
-    setBusy(true);
-    try {
-      const fd = new FormData();
-      fd.set("plan", lines.map((l) => l.planId).join("+"));
-      fd.set("amount", String(total));
-      fd.set("customer_name", f.fullName.trim());
-      fd.set("whatsapp", f.whatsapp.trim());
-      fd.set("email", f.email.trim());
-      fd.set("mobile", f.mobile.trim());
-      fd.set("city", f.city.trim());
-      fd.set("state", f.state);
-      fd.set("pincode", f.pincode.trim());
-      fd.set("occasion", f.occasion);
-      fd.set("event_date", f.eventDate);
-      fd.set("venue_name", f.venueName.trim());
-      fd.set("venue_address", f.venueAddress.trim());
-      fd.set("template_slug", lines.map((l) => l.templateId).join(","));
-      fd.set("txn_id", txn.trim());
-      if (shot) fd.set("screenshot", shot);
-      const res = await fetch("/api/upi-submit", { method: "POST", body: fd });
-      if (!res.ok) {
-        let msg = "Could not save online — please send your transaction ID on WhatsApp instead.";
-        try {
-          const data = await res.json();
-          if (data?.error) msg = data.error;
-        } catch { /* keep default */ }
-        throw new Error(msg);
-      }
-      try { if (user) localStorage.removeItem(`mehfill_cart_${user.id}`); } catch { /* ignore */ }
-      setStep("done");
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "Could not save online — please send your transaction ID on WhatsApp instead.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  if (checking) return <div className="min-h-screen bg-ivory flex items-center justify-center"><p className="font-serif text-2xl">Loading checkout…</p></div>;
-
-  if (lines.length === 0) {
+  if (!template || !plan) {
     return (
       <main className="min-h-screen bg-ivory flex items-center justify-center px-5 text-center">
         <div>
-          <p className="font-serif text-3xl italic">Your cart is empty.</p>
-          <Link href="/dashboard" className="mt-5 inline-block rounded-full bg-charcoal px-7 py-3.5 text-sm font-bold text-ivory">Back to designs</Link>
+          <p className="font-serif text-3xl italic">{t("checkout.notFound")}</p>
+          <Link
+            href="/templates"
+            className="mt-5 inline-block rounded-full bg-charcoal px-7 py-3.5 text-sm font-bold text-ivory"
+          >
+            {t("checkout.browse")}
+          </Link>
         </div>
       </main>
     );
   }
 
-  const note = `Mehfill ${lines.map((l) => l.plan?.name).join("+")} invitation`;
+  const startRazorpay = async () => {
+    setErr("");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/razorpay/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packageId: plan!.id,
+          templateSlug: template!.slug,
+          couponCode: coupon?.code || undefined,
+          invitationId: invitationId || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Could not start payment.");
+
+      // 100% coupon — no gateway needed. The order is already fulfilled
+      // server-side, so skip the Razorpay modal and go straight to the editor.
+      if (data.free) {
+        setStep("done");
+        if (data.invitationId) {
+          router.push(`/dashboard/edit/${data.invitationId}`);
+        } else {
+          router.push("/dashboard");
+        }
+        return;
+      }
+
+      if (!window.Razorpay) throw new Error("Payment window failed to load. Please refresh the page and try again.");
+
+      const rzp = new window.Razorpay({
+        key: data.keyId,
+        amount: data.amountPaise,
+        currency: data.currency,
+        name: "Mehfill.in",
+        description: `${t("pricing.planNames." + plan!.id)} — ${template!.name}`,
+        order_id: data.razorpayOrderId,
+        prefill: {
+          name: contact.fullName || undefined,
+          email: contact.email || undefined,
+          contact: contact.whatsapp || undefined,
+        },
+        theme: { color: "#96522f" },
+        handler: async (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) => {
+          const vRes = await fetch("/api/razorpay/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              invitationId: invitationId || undefined,
+            }),
+          });
+          const vData = await vRes.json().catch(() => ({}));
+          if (!vRes.ok) {
+            setErr(vData?.error || "Payment received but verification failed. Contact support with your payment ID.");
+            setStep("summary");
+            return;
+          }
+          setStep("done");
+          const targetInviteId = vData.invitationId || invitationId;
+          const orderRef = vData.orderId || response.razorpay_order_id;
+          if (targetInviteId) {
+            router.push(`/thank-you?order=${encodeURIComponent(orderRef || "")}&invitationId=${encodeURIComponent(targetInviteId)}`);
+          } else {
+            router.push(`/thank-you?order=${encodeURIComponent(orderRef || "")}`);
+          }
+        },
+        modal: { ondismiss: () => setBusy(false) },
+      });
+      rzp.on("payment.failed", (resp: { error?: { description?: string } }) => {
+        setErr(resp?.error?.description || "Payment failed. Please try again.");
+        setBusy(false);
+      });
+      rzp.open();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not start payment.");
+      setBusy(false);
+    }
+  };
+
+  const submitUpi = async () => {
+    setUpiErr("");
+    const name = upiForm.name.trim();
+    const digits = upiForm.whatsapp.replace(/\D/g, "");
+    const txnId = upiForm.txnId.trim();
+    if (!name) return setUpiErr(t("checkout.upiErrName"));
+    if (digits.length !== 10) return setUpiErr(t("checkout.upiErrWa"));
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(upiForm.email.trim()))
+      return setUpiErr(t("checkout.upiErrEmail"));
+    if (!txnId) return setUpiErr(t("checkout.upiErrTxn"));
+    if (!upiShot) return setUpiErr(t("checkout.upiErrShot"));
+
+    setUpiBusy(true);
+    try {
+      const fd = new FormData();
+      fd.set("plan", plan!.id);
+      fd.set("amount", String(payable)); // INR base — server re-verifies it
+      fd.set("customer_name", name);
+      fd.set("whatsapp", digits);
+      fd.set("txn_id", txnId);
+      fd.set("email", upiForm.email.trim());
+      fd.set("mobile", digits);
+      fd.set("template_slug", template!.slug);
+      if (coupon?.code) fd.set("coupon_code", coupon.code);
+      fd.set("screenshot", upiShot);
+      const res = await fetch("/api/upi-submit", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Could not submit. Please try again.");
+      setUpiDone(true);
+    } catch (e) {
+      setUpiErr(e instanceof Error ? e.message : "Could not submit your payment.");
+    } finally {
+      setUpiBusy(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-ivory">
       <div className="mx-auto max-w-3xl px-5 md:px-8 py-8">
-        <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-charcoal/70 hover:text-charcoal">
-          <ArrowLeft className="h-4 w-4" /> Back to dashboard
+        <Link href="/templates" className="inline-flex items-center gap-2 text-sm font-semibold text-charcoal/70 hover:text-charcoal">
+          <ArrowLeft className="h-4 w-4" /> {t("checkout.back")}
         </Link>
-        <h1 className="mt-4 font-serif font-light text-4xl md:text-5xl">Checkout</h1>
+        <h1 className="mt-4 font-serif font-light text-4xl md:text-5xl">{t("checkout.title")}</h1>
 
-        <div className="mt-6 rounded-2xl border hairline bg-white p-5">
-          {lines.map((l) => (
-            <div key={`${l.templateId}-${l.planId}`} className="flex items-center justify-between gap-3 py-2 text-sm">
-              <span><span className="font-bold capitalize">{l.template?.name}</span> · {l.plan?.name} × {l.qty}</span>
-              <span className="font-bold">{formatINR((l.plan?.price || 0) * l.qty)}</span>
+        {/* Order summary */}
+        <div className="mt-6 rounded-2xl border hairline bg-white overflow-hidden">
+          <div className="flex gap-4 p-5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={template.image} alt={template.name} className="h-28 w-24 rounded-xl object-cover flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold tracking-[0.18em] text-terracotta">
+                {plan.id === "premium" ? t("checkout.tierPremium") : t("checkout.tierBasic")}
+              </p>
+              <p className="mt-1 font-serif text-2xl">{template.name}</p>
+              <p className="text-sm text-charcoal/60">{t("checkout.pkgLine", { plan: t(`pricing.planNames.${plan.id}`), delivery: t(`pricing.plans.${plan.id}.delivery`) })}</p>
+              <p className="mt-2 text-[13px] text-charcoal/55">{t(`pricing.plans.${plan.id}.tagline`)}</p>
             </div>
-          ))}
-          <div className="mt-2 border-t hairline pt-3 flex justify-between font-bold text-lg">
-            <span>Total to pay</span><span>{formatINR(total)}</span>
+            <div className="text-right">
+              {discount > 0 && (
+                <p className="text-sm text-charcoal/40 line-through">{money(plan.price)}</p>
+              )}
+              <p className="font-serif text-3xl">{isFree ? t("checkout.free") : money(discount > 0 ? payable : plan.price)}</p>
+              {converted && (
+                <p className="text-[11.5px] text-charcoal/45">≈ {formatINR(discount > 0 ? payable : plan.price)}</p>
+              )}
+            </div>
           </div>
-          <a
-            href={waLink(`Hello! My checkout total is ${formatINR(total)} for my Mehfill invitation. Is the cost negotiable?`)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-bold text-[#14703c] hover:underline"
-          >
-            <WhatsAppIcon className="h-4 w-4" /> Need a better price? Cost is negotiable on WhatsApp
-          </a>
+
+          <div className="border-t hairline px-5 py-4 grid sm:grid-cols-2 gap-6">
+            <div>
+              <p className="text-[11px] font-bold tracking-[0.15em] text-charcoal/45">{t("checkout.included")}</p>
+              <ul className="mt-2 space-y-1.5">
+                {plan.features.slice(0, 8).map((f, idx) => (
+                  <li key={f} className="flex items-start gap-2 text-[13px] text-charcoal/70">
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-olive" /> {t(`pricing.plans.${plan.id}.features.f${idx}`)}
+                  </li>
+                ))}
+                {plan.features.length > 8 && (
+                  <li className="text-[12px] text-charcoal/45">{t("checkout.more", { n: plan.features.length - 8 })}</li>
+                )}
+              </ul>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold tracking-[0.15em] text-charcoal/45">{t("checkout.notIncluded")}</p>
+              <ul className="mt-2 space-y-1.5">
+                {plan.exclusions.map((f, idx) => (
+                  <li key={f} className="flex items-start gap-2 text-[13px] text-charcoal/50">
+                    <span className="mt-1 h-3 w-3 shrink-0 rounded-full border border-charcoal/25" /> {t(`pricing.plans.${plan.id}.exclusions.x${idx}`)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t hairline px-5 py-4 space-y-3">
+            {/* Coupon */}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              {coupon ? (
+                <div className="flex flex-1 items-center gap-2 rounded-2xl border border-olive/40 bg-olive/10 px-4 py-2.5 text-sm">
+                  <Tag className="h-4 w-4 shrink-0 text-olive" />
+                  <span className="font-bold">{coupon.code}</span>
+                  <span className="text-charcoal/60">{t("checkout.couponApplied", { price: money(coupon.discountAmount) })}</span>
+                  <button onClick={removeCoupon} aria-label={t("checkout.couponRemoveAria")} className="ml-auto rounded-full p-1 hover:bg-charcoal/10">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-1 items-center gap-2 rounded-2xl border hairline bg-ivory px-4 py-2.5">
+                    <Tag className="h-4 w-4 shrink-0 text-charcoal/40" />
+                    <input
+                      value={couponInput}
+                      onChange={(e) => {
+                        setCouponInput(e.target.value.toUpperCase());
+                        setCouponErr("");
+                      }}
+                      placeholder={t("checkout.couponPlaceholder")}
+                      aria-label={t("checkout.couponPlaceholder")}
+                      className="w-full bg-transparent text-sm font-semibold uppercase tracking-wide outline-none"
+                    />
+                  </div>
+                  <button
+                    onClick={applyCoupon}
+                    disabled={couponBusy || !couponInput.trim()}
+                    className="rounded-2xl border hairline px-5 py-2.5 text-sm font-bold hover:border-charcoal/30 disabled:opacity-50"
+                  >
+                    {couponBusy ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : t("checkout.couponApply")}
+                  </button>
+                </>
+              )}
+            </div>
+            {couponErr && <p className="text-[13px] text-terracotta-deep">{couponErr}</p>}
+
+            <div className="flex items-end justify-between pt-1">
+              <div className="text-sm text-charcoal/55">
+                {t("checkout.total")}
+                {coupon && discount > 0 && (
+                  <p className="text-[12px] text-olive font-semibold">
+                    {t("checkout.couponApplied", { price: money(discount) })}
+                  </p>
+                )}
+                <p className="text-[12px] text-charcoal/45">
+                  {t("pricing.notePrefix")}{" "}
+                  <Link href="/refund-policy" className="underline underline-offset-2 text-terracotta-deep">{t("pricing.refundPolicy")}</Link>,{" "}
+                  <Link href="/terms-and-conditions" className="underline underline-offset-2 text-terracotta-deep">{t("checkout.terms")}</Link> &{" "}
+                  <Link href="/privacy-policy" className="underline underline-offset-2 text-terracotta-deep">{t("checkout.privacy")}</Link>
+                </p>
+              </div>
+              <div className="text-right">
+                {discount > 0 && (
+                  <p className="text-sm text-charcoal/40 line-through">{money(plan.price)}</p>
+                )}
+                <p className="font-serif text-4xl">{isFree ? t("checkout.free") : money(payable)}</p>
+                {converted && <p className="text-[12px] text-charcoal/45">≈ {formatINR(payable)}</p>}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {step === "details" && (
-          <div className="mt-5 rounded-2xl border hairline bg-white p-6">
-            <p className="eyebrow text-terracotta">STEP 1 · YOUR DETAILS</p>
-            <div className="mt-4 grid sm:grid-cols-2 gap-3">
-              <input value={f.fullName} onChange={(e) => set("fullName", e.target.value)} placeholder="Full name *" aria-label="Full name" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.email} onChange={(e) => set("email", e.target.value)} placeholder="Email *" aria-label="Email" type="email" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.mobile} onChange={(e) => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Mobile (10-digit) *" aria-label="Mobile number, 10 digits" inputMode="numeric" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.whatsapp} onChange={(e) => set("whatsapp", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="WhatsApp (10-digit) *" aria-label="WhatsApp number, 10 digits" inputMode="numeric" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <div className="sm:col-span-2"><PremiumSelect name="occasion" value={f.occasion} options={OCCASIONS.map((o) => ({ value: o, label: o }))} placeholder="Occasion *" onChange={(v) => set("occasion", v)} label="Occasion" /></div>
-              <input value={f.eventDate} onChange={(e) => set("eventDate", e.target.value)} type="date" aria-label="Event date" min={new Date().toISOString().split("T")[0]} className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.venueName} onChange={(e) => set("venueName", e.target.value)} placeholder="Venue name *" aria-label="Venue name" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.city} onChange={(e) => set("city", e.target.value)} placeholder="City *" aria-label="City" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <div><PremiumSelect name="state" value={f.state} options={STATES.map((s) => ({ value: s, label: s }))} placeholder="State *" onChange={(v) => set("state", v)} label="State" /></div>
-              <input value={f.venueAddress} onChange={(e) => set("venueAddress", e.target.value)} placeholder="Full venue address" aria-label="Full venue address" className="sm:col-span-2 rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-              <input value={f.pincode} onChange={(e) => set("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Pincode" aria-label="Pincode" inputMode="numeric" className="rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-terracotta" />
-            </div>
-            <label className="mt-4 flex cursor-pointer items-start gap-3 text-[13px] leading-relaxed text-charcoal/70">
-              <input
-                type="checkbox"
-                checked={privacyOk}
-                onChange={(e) => setPrivacyOk(e.target.checked)}
-                className="mt-1 h-4 w-4 shrink-0 accent-[#96522f]"
-              />
-              <span>
-                I agree to the <Link href="/privacy-policy" className="font-semibold text-terracotta-deep underline underline-offset-2">Privacy Policy</Link> and
-                understand my details and payment screenshot will be stored to create and verify my invitation order. We only
-                contact you about your order — no spam, no marketing calls.
-              </span>
-            </label>
-            <button disabled={!detailsValid} onClick={() => setStep("pay")} className="mt-5 w-full rounded-full bg-charcoal py-4 text-sm font-bold text-ivory hover:bg-espresso disabled:opacity-40">
-              Continue to Pay {formatINR(total)}
-            </button>
+        {/* Premium notice */}
+        {plan.id === "premium" && step === "summary" && (
+          <div className="mt-4 rounded-2xl border border-champagne/50 bg-champagne/10 p-5">
+            <p className="flex items-center gap-2 text-sm font-bold text-charcoal">
+              <Sparkles className="h-4 w-4 text-terracotta" /> {t("checkout.premiumNoticeTitle")}
+            </p>
+            <p className="mt-2 text-[13px] leading-relaxed text-charcoal/65">
+              {t("checkout.premiumNoticeBody")}
+            </p>
           </div>
         )}
 
-        {step === "pay" && (
-          <div className="mt-5 rounded-2xl border hairline bg-white p-6">
-            <p className="eyebrow text-terracotta">STEP 2 · PAY VIA UPI</p>
-            <p className="mt-2 font-serif font-light text-4xl">{formatINR(total)}</p>
-            <p className="mt-1 text-sm text-charcoal/60">Tap your UPI app to pay — or scan the QR below.</p>
-            <div className="mt-4 grid grid-cols-3 gap-2.5">
-              {[
-                { name: "GPay", Icon: GooglePayIcon },
-                { name: "PhonePe", Icon: PhonePeIcon },
-                { name: "Paytm", Icon: PaytmIcon },
-              ].map(({ name, Icon }) => (
+        {err && (
+          <div className="mt-4 rounded-2xl bg-terracotta/10 border border-terracotta/30 px-4 py-3 text-sm text-terracotta-deep">
+            <p>{err}</p>
+            {(err.includes("UPI") || err.includes("unavailable")) && (
+              <div className="mt-3 rounded-xl bg-white/70 border border-terracotta/20 p-4">
+                <p className="font-bold text-charcoal">{t("checkout.upiTitle")}</p>
+                <p className="mt-1 text-[13px] text-charcoal/65">
+                  {t("checkout.upiBody", { amount: formatINR(payable), upiId: UPI_ID })}
+                </p>
+                <p className="mt-2 text-[12px] text-charcoal/55">
+                  {t("checkout.upiThen")}
+                </p>
                 <a
-                  key={name}
-                  href={upiPayLink(total, note)}
-                  className="flex flex-col items-center gap-1.5 rounded-2xl border hairline bg-ivory py-4 transition-colors hover:border-charcoal/30 hover:bg-cream"
+                  href={`https://wa.me/917499827349?text=${encodeURIComponent(`Hi Mehfill! I paid ${formatINR(payable)} for ${template?.name || "invitation"} (${plan?.name} package) via UPI. Txn ID: `)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-olive py-3 text-sm font-bold text-ivory hover:bg-espresso"
                 >
-                  <Icon className="h-7 w-7" />
-                  <span className="text-[12px] font-bold">{name}</span>
+                  {t("checkout.upiWa")}
                 </a>
-              ))}
-            </div>
-            {!qrFailed && (
-              <div className="mx-auto mt-4 w-fit rounded-2xl border hairline bg-ivory p-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={upiQrImage(total, note)} alt="Scan to pay" width={180} height={180} loading="lazy" onError={() => setQrFailed(true)} className="h-[170px] w-[170px]" />
-                <p className="mt-1 flex items-center justify-center gap-1.5 text-[11px] font-bold tracking-[0.15em] text-charcoal/50"><QrCode className="h-3.5 w-3.5" /> SCAN WITH ANY UPI APP</p>
               </div>
             )}
-            <div className="mt-4 flex items-center gap-2 rounded-2xl border hairline bg-ivory px-4 py-3">
-              <span className="flex-1 truncate font-mono text-sm font-bold">{UPI_ID}</span>
-              <button onClick={copyId} className="inline-flex items-center gap-1.5 rounded-full bg-cream px-4 py-2 text-[12px] font-bold hover:bg-sand">
-                {copied ? <Check className="h-3.5 w-3.5 text-olive" /> : <Copy className="h-3.5 w-3.5" />}{copied ? "Copied" : "Copy"}
-              </button>
-            </div>
+          </div>
+        )}
 
-            <form onSubmit={submitTxn} className="mt-5 border-t hairline pt-5 flex flex-col gap-3">
-              <p className="font-serif text-xl italic">Already paid? Submit your transaction ID.</p>
-              <input required value={txn} onChange={(e) => setTxn(e.target.value)} placeholder="UPI transaction ID (UTR) *" aria-label="UPI transaction ID" className="rounded-2xl border hairline bg-ivory px-4 py-3.5 text-sm outline-none focus:border-terracotta font-mono" />
-              <label className="rounded-2xl border border-dashed hairline bg-ivory px-4 py-3.5 text-sm text-charcoal/60 cursor-pointer">
-                {shot ? `Screenshot: ${shot.name}` : (<>Payment screenshot <b className="text-terracotta-deep">* required</b></>)}
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => setShot(e.target.files?.[0] ?? null)} />
-              </label>
-              <p className="-mt-1 text-[12px] leading-relaxed text-charcoal/55">
-                Stored securely and used only to verify this payment. See our{" "}
-                <Link href="/privacy-policy" className="font-semibold text-terracotta-deep underline underline-offset-2">Privacy Policy</Link>.
-              </p>
-              {err && <p className="text-sm text-terracotta-deep">{err}</p>}
-              <button disabled={busy} className="rounded-full bg-charcoal py-4 text-sm font-bold text-ivory hover:bg-espresso disabled:opacity-60">
-                {busy ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : "Submit for Verification"}
+        {/* Step: summary → pay with Razorpay */}
+        {step === "summary" && (
+          <div className="mt-5 rounded-2xl border hairline bg-white p-6">
+            <p className="eyebrow text-terracotta">{t("checkout.paymentEyebrow")}</p>
+            <div className="mt-4 space-y-3">
+              <button
+                onClick={startRazorpay}
+                disabled={busy}
+                className="w-full rounded-full bg-charcoal py-4 text-sm font-bold text-ivory hover:bg-espresso disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              >
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                {isFree ? t("checkout.freeActivate") : t("checkout.paySecure", { price: formatINR(payable) })}
               </button>
-              <button type="button" onClick={() => setStep("details")} className="text-[13px] font-semibold text-charcoal/55">← Edit details</button>
-            </form>
+              <p className="text-center text-[12px] text-charcoal/45">
+                {t("checkout.secureNote")}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Manual UPI payment — posts to /api/upi-submit for admin verification */}
+        {step === "summary" && !isFree && !upiDone && (
+          <div className="mt-4 rounded-2xl border hairline bg-white p-6">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-bold text-charcoal">{t("checkout.upiManualTitle")}</p>
+              {upiOpen && (
+                <button
+                  onClick={() => setUpiOpen(false)}
+                  aria-label={t("checkout.couponRemoveAria")}
+                  className="rounded-full p-1 hover:bg-charcoal/10"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            {!upiOpen ? (
+              <>
+                <p className="mt-1 text-[13px] text-charcoal/60">{t("checkout.upiThen")}</p>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                  <button
+                    onClick={() => setUpiOpen(true)}
+                    className="flex-1 rounded-full border hairline py-3 text-sm font-bold hover:border-charcoal/30"
+                  >
+                    {t("checkout.upiAlt")}
+                  </button>
+                  <a
+                    href={`https://wa.me/917499827349?text=${encodeURIComponent(`Hi Mehfill! I paid ${formatINR(payable)} for ${template?.name || "invitation"} (${plan?.name} package) via UPI. Txn ID: `)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 rounded-full bg-olive py-3 text-center text-sm font-bold text-ivory hover:bg-espresso"
+                  >
+                    {t("checkout.upiWa")}
+                  </a>
+                </div>
+              </>
+            ) : (
+              <div className="mt-4 space-y-3">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="text-[11px] font-bold tracking-[0.15em] text-charcoal/45">{t("checkout.upiName")}</span>
+                    <input
+                      value={upiForm.name}
+                      onChange={(e) => setUpiForm((f) => ({ ...f, name: e.target.value }))}
+                      autoComplete="name"
+                      className="mt-1 w-full rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-charcoal/40"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-[11px] font-bold tracking-[0.15em] text-charcoal/45">{t("checkout.upiWaNumber")}</span>
+                    <input
+                      value={upiForm.whatsapp}
+                      onChange={(e) => setUpiForm((f) => ({ ...f, whatsapp: e.target.value }))}
+                      inputMode="numeric"
+                      placeholder="98765 43210"
+                      className="mt-1 w-full rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-charcoal/40"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-[11px] font-bold tracking-[0.15em] text-charcoal/45">{t("checkout.upiEmail")}</span>
+                    <input
+                      value={upiForm.email}
+                      onChange={(e) => setUpiForm((f) => ({ ...f, email: e.target.value }))}
+                      type="email"
+                      autoComplete="email"
+                      className="mt-1 w-full rounded-2xl border hairline bg-ivory px-4 py-3 text-sm outline-none focus:border-charcoal/40"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-[11px] font-bold tracking-[0.15em] text-charcoal/45">{t("checkout.upiTxn")}</span>
+                    <input
+                      value={upiForm.txnId}
+                      onChange={(e) => setUpiForm((f) => ({ ...f, txnId: e.target.value }))}
+                      placeholder="T2610151234567890"
+                      className="mt-1 w-full rounded-2xl border hairline bg-ivory px-4 py-3 font-mono text-sm outline-none focus:border-charcoal/40"
+                    />
+                  </label>
+                </div>
+                <label className="block">
+                  <span className="text-[11px] font-bold tracking-[0.15em] text-charcoal/45">{t("checkout.upiShot")}</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(e) => setUpiShot(e.target.files?.[0] ?? null)}
+                    className="mt-1 block w-full text-sm text-charcoal/60 file:mr-3 file:rounded-full file:border file:border-charcoal/25 file:bg-white file:px-4 file:py-2 file:text-xs file:font-bold file:text-charcoal hover:file:border-charcoal/50"
+                  />
+                  <span className="mt-1 block text-[11.5px] text-charcoal/45">{t("checkout.upiShotHint")}</span>
+                </label>
+                {upiErr && (
+                  <p className="rounded-xl bg-terracotta/10 px-3 py-2 text-[13px] text-terracotta-deep">{upiErr}</p>
+                )}
+                <button
+                  onClick={submitUpi}
+                  disabled={upiBusy}
+                  className="w-full rounded-full bg-charcoal py-3.5 text-sm font-bold text-ivory hover:bg-espresso disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                >
+                  {upiBusy && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {t("checkout.upiSubmitManual")}
+                </button>
+                <p className="text-[12px] text-charcoal/50">
+                  {t("checkout.upiBody", { amount: formatINR(payable), upiId: UPI_ID })}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {step === "summary" && upiDone && (
+          <div className="mt-5 rounded-2xl border border-olive/40 bg-olive/10 p-6 text-center">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-olive/20">
+              <Check className="h-6 w-6 text-olive" />
+            </span>
+            <h2 className="mt-3 font-serif text-2xl">{t("checkout.upiDoneTitle")}</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-charcoal/65">{t("checkout.upiDoneBody")}</p>
+            <Link
+              href="/dashboard"
+              className="mt-4 inline-block rounded-full bg-charcoal px-7 py-3 text-sm font-bold text-ivory hover:bg-espresso"
+            >
+              {t("checkout.upiGoDash")}
+            </Link>
           </div>
         )}
 
         {step === "done" && (
           <div className="mt-5 rounded-2xl border hairline bg-white p-8 text-center">
-            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-olive/15"><Check className="h-7 w-7 text-olive" /></span>
-            <h2 className="mt-4 font-serif font-light text-3xl">Details received.</h2>
-            <p className="mx-auto mt-2 max-w-sm text-sm text-charcoal/60">Payment <b>pending verification</b>. We will confirm on WhatsApp and begin your Mehfill.</p>
-            <div className="mt-5 flex flex-col sm:flex-row gap-2.5 justify-center">
-              <a href={waLink(`Hello! I paid ${formatINR(total)} via UPI for my Mehfill invitation. Txn ID: ${txn}. Name: ${f.fullName}.`)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-charcoal px-7 py-3.5 text-sm font-bold text-ivory">
-                <WhatsAppIcon className="h-4 w-4" /> Confirm on WhatsApp
-              </a>
-              <Link href="/dashboard" className="inline-flex items-center justify-center rounded-full border hairline px-7 py-3.5 text-sm font-bold">Back to dashboard</Link>
-            </div>
+            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-olive/15">
+              <Check className="h-7 w-7 text-olive" />
+            </span>
+            <h2 className="mt-4 font-serif font-light text-3xl">{t("checkout.doneTitle")}</h2>
+            <p className="mx-auto mt-2 max-w-sm text-sm text-charcoal/60">
+              {t("checkout.doneBody")}
+            </p>
           </div>
         )}
       </div>
@@ -291,8 +602,15 @@ function CheckoutInner() {
 }
 
 export default function CheckoutPage() {
+  const t = useT();
   return (
-    <Suspense fallback={<div className="min-h-screen bg-ivory flex items-center justify-center"><p className="font-serif text-2xl">Loading…</p></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-ivory flex items-center justify-center">
+          <p className="font-serif text-2xl">{t("common.loading")}</p>
+        </div>
+      }
+    >
       <CheckoutInner />
     </Suspense>
   );

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { validateCoupon } from "@/lib/coupons";
+import { getPlan } from "@/lib/plans";
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
@@ -49,9 +51,31 @@ export async function POST(request: Request) {
     const venue_name = sanitize(String(fd.get("venue_name") || ""), 120);
     const venue_address = sanitize(String(fd.get("venue_address") || ""), 200);
     const template_slug = sanitize(String(fd.get("template_slug") || ""), 40);
+    const coupon_code = sanitize(String(fd.get("coupon_code") || ""), 40).toUpperCase();
 
     if (!plan || !amount || !customer_name || !whatsapp_raw || !txn_id) {
       return NextResponse.json({ error: "Missing details." }, { status: 400 });
+    }
+
+    // Recompute the amount server-side from the plan + coupon — never trust
+    // the client-supplied figure for the payable total.
+    const planObj = getPlan(plan);
+    if (!planObj) {
+      return NextResponse.json({ error: "Unknown package selected." }, { status: 400 });
+    }
+    let couponCode: string | null = null;
+    let discount = 0;
+    if (coupon_code) {
+      const result = await validateCoupon(coupon_code, planObj.price);
+      if (!result.ok || !result.coupon) {
+        return NextResponse.json({ error: result.error || "Invalid coupon." }, { status: 400 });
+      }
+      couponCode = result.coupon.code;
+      discount = result.coupon.discountAmount;
+    }
+    const expected = planObj.price - discount;
+    if (amount !== expected) {
+      return NextResponse.json({ error: "Amount does not match the selected package." }, { status: 400 });
     }
 
     // Normalize to 12-digit Indian format: form collects 10 digits.
@@ -71,10 +95,12 @@ export async function POST(request: Request) {
     }
 
     let user_email: string | null = null;
+    let user_id: string | null = null;
     try {
       const supabase = await createClient();
       const { data } = await supabase.auth.getUser();
       user_email = data.user?.email ?? null;
+      user_id = data.user?.id ?? null;
     } catch {
       // Guests can pay too.
     }
@@ -120,6 +146,8 @@ export async function POST(request: Request) {
         txn_id,
         screenshot_url,
         status: "pending",
+        coupon_code: couponCode,
+        discount,
         // New registration fields
         email,
         mobile,
@@ -135,6 +163,25 @@ export async function POST(request: Request) {
       .select("id")
       .single();
     if (error) return NextResponse.json({ error: "Could not save. Please send details on WhatsApp." }, { status: 500 });
+
+    // Mirror into the unified orders table so the owner can verify once
+    // and the invitation pipeline stays consistent with Razorpay orders.
+    if (email) {
+      const pkg = plan.includes("premium") ? "premium" : "basic";
+      await admin.from("orders").insert({
+        user_email: email,
+        user_id,
+        plan: pkg,
+        package: pkg,
+        template_slug: template_slug || null,
+        amount,
+        status: "pending_verification",
+        payment_method: "upi_manual",
+        razorpay_order_id: null,
+        coupon_code: couponCode,
+        discount,
+      });
+    }
 
     return NextResponse.json({ ok: true, id: row.id });
   } catch {

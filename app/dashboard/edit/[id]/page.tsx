@@ -1,0 +1,1750 @@
+"use client";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => {
+      open: () => void;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      on: (event: string, handler: (response: any) => void) => void;
+    };
+  }
+}
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Loader2,
+  Music,
+  Pause,
+  Play,
+  Plus,
+  Trash2,
+  Upload,
+  Copy,
+  Eye,
+  Users,
+  Calendar,
+  MapPin,
+  Images,
+  Heart,
+  PartyPopper,
+  Pencil,
+  Sparkles,
+  CreditCard,
+  ShieldCheck,
+  CheckCircle,
+  Link as LinkIcon,
+  Info,
+  CheckCircle2,
+  XCircle,
+  Tag,
+  X,
+  AlertTriangle,
+} from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { getCatalogTemplate } from "@/lib/catalog";
+import { getPlan } from "@/lib/plans";
+import {
+  defaultContent,
+  newEvent,
+  newMilestone,
+  formatDateLong,
+  formatTime12,
+  type InvitationContent,
+  type InvitationEvent,
+  type InvitationRecord,
+  type LoveStoryMilestone,
+} from "@/lib/invitation";
+import { WhatsAppIcon } from "@/components/BrandIcons";
+import { PhoneFrame, PreviewBackdrop } from "@/components/invitation/PhoneFrame";
+import { deriveInitials } from "@/lib/initials";
+import { MehfillDatePicker } from "@/components/ui/MehfillDatePicker";
+import { MehfillTimePicker } from "@/components/ui/MehfillTimePicker";
+
+const STEPS = [
+  { id: "couple", label: "Couple", icon: Users },
+  { id: "date", label: "Date & Time", icon: Calendar },
+  { id: "venue", label: "Venue", icon: MapPin },
+  { id: "events", label: "Events", icon: PartyPopper },
+  { id: "photos", label: "Photos", icon: Images },
+  { id: "loveStory", label: "Love Story", icon: Pencil },
+  { id: "music", label: "Music", icon: Music },
+  { id: "rsvp", label: "RSVP", icon: Heart },
+  { id: "publish", label: "Publish", icon: Eye },
+] as const;
+
+type StepId = (typeof STEPS)[number]["id"];
+
+export default function EditInvitationPage() {
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+  const [step, setStep] = useState<StepId>("couple");
+  const [invitation, setInvitation] = useState<InvitationRecord | null>(null);
+  const [content, setContent] = useState<InvitationContent>(defaultContent());
+  const [published, setPublished] = useState<{ slug: string; url: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadingMusic, setUploadingMusic] = useState(false);
+  const [musicRightsOk, setMusicRightsOk] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [fullScreen, setFullScreen] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [userName, setUserName] = useState("");
+  const [paying, setPaying] = useState(false);
+
+  // Custom Invitation URL (slug) state
+  const [customSlug, setCustomSlug] = useState("");
+  const [slugChecking, setSlugChecking] = useState(false);
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [slugError, setSlugError] = useState("");
+  const [slugSuccess, setSlugSuccess] = useState("");
+
+  // Coupon state
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [couponErr, setCouponErr] = useState("");
+
+  // 2-step Delete Invitation state
+  const [deleteModal, setDeleteModal] = useState<{
+    open: boolean;
+    step: 1 | 2;
+    busy: boolean;
+    error: string;
+  }>({
+    open: false,
+    step: 1,
+    busy: false,
+    error: "",
+  });
+
+  const template = useMemo(
+    () => getCatalogTemplate(invitation?.template_slug || ""),
+    [invitation]
+  );
+
+  const load = useCallback(async () => {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push("/login?callbackUrl=" + encodeURIComponent(`/dashboard/edit/${id}`));
+      return;
+    }
+    setUserEmail(user.email || "");
+    setUserName(user.user_metadata?.full_name || user.email?.split("@")[0] || "");
+    const res = await fetch(`/api/invitations/${id}`, { cache: "no-store" });
+    if (!res.ok) {
+      setErr("Invitation not found.");
+      setLoading(false);
+      return;
+    }
+    const data = await res.json();
+    setInvitation(data.invitation as InvitationRecord);
+    const initialSlug = (data.invitation?.slug || "").startsWith("invite-") ? "" : (data.invitation?.slug || "");
+    setCustomSlug(initialSlug);
+    const loaded = { ...defaultContent(), ...((data.invitation?.content as Partial<InvitationContent>) || {}) };
+    setContent(loaded);
+    setMusicRightsOk(Boolean(loaded.musicUrl));
+    if (data.invitation?.status === "published" && data.invitation?.slug && data.invitation?.isPaid) {
+      setPublished({
+        slug: data.invitation.slug,
+        url: `https://mehfill.in/i/${data.invitation.slug}`,
+      });
+    } else {
+      setPublished(null);
+    }
+    setLoading(false);
+  }, [id, router]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const set = <K extends keyof InvitationContent>(k: K, v: InvitationContent[K]) =>
+    setContent((p) => ({ ...p, [k]: v }));
+
+  const setRsvp = (patch: Partial<InvitationContent["rsvp"]>) =>
+    setContent((p) => ({ ...p, rsvp: { ...p.rsvp, ...patch } }));
+
+  // Check slug availability with debounce
+  useEffect(() => {
+    if (!customSlug || customSlug.trim() === "") {
+      setSlugAvailable(null);
+      setSlugError("");
+      setSlugSuccess("");
+      return;
+    }
+    const clean = customSlug.toLowerCase().replace(/[\s_]+/g, "-").replace(/[^a-z0-9-]/g, "");
+    if (clean.length < 3) {
+      setSlugAvailable(false);
+      setSlugError("URL must be at least 3 characters.");
+      setSlugSuccess("");
+      return;
+    }
+
+    const t = setTimeout(async () => {
+      setSlugChecking(true);
+      try {
+        const res = await fetch(`/api/invitations/check-slug?slug=${encodeURIComponent(clean)}&invitationId=${id || ""}`);
+        const data = await res.json();
+        if (data.available) {
+          setSlugAvailable(true);
+          setSlugError("");
+          setSlugSuccess("This link is available");
+        } else {
+          setSlugAvailable(false);
+          setSlugError(data.error || "This link is already taken");
+          setSlugSuccess("");
+        }
+      } catch {
+        setSlugAvailable(null);
+      } finally {
+        setSlugChecking(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(t);
+  }, [customSlug, id]);
+
+  const save = async (nextStep?: StepId) => {
+    setSaving(true);
+    setErr("");
+    try {
+      const payload: { content: InvitationContent; slug?: string } = { content };
+      if (customSlug && customSlug.trim() && slugAvailable !== false) {
+        payload.slug = customSlug.trim().toLowerCase().replace(/[\s_]+/g, "-").replace(/[^a-z0-9-]/g, "");
+      }
+      const res = await fetch(`/api/invitations/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Could not save.");
+      setInvitation(data.invitation as InvitationRecord);
+      if (nextStep) setStep(nextStep);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not save.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Load Razorpay script dynamically
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const existing = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+    if (!existing) {
+      const s = document.createElement("script");
+      s.src = "https://checkout.razorpay.com/v1/checkout.js";
+      s.async = true;
+      document.body.appendChild(s);
+    }
+  }, []);
+
+  const handleDeleteInvitation = async () => {
+    setDeleteModal((p) => ({ ...p, busy: true, error: "" }));
+    try {
+      const res = await fetch(`/api/invitations/${id}`, { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Could not delete invitation.");
+      router.push("/dashboard");
+    } catch (e) {
+      setDeleteModal((p) => ({
+        ...p,
+        busy: false,
+        error: e instanceof Error ? e.message : "Failed to delete.",
+      }));
+    }
+  };
+
+  const publishDirectly = async () => {
+    setSaving(true);
+    setErr("");
+    try {
+      const res = await fetch(`/api/invitations/${id}/publish`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Could not publish.");
+      setPublished({ slug: data.slug, url: data.url });
+      setInvitation((p) => (p ? { ...p, status: "published", slug: data.slug } : p));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not publish.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const plan = getPlan(invitation?.package || "basic");
+  const rawPrice = plan?.price || (invitation?.package === "premium" ? 2499 : 999);
+  const discount = coupon?.discountAmount ?? 0;
+  const payablePrice = Math.max(0, rawPrice - discount);
+
+  const applyCoupon = async () => {
+    if (!invitation?.package || !couponInput.trim()) return;
+    setCouponBusy(true);
+    setCouponErr("");
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponInput.trim(), packageId: invitation.package }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data?.error || "Could not apply coupon.");
+      setCoupon({ code: data.coupon.code, discountAmount: data.coupon.discountAmount });
+      setCouponInput("");
+    } catch (e) {
+      setCoupon(null);
+      setCouponErr(e instanceof Error ? e.message : "Could not apply coupon.");
+    } finally {
+      setCouponBusy(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setCoupon(null);
+    setCouponErr("");
+    setCouponInput("");
+  };
+
+  const publishWithPayment = async () => {
+    await save();
+
+    // If invitation already has verified payment, publish directly
+    if (invitation?.isPaid) {
+      await publishDirectly();
+      return;
+    }
+
+    // Otherwise, initiate Payment Gateway to complete purchase & publish
+    setPaying(true);
+    setErr("");
+    try {
+      const pkg = invitation?.package || "basic";
+      const tmpl = invitation?.template_slug || template?.slug || "royal-rajputana";
+
+      const res = await fetch("/api/razorpay/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packageId: pkg,
+          templateSlug: tmpl,
+          invitationId: id,
+          couponCode: coupon?.code || undefined,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        // If razorpay isn't configured in test or fails, redirect smoothly to checkout page
+        const cParam = coupon?.code ? `&coupon=${encodeURIComponent(coupon.code)}` : "";
+        router.push(`/checkout?template=${tmpl}&package=${pkg}&invitationId=${id}${cParam}`);
+        return;
+      }
+
+      if (data.free) {
+        // 100% discount, publish immediately
+        await publishDirectly();
+        return;
+      }
+
+      if (!window.Razorpay) {
+        router.push(`/checkout?template=${tmpl}&package=${pkg}&invitationId=${id}`);
+        return;
+      }
+
+      const rzp = new window.Razorpay({
+        key: data.keyId,
+        amount: data.amountPaise,
+        currency: data.currency || "INR",
+        name: "Mehfill.in",
+        description: `Publish & Activate — ${template?.name || "Wedding Invitation"}`,
+        order_id: data.razorpayOrderId,
+        prefill: {
+          name: userName || `${content.brideName} & ${content.groomName}`,
+          email: userEmail || undefined,
+        },
+        theme: { color: "#8B4828" },
+        handler: async (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) => {
+          setSaving(true);
+          try {
+            const vRes = await fetch("/api/razorpay/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                invitationId: id,
+              }),
+            });
+            const vData = await vRes.json().catch(() => ({}));
+            if (!vRes.ok) {
+              setErr(vData?.error || "Payment received but verification failed. Please contact support.");
+              return;
+            }
+
+            // Immediately publish the invitation now that payment is verified!
+            const pubRes = await fetch(`/api/invitations/${id}/publish`, { method: "POST" });
+            const pubData = await pubRes.json().catch(() => ({}));
+            if (pubRes.ok && pubData.url) {
+              setPublished({ slug: pubData.slug, url: pubData.url });
+              // Redirect to celebratory thank you screen with live link
+              router.push(`/thank-you?order=${encodeURIComponent(vData.orderId || response.razorpay_order_id || "")}&invitationId=${id}`);
+            } else {
+              // Payment is verified in DB! If content had a validation hiccup, customer can finish details
+              setInvitation((p) => (p ? { ...p, isPaid: true } : p));
+              setErr(pubData?.error || "Payment received! Please complete any missing details to publish.");
+            }
+          } catch (e) {
+            setErr(e instanceof Error ? e.message : "Payment verification error.");
+          } finally {
+            setSaving(false);
+            setPaying(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setPaying(false);
+          },
+        },
+      });
+
+      rzp.open();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not launch payment gateway.");
+      setPaying(false);
+    }
+  };
+
+  const uploadPhoto = async (file: File) => {
+    setUploading(true);
+    setErr("");
+    try {
+      const fd = new FormData();
+      fd.set("file", file);
+      fd.set("kind", "photo");
+      const res = await fetch("/api/invitations/upload", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Upload failed.");
+      set("gallery", [...content.gallery, data.url].slice(0, 20));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const uploadMusic = async (file: File) => {
+    if (!musicRightsOk) {
+      setErr("Please confirm you have the rights or permission to use this music first.");
+      return;
+    }
+    setUploadingMusic(true);
+    setErr("");
+    try {
+      const fd = new FormData();
+      fd.set("file", file);
+      fd.set("kind", "music");
+      const res = await fetch("/api/invitations/upload", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Music upload failed.");
+      set("musicUrl", data.url);
+      await saveWithContent({ ...content, musicUrl: data.url });
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Music upload failed.");
+    } finally {
+      setUploadingMusic(false);
+    }
+  };
+
+  const saveWithContent = async (snapshot: InvitationContent) => {
+    setSaving(true);
+    setErr("");
+    try {
+      const res = await fetch(`/api/invitations/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: snapshot }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Could not save.");
+      setInvitation(data.invitation as InvitationRecord);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not save.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openPreview = async () => {
+    await save();
+    setPreviewMode(true);
+  };
+
+  const removeMusic = async () => {
+    set("musicUrl", "");
+    audioRef.current?.pause();
+    setPlaying(false);
+    await saveWithContent({ ...content, musicUrl: "" });
+  };
+
+  const toggleMusic = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+      setPlaying(false);
+    } else {
+      el.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    }
+  };
+
+  const copyLink = async () => {
+    if (!published) return;
+    try {
+      await navigator.clipboard.writeText(published.url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* ignore */ }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FBF7F0] flex items-center justify-center">
+        <p className="font-serif text-2xl text-[#8B4828]">Loading your studio editor…</p>
+      </div>
+    );
+  }
+
+  if (!invitation || !template) {
+    return (
+      <main className="min-h-screen bg-[#FBF7F0] flex items-center justify-center px-5 text-center">
+        <div>
+          <p className="font-serif text-3xl italic text-[#2B1F17]">{err || "Invitation not found."}</p>
+          <Link href="/dashboard" className="mt-5 inline-block rounded-xl bg-[#8B4828] px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-md">
+            Back to dashboard
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  const stepIndex = STEPS.findIndex((s) => s.id === step);
+
+  if (previewMode) {
+    return (
+      <div className="relative min-h-screen bg-[#141210] flex flex-col overflow-x-hidden">
+        <PreviewBackdrop />
+        <div className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-[#141210]/85 backdrop-blur border-b border-white/10 text-white">
+          <button onClick={() => { setFullScreen(false); setPreviewMode(false); }} className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold hover:text-white transition-colors">
+            <ArrowLeft className="h-4 w-4" /> Back to editor
+          </button>
+          <div className="flex items-center gap-2 text-[11px] font-bold tracking-wide text-white/60">
+            {saving ? <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Saving…</span> : <span className="inline-flex items-center gap-1"><Check className="h-3 w-3 text-[#25D366]" /> Changes Saved</span>}
+          </div>
+        </div>
+        <div className="relative z-10 flex-1 flex justify-center items-center px-4 py-6 md:py-10">
+          <PhoneFrame
+            src={`/i/${invitation.slug}?preview=1`}
+            fullScreen={fullScreen}
+            onFullScreenChange={setFullScreen}
+            toolbar={
+              <span className="hidden sm:inline text-[11px] font-bold text-white/60 px-2">
+                {template.name}
+              </span>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <main className="relative min-h-screen bg-[#FBF7F0] text-[#2B1F17] flex flex-col justify-between overflow-x-hidden">
+      {/* Background Architectural Palace Ambience */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <Image
+          src="/images/hero/auth_palace_bg.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-top opacity-20 brightness-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FBF7F0]/90 via-[#FBF7F0]/95 to-[#FBF7F0]" />
+      </div>
+
+      {/* Transparent Real Flowers (No Background) Framing the Canvas */}
+      <div className="pointer-events-none fixed top-0 right-0 z-10 w-44 sm:w-64 opacity-80" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/editor/floral-corner.png"
+          alt=""
+          className="w-full h-auto drop-shadow-[0_8px_20px_rgba(110,65,40,0.12)] rotate-90"
+        />
+      </div>
+      <div className="pointer-events-none fixed bottom-0 left-0 z-10 w-44 sm:w-64 opacity-75" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/editor/floral-corner.png"
+          alt=""
+          className="w-full h-auto drop-shadow-[0_8px_20px_rgba(110,65,40,0.12)] -rotate-90"
+        />
+      </div>
+
+      {/* Floating Gentle Petals */}
+      <div className="pointer-events-none fixed inset-0 z-10 overflow-hidden" aria-hidden="true">
+        {[
+          { left: "10%", size: "12px", duration: "14s", delay: "0s", drift: "35px" },
+          { left: "35%", size: "15px", duration: "16s", delay: "2.5s", drift: "-40px" },
+          { left: "65%", size: "11px", duration: "12s", delay: "1.2s", drift: "45px" },
+          { left: "88%", size: "14px", duration: "15s", delay: "4s", drift: "-30px" },
+        ].map((p, i) => (
+          <span
+            key={i}
+            className="auth-petal"
+            style={{
+              left: p.left,
+              width: p.size,
+              height: p.size,
+              // @ts-expect-error CSS variable
+              "--auth-duration": p.duration,
+              "--auth-delay": p.delay,
+              "--auth-drift": p.drift,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Studio Editor Glass Header */}
+      <header className="sticky top-0 z-40 bg-[#FBF7F0]/85 backdrop-blur-xl border-b border-[#E8DEC4]/70 shadow-[0_4px_20px_rgba(70,45,25,0.03)]">
+        <div className="mx-auto max-w-5xl px-5 py-3.5 flex items-center justify-between gap-3">
+          <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#695343] hover:text-[#2B1F17] transition-colors">
+            <ArrowLeft className="h-4 w-4" /> Dashboard
+          </Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="hidden sm:inline-block rounded-full bg-[#FAF6EE] px-3 py-1 text-[11px] font-bold tracking-wide uppercase text-[#8B4828] border border-[#DECFC0]/60">
+              {template.name} · {invitation.package}
+            </span>
+            <button
+              onClick={openPreview}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#DECFC0] bg-white/80 px-4 py-2 text-xs font-bold text-[#4A2F1B] hover:bg-white transition-all disabled:opacity-50"
+            >
+              <Eye className="h-3.5 w-3.5 text-[#8B4828]" /> Preview
+            </button>
+            <button
+              onClick={() => save()}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#8B4828] px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#72391F] transition-all disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />} Save
+            </button>
+            <button
+              onClick={() => setDeleteModal({ open: true, step: 1, busy: false, error: "" })}
+              disabled={saving}
+              className="inline-flex items-center justify-center rounded-xl p-2 text-[#A89484] hover:text-[#C53030] hover:bg-[#FBEBEB] transition-colors"
+              title="Delete Invitation"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Step Progress Bar */}
+        <div className="mx-auto max-w-5xl px-5 pb-3 flex gap-2 overflow-x-auto no-scrollbar">
+          {STEPS.map((s, i) => (
+            <button
+              key={s.id}
+              onClick={() => setStep(s.id)}
+              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold tracking-wide transition-all border ${
+                s.id === step
+                  ? "bg-[#8B4828] text-white border-[#8B4828] shadow-sm"
+                  : i < stepIndex
+                  ? "bg-[#EDF5E9] text-[#2F6824] border-[#C5E1BB]"
+                  : "bg-white/70 border-[#DECFC0] text-[#7A6353] hover:border-[#8B4828]"
+              }`}
+            >
+              {i + 1}. {s.label}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {/* Editor Body */}
+      <div className="relative z-20 mx-auto max-w-5xl px-5 md:px-8 py-8 flex-1 w-full">
+        {err && (
+          <div className="mb-6 rounded-2xl bg-[#FBECE8] border border-[#F3C4B8] p-4 text-xs sm:text-sm font-semibold text-[#A63C26]">
+            {err}
+          </div>
+        )}
+
+        {/* STEP: Couple */}
+        {step === "couple" && (
+          <Section
+            title="Couple Details"
+            sub="The names and personal story your guests will see on the invitation."
+            floral="garland"
+          >
+            {/* Custom Invitation URL (Required) */}
+            <div className="mb-6 rounded-2xl border border-[#DECFC0] bg-[#FFFDF9] p-5 shadow-xs">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#7A6353]">
+                  Custom Invitation URL
+                </span>
+                <span className="text-xs font-bold text-[#A63C26]">(required)</span>
+                <span className="group relative cursor-pointer text-[#9E8B7C] hover:text-[#8B4828]">
+                  <Info className="h-3.5 w-3.5" />
+                  <span className="pointer-events-none absolute left-1/2 -top-10 -translate-x-1/2 hidden group-hover:block whitespace-nowrap rounded-lg bg-[#2B1F17] px-2.5 py-1 text-[11px] text-white shadow-md z-30">
+                    Your guests will use this personalized link to open your card
+                  </span>
+                </span>
+              </div>
+
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                  <LinkIcon className="h-4 w-4 text-[#8B4828]" />
+                </div>
+                <input
+                  value={customSlug}
+                  onChange={(e) => {
+                    const formatted = e.target.value.toLowerCase().replace(/[\s_]+/g, "-").replace(/[^a-z0-9-]/g, "");
+                    setCustomSlug(formatted);
+                  }}
+                  className={`w-full rounded-xl border pl-10 pr-10 py-3 text-xs sm:text-sm font-medium outline-none transition-all ${
+                    slugAvailable === true
+                      ? "border-[#2F6824] bg-white ring-2 ring-[#2F6824]/10 text-[#2B1F17]"
+                      : slugAvailable === false
+                      ? "border-[#A63C26] bg-[#FDF4F2] ring-2 ring-[#A63C26]/10 text-[#2B1F17]"
+                      : "border-[#DECFC0] bg-white/95 text-[#2B1F17] focus:border-[#8B4828] focus:ring-2 focus:ring-[#8B4828]/15"
+                  }`}
+                  placeholder="e.g. rahul-weds-priya"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
+                  {slugChecking ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-[#8B4828]" />
+                  ) : slugAvailable === true ? (
+                    <CheckCircle2 className="h-4 w-4 text-[#2F6824]" />
+                  ) : slugAvailable === false ? (
+                    <XCircle className="h-4 w-4 text-[#A63C26]" />
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Status Message */}
+              {slugSuccess && (
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[#2F6824]">
+                  <Check className="h-3.5 w-3.5" /> {slugSuccess}
+                </p>
+              )}
+              {slugError && (
+                <p className="mt-2 text-xs font-semibold text-[#A63C26]">
+                  {slugError}
+                </p>
+              )}
+              {!customSlug && (
+                <p className="mt-1.5 text-xs text-[#A63C26]/90 font-medium">
+                  A custom invitation URL is required.
+                </p>
+              )}
+
+              {/* Live Preview of the link */}
+              {customSlug && (
+                <div className="mt-3.5 rounded-xl border border-[#DECFC0]/70 bg-[#FAF6EE] p-3 text-xs text-[#4A2F1B]">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-[#9E6D4B]">YOUR LINK WILL BE</span>
+                  <p className="mt-1 font-mono font-semibold text-xs sm:text-sm break-all text-[#2B1F17]">
+                    mehfill.in/i/{customSlug}
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-2.5 flex items-start gap-2 rounded-xl bg-[#FAF6EE]/70 border border-[#EBE0D3] p-2.5 text-[11px] text-[#7A6353]">
+                <Sparkles className="h-3.5 w-3.5 text-[#8B4828] shrink-0 mt-0.5" />
+                <span>
+                  Share this link directly on WhatsApp, Instagram bio, or print on cards for your guests.
+                </span>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Bride's name *">
+                <input value={content.brideName} onChange={(e) => set("brideName", e.target.value)} className={inputCls} placeholder="e.g. Aisha" />
+              </Field>
+              <Field label="Groom's name *">
+                <input value={content.groomName} onChange={(e) => set("groomName", e.target.value)} className={inputCls} placeholder="e.g. Hamza" />
+              </Field>
+              <Field label="Couple initials (Auto-derived from names)">
+                <div className="relative">
+                  <input
+                    value={deriveInitials(content.brideName, content.groomName).combined || content.initials || ""}
+                    onChange={(e) => set("initials", e.target.value)}
+                    className={inputCls}
+                    placeholder="e.g. H & A"
+                    maxLength={20}
+                  />
+                  {deriveInitials(content.brideName, content.groomName).combined && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-[#EDF5E9] border border-[#C5E1BB] px-2.5 py-0.5 text-[10px] font-bold text-[#2F6824]">
+                      {deriveInitials(content.brideName, content.groomName).combined}
+                    </span>
+                  )}
+                </div>
+              </Field>
+              <Field label="Family announcement (Optional)">
+                <input value={content.familyNames || ""} onChange={(e) => set("familyNames", e.target.value)} className={inputCls} placeholder="e.g. Daughter of Mr. & Mrs. Sharma" />
+              </Field>
+              <Field label="Main invitation message" wide>
+                <textarea value={content.message || ""} onChange={(e) => set("message", e.target.value)} rows={3} className={inputCls + " resize-none"} maxLength={600} />
+              </Field>
+              <Field label="Introductory quote or welcome line (Optional)" wide>
+                <textarea value={content.intro || ""} onChange={(e) => set("intro", e.target.value)} rows={2} className={inputCls + " resize-none"} placeholder="A line about your love story…" maxLength={800} />
+              </Field>
+            </div>
+            <NavButtons onNext={() => save("date")} saving={saving} />
+          </Section>
+        )}
+
+        {/* STEP: Date */}
+        {step === "date" && (
+          <Section
+            title="Date & Time"
+            sub="When the celebration begins."
+          >
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Wedding date *">
+                <MehfillDatePicker
+                  value={content.weddingDate}
+                  onChange={(val) => set("weddingDate", val)}
+                  min={new Date().toISOString().split("T")[0]}
+                  placeholder="Select wedding date"
+                />
+              </Field>
+              <Field label="Start time">
+                <MehfillTimePicker
+                  value={content.startTime || ""}
+                  onChange={(val) => set("startTime", val)}
+                  placeholder="Select celebration start time"
+                />
+              </Field>
+              <Field label="End time (Optional)">
+                <MehfillTimePicker
+                  value={content.endTime || ""}
+                  onChange={(val) => set("endTime", val)}
+                  placeholder="Select wrap-up time (optional)"
+                />
+              </Field>
+            </div>
+            {content.weddingDate && (
+              <div className="mt-4 rounded-2xl bg-[#FAF6EE] border border-[#DECFC0]/60 p-4 text-xs sm:text-sm text-[#4A2F1B]">
+                Your guests will see: <b>{formatDateLong(content.weddingDate)}</b>
+                {content.startTime && <> at <b>{formatTime12(content.startTime)}</b></>}
+              </div>
+            )}
+            <NavButtons onBack={() => setStep("couple")} onNext={() => save("venue")} saving={saving} />
+          </Section>
+        )}
+
+        {/* STEP: Venue */}
+        {step === "venue" && (
+          <Section
+            title="Celebration Venue"
+            sub="Where your guests will join to celebrate your auspicious day."
+            floral="garland"
+          >
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Venue name *">
+                <input value={content.venueName} onChange={(e) => set("venueName", e.target.value)} className={inputCls} placeholder="e.g. The Grand Orchid Palace" />
+              </Field>
+              <Field label="Google Maps link">
+                <input value={content.mapsUrl || ""} onChange={(e) => set("mapsUrl", e.target.value)} className={inputCls} placeholder="https://maps.google.com/…" />
+              </Field>
+              <Field label="Full address &amp; directions" wide>
+                <textarea value={content.venueAddress} onChange={(e) => set("venueAddress", e.target.value)} rows={2} className={inputCls + " resize-none"} />
+              </Field>
+            </div>
+            <NavButtons onBack={() => setStep("date")} onNext={() => save("events")} saving={saving} />
+          </Section>
+        )}
+
+        {/* STEP: Events */}
+        {step === "events" && (
+          <Section
+            title="Wedding Events"
+            sub="Add Haldi, Mehendi, Sangeet, Nikah, Reception — whatever you are celebrating."
+            floral="wreath"
+          >
+            <div className="space-y-4">
+              {/* Quick Add Preset Events */}
+              <div className="rounded-2xl border border-[#DECFC0] bg-[#FFFDF9] p-4 shadow-xs">
+                <span className="block text-xs font-bold uppercase tracking-wider text-[#7A6353] mb-2.5">
+                  Quick Add Preset Events
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {[
+                    { name: "Mehendi", icon: "🌿" },
+                    { name: "Haldi", icon: "✨" },
+                    { name: "Sangeet", icon: "🎵" },
+                    { name: "Ring Ceremony", icon: "💍" },
+                    { name: "Wedding", icon: "👰" },
+                    { name: "Reception", icon: "🎉" },
+                  ].map((preset) => (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => {
+                        const ne = newEvent();
+                        ne.name = preset.name;
+                        set("events", [...content.events, ne]);
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#DECFC0] bg-white py-2 px-3 text-xs font-bold text-[#4A2F1B] hover:bg-[#FAF6EE] hover:border-[#8B4828] transition-all shadow-xs active:scale-95"
+                    >
+                      <span>{preset.icon}</span> {preset.name}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => set("events", [...content.events, newEvent()])}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#DECFC0] bg-white py-2 px-3 text-xs font-bold text-[#8B4828] hover:bg-[#FAF6EE] transition-all sm:col-span-3 active:scale-95"
+                  >
+                    <span>🪅</span> Custom Event
+                  </button>
+                </div>
+
+                <div className="mt-3.5 flex items-start gap-2 rounded-xl bg-[#FAF6EE] border border-[#EBE0D3] p-2.5 text-[11px] text-[#7A6353]">
+                  <Info className="h-4 w-4 text-[#8B4828] shrink-0 mt-0.5" />
+                  <span>
+                    <b>Note:</b> The venue &amp; timings of your <b>Primary Event</b> (Event 1) will be featured on the cover page of your invitation.
+                  </span>
+                </div>
+              </div>
+
+              {content.events.map((ev, i) => (
+                <EventCard
+                  key={ev.id}
+                  event={ev}
+                  onChange={(patch) =>
+                    set("events", content.events.map((e) => (e.id === ev.id ? { ...e, ...patch } : e)))
+                  }
+                  onRemove={() => set("events", content.events.filter((e) => e.id !== ev.id))}
+                  canRemove={content.events.length > 1}
+                  index={i}
+                />
+              ))}
+              <button
+                type="button"
+                onClick={() => set("events", [...content.events, newEvent()])}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#8B4828]/50 bg-white/70 py-3 text-xs sm:text-sm font-bold text-[#8B4828] hover:bg-white transition-all shadow-xs"
+              >
+                <Plus className="h-4 w-4" /> Add Event
+              </button>
+            </div>
+            <NavButtons onBack={() => setStep("venue")} onNext={() => save("photos")} saving={saving} />
+          </Section>
+        )}
+
+        {/* STEP: Photos */}
+        {step === "photos" && (
+          <Section
+            title="Photo Gallery"
+            sub="Upload up to 20 photos (JPG, PNG or WebP · max 4MB each)."
+            floral="wreath"
+          >
+            {/* Choice: Use original template images or customer photos only */}
+            <div className="rounded-2xl border border-[#DECFC0] bg-[#FFFDF9] p-5 shadow-xs mb-6">
+              <span className="block text-xs font-bold uppercase tracking-wider text-[#9E6D4B] mb-1.5">
+                Template Demo Images Choice
+              </span>
+              <p className="text-xs text-[#695343] mb-4">
+                Choose how placeholder/sample gallery photos and portraits are handled on your published invitation. Essential decorative artwork (florals, arches, motifs) is always preserved.
+              </p>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => set("useTemplateImages", false)}
+                  className={`text-left p-4 rounded-xl border transition-all ${
+                    content.useTemplateImages === false || content.useTemplateImages === undefined
+                      ? "border-[#8B4828] bg-[#FAF6EE] ring-2 ring-[#8B4828]/15"
+                      : "border-[#DECFC0] bg-white hover:border-[#8B4828]/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs sm:text-sm font-bold text-[#2B1F17]">
+                      B. Use only my uploaded photos
+                    </span>
+                    {(content.useTemplateImages === false || content.useTemplateImages === undefined) && (
+                      <Check className="h-4 w-4 text-[#8B4828]" />
+                    )}
+                  </div>
+                  <p className="text-[11px] text-[#7A6353] leading-relaxed">
+                    <b>Recommended.</b> Only your uploaded photos will appear in galleries and portraits. If no photos are uploaded, photo galleries are cleanly hidden without blank gaps.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => set("useTemplateImages", true)}
+                  className={`text-left p-4 rounded-xl border transition-all ${
+                    content.useTemplateImages === true
+                      ? "border-[#8B4828] bg-[#FAF6EE] ring-2 ring-[#8B4828]/15"
+                      : "border-[#DECFC0] bg-white hover:border-[#8B4828]/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs sm:text-sm font-bold text-[#2B1F17]">
+                      A. Use original template images
+                    </span>
+                    {content.useTemplateImages === true && (
+                      <Check className="h-4 w-4 text-[#8B4828]" />
+                    )}
+                  </div>
+                  <p className="text-[11px] text-[#7A6353] leading-relaxed">
+                    Keep the template's artistic sample imagery in slots where you haven't uploaded a photo yet.
+                  </p>
+                </button>
+              </div>
+            </div>
+
+            <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#DECFC0] bg-white/75 py-12 hover:bg-white transition-all shadow-xs">
+              {uploading ? (
+                <Loader2 className="h-8 w-8 animate-spin text-[#8B4828]" />
+              ) : (
+                <>
+                  <Upload className="h-8 w-8 text-[#8B4828]" />
+                  <p className="mt-3 text-xs sm:text-sm font-bold text-[#2B1F17]">Tap to upload couple photos</p>
+                  <p className="mt-1 text-[11px] text-[#7A6353]">JPG, PNG, WebP · up to 4MB each</p>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []).slice(0, 5);
+                  files.forEach((f) => uploadPhoto(f));
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            {content.gallery.length > 0 && (
+              <div className="mt-6 grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {content.gallery.map((src, i) => (
+                  <div key={i} className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-[#DECFC0] shadow-sm group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt={`Upload ${i + 1}`} className="h-full w-full object-cover" />
+                    <button
+                      onClick={() => set("gallery", content.gallery.filter((_, j) => j !== i))}
+                      className="absolute top-2 right-2 rounded-full bg-black/60 p-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="Remove photo"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <NavButtons onBack={() => setStep("events")} onNext={() => save("loveStory")} saving={saving} />
+          </Section>
+        )}
+
+        {/* STEP: Love Story */}
+        {step === "loveStory" && (
+          <div className="space-y-6">
+            <LoveStoryEditor
+              milestones={content.loveStory || []}
+              onChange={(ms) => set("loveStory", ms)}
+              onRemove={(id) => {
+                const m = (content.loveStory || []).find((x) => x.id === id);
+                if (m) set("loveStory", content.loveStory!.filter((x) => x.id !== id));
+              }}
+            />
+            <NavButtons onBack={() => setStep("photos")} onNext={() => save("rsvp")} saving={saving} />
+          </div>
+        )}
+
+        {/* STEP: Music */}
+        {step === "music" && (
+          <Section
+            title="Background Music"
+            sub={template.fields.music ? "Set the mood — guests can play or pause right from the invitation." : "This design uses its signature background music."}
+            floral="garland"
+          >
+            {template.fields.music ? (
+              <>
+                <label className="flex items-start gap-3 rounded-2xl border border-[#DECFC0] bg-white/90 p-4 shadow-xs">
+                  <input
+                    type="checkbox"
+                    checked={musicRightsOk}
+                    onChange={(e) => setMusicRightsOk(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 accent-[#8B4828]"
+                  />
+                  <span className="text-xs sm:text-sm text-[#4A2F1B]">
+                    I confirm I have permission to use this audio track for my celebration.
+                  </span>
+                </label>
+
+                {content.musicUrl ? (
+                  <div className="mt-4 rounded-2xl border border-[#DECFC0] bg-white/90 p-4 shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={toggleMusic}
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#8B4828] text-white shadow-sm hover:bg-[#72391F]"
+                        aria-label={playing ? "Pause music" : "Play music"}
+                      >
+                        {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                      </button>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs sm:text-sm font-bold text-[#2B1F17]">Custom Background Audio</p>
+                        <p className="truncate text-[11px] text-[#7A6353]">{content.musicUrl.split("/").pop()}</p>
+                      </div>
+                      <button
+                        onClick={removeMusic}
+                        disabled={saving}
+                        className="rounded-xl border border-[#DECFC0] p-2 text-[#7A6353] hover:text-[#A63C26]"
+                        aria-label="Remove music"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <audio ref={audioRef} src={content.musicUrl} preload="none" className="hidden" />
+                  </div>
+                ) : (
+                  <label className={`mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#DECFC0] bg-white/75 py-12 hover:bg-white transition-all shadow-xs ${!musicRightsOk ? "opacity-50 pointer-events-none" : ""}`}>
+                    {uploadingMusic ? (
+                      <Loader2 className="h-8 w-8 animate-spin text-[#8B4828]" />
+                    ) : (
+                      <>
+                        <Music className="h-8 w-8 text-[#8B4828]" />
+                        <p className="mt-3 text-xs sm:text-sm font-bold text-[#2B1F17]">Tap to upload music track</p>
+                        <p className="mt-1 text-[11px] text-[#7A6353]">MP3, M4A, WAV or OGG · up to 8MB</p>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="audio/mpeg,audio/mp4,audio/mp3,audio/x-m4a,audio/aac,audio/wav,audio/ogg"
+                      className="hidden"
+                      disabled={!musicRightsOk}
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) uploadMusic(f);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                )}
+              </>
+            ) : (
+              <p className="rounded-2xl bg-[#FAF6EE] p-4 text-xs sm:text-sm text-[#695343]">
+                This design uses authentic curated instrumental audio that stays active by default.
+              </p>
+            )}
+            <NavButtons onBack={() => setStep("photos")} onNext={() => save("rsvp")} saving={saving} />
+          </Section>
+        )}
+
+        {/* STEP: RSVP */}
+        {step === "rsvp" && (
+          <Section
+            title="RSVP Preferences"
+            sub="Let guests confirm attendance and send blessings directly."
+            floral="garland"
+          >
+            <label className="flex items-center gap-3 rounded-2xl border border-[#DECFC0] bg-white/90 p-4 shadow-xs">
+              <input
+                type="checkbox"
+                checked={content.rsvp?.enabled !== false}
+                onChange={(e) => setRsvp({ enabled: e.target.checked })}
+                className="h-4 w-4 accent-[#8B4828]"
+              />
+              <span className="text-xs sm:text-sm font-bold text-[#2B1F17]">Enable interactive RSVP form on the live invitation</span>
+            </label>
+            {content.rsvp?.enabled !== false && (
+              <div className="mt-4 grid sm:grid-cols-2 gap-4">
+                <Field label="RSVP contact person">
+                  <input value={content.rsvp?.contactName || ""} onChange={(e) => setRsvp({ contactName: e.target.value })} className={inputCls} placeholder="e.g. Farhan Sharma" />
+                </Field>
+                <Field label="RSVP phone number">
+                  <input value={content.rsvp?.contactPhone || ""} onChange={(e) => setRsvp({ contactPhone: e.target.value.replace(/\D/g, "").slice(0, 15) })} className={inputCls} inputMode="numeric" placeholder="10-digit mobile" />
+                </Field>
+                <Field label="Confirmation deadline (Optional)">
+                  <input type="date" value={content.rsvp?.deadline || ""} onChange={(e) => setRsvp({ deadline: e.target.value })} className={inputCls} />
+                </Field>
+                <Field label="Custom RSVP welcome note" wide>
+                  <textarea value={content.rsvp?.message || ""} onChange={(e) => setRsvp({ message: e.target.value })} rows={2} className={inputCls + " resize-none"} maxLength={400} />
+                </Field>
+              </div>
+            )}
+            <NavButtons onBack={() => setStep("music")} onNext={() => save("publish")} saving={saving} />
+          </Section>
+        )}
+
+        {/* STEP: Publish */}
+        {step === "publish" && (
+          <Section
+            title={published ? "Your Invitation is Live!" : "Final Preview & Publish"}
+            sub={published ? "Share this special link with your loved ones." : "Review all details, preview full experience, and complete checkout."}
+            floral="wreath"
+          >
+            {!published ? (
+              <div className="space-y-6">
+                <div className="rounded-3xl border border-[#DECFC0] bg-white/95 backdrop-blur-md p-6 sm:p-8 shadow-sm">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#9E6D4B]">CELEBRATION SUMMARY</span>
+                  <ul className="mt-4 space-y-2.5 text-xs sm:text-sm text-[#4A2F1B]">
+                    <li><b>Couple:</b> {content.brideName} &amp; {content.groomName}</li>
+                    <li><b>Date:</b> {formatDateLong(content.weddingDate) || "Date not configured"}</li>
+                    <li><b>Venue:</b> {content.venueName || "Venue not configured"}</li>
+                    <li><b>Events:</b> {content.events.filter((e) => e.name).length} event(s) · {content.gallery.length} photo(s) in gallery</li>
+                    <li><b>Design:</b> <b>{template.name}</b> · <span className="capitalize">{invitation.package}</span></li>
+                  </ul>
+
+                  {/* Coupon Code Section (Only shown if unpaid) */}
+                  {!invitation.isPaid && (
+                    <div className="mt-6 pt-6 border-t border-[#DECFC0]/60">
+                      <div className="flex items-center gap-2 mb-2.5">
+                        <Tag className="h-4 w-4 text-[#8B4828]" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#9E6D4B]">Have a Coupon / Promo Code?</span>
+                      </div>
+                      
+                      {coupon ? (
+                        <div className="inline-flex items-center gap-2.5 rounded-xl border border-[#C5E1BB] bg-[#EDF5E9] px-3.5 py-2 text-xs font-medium text-[#2F6824]">
+                          <Check className="h-4 w-4" />
+                          <span>Code <b>{coupon.code}</b> applied! Saved ₹{coupon.discountAmount.toLocaleString("en-IN")}</span>
+                          <button
+                            type="button"
+                            onClick={removeCoupon}
+                            className="ml-2 text-[#2F6824]/70 hover:text-[#A63C26]"
+                            title="Remove coupon"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex max-w-sm gap-2">
+                          <input
+                            type="text"
+                            value={couponInput}
+                            onChange={(e) => {
+                              setCouponInput(e.target.value.toUpperCase());
+                              setCouponErr("");
+                            }}
+                            placeholder="Enter coupon code"
+                            className="flex-1 rounded-xl border border-[#DECFC0] bg-[#FAF6EE]/50 px-3 py-2 text-xs uppercase tracking-wider text-[#2B1F17] outline-none focus:border-[#8B4828]"
+                          />
+                          <button
+                            type="button"
+                            onClick={applyCoupon}
+                            disabled={couponBusy || !couponInput.trim()}
+                            className="rounded-xl border border-[#DECFC0] bg-white px-4 py-2 text-xs font-bold text-[#8B4828] hover:bg-[#FAF6EE] disabled:opacity-50"
+                          >
+                            {couponBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Apply"}
+                          </button>
+                        </div>
+                      )}
+                      {couponErr && <p className="mt-1.5 text-xs text-[#A63C26]">{couponErr}</p>}
+
+                      {/* Pricing Summary */}
+                      <div className="mt-4 rounded-2xl bg-[#FAF6EE]/60 p-3.5 border border-[#DECFC0]/60 text-xs text-[#4A2F1B] space-y-1.5 max-w-sm">
+                        <div className="flex justify-between">
+                          <span className="text-[#695343]">Package Price:</span>
+                          <span className="font-semibold">₹{rawPrice.toLocaleString("en-IN")}</span>
+                        </div>
+                        {discount > 0 && (
+                          <div className="flex justify-between text-[#2F6824]">
+                            <span>Discount:</span>
+                            <span className="font-semibold">-₹{discount.toLocaleString("en-IN")}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between border-t border-[#DECFC0]/50 pt-1.5 text-xs font-bold text-[#2B1F17]">
+                          <span>Total Payable:</span>
+                          <span className="text-sm text-[#8B4828]">₹{payablePrice.toLocaleString("en-IN")}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <button
+                      onClick={openPreview}
+                      disabled={saving}
+                      className="inline-flex items-center gap-2 rounded-xl border border-[#DECFC0] bg-white px-6 py-3 text-xs sm:text-sm font-bold text-[#4A2F1B] hover:bg-[#FAF6EE] disabled:opacity-50"
+                    >
+                      <Eye className="h-4 w-4 text-[#8B4828]" /> Full Live Preview
+                    </button>
+
+                    <button
+                      onClick={publishWithPayment}
+                      disabled={saving || paying}
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#8B4828] px-8 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-[#72391F] transition-all disabled:opacity-50"
+                    >
+                      {saving || paying ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <CreditCard className="h-4 w-4" />
+                      )}
+                      {invitation.isPaid
+                        ? "Publish Invitation Live"
+                        : payablePrice === 0
+                        ? "Publish Free with Coupon"
+                        : `Pay & Publish Live (₹${payablePrice.toLocaleString("en-IN")})`}
+                    </button>
+                  </div>
+                </div>
+
+                {invitation.package === "premium" && (
+                  <PremiumBriefCard invitationId={invitation.id} />
+                )}
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-[#C5E1BB] bg-[#EDF5E9]/50 backdrop-blur-md p-8 text-center shadow-sm">
+                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EDF5E9] border border-[#C5E1BB]">
+                  <Check className="h-7 w-7 text-[#2F6824]" />
+                </span>
+                <h3 className="mt-4 font-serif text-3xl sm:text-4xl text-[#2B1F17]">{content.brideName} &amp; {content.groomName}</h3>
+                <p className="mt-3 font-mono text-xs sm:text-sm break-all rounded-2xl bg-white p-3.5 border border-[#DECFC0] max-w-lg mx-auto">
+                  {published.url}
+                </p>
+                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                  <button
+                    onClick={copyLink}
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#2B1F17] px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-[#4A2F1B]"
+                  >
+                    {copied ? <Check className="h-4 w-4 text-[#25D366]" /> : <Copy className="h-4 w-4" />}
+                    {copied ? "Copied to Clipboard!" : "Copy Link"}
+                  </button>
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`You're warmly invited! 🎉\n\n${content.brideName} & ${content.groomName}\n\nOpen our digital invitation:\n${published.url}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 text-xs sm:text-sm font-bold text-[#0c3c1e] hover:brightness-95"
+                  >
+                    <WhatsAppIcon className="h-4 w-4" /> Share on WhatsApp
+                  </a>
+                  <a
+                    href={published.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-[#DECFC0] bg-white px-6 py-3 text-xs sm:text-sm font-bold text-[#4A2F1B] hover:bg-[#FAF6EE]"
+                  >
+                    <Eye className="h-4 w-4" /> View Live
+                  </a>
+                </div>
+              </div>
+            )}
+            <NavButtons onBack={() => setStep("rsvp")} saving={false} hideNext />
+          </Section>
+        )}
+      </div>
+
+      {/* 2-Step Delete Confirmation Modal */}
+      {deleteModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-md rounded-3xl border border-[#DECFC0] bg-white p-6 sm:p-8 shadow-2xl text-center">
+            {/* Step 1: First Confirmation */}
+            {deleteModal.step === 1 && (
+              <div>
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFF5F5] border border-[#FED7D7] text-[#C53030]">
+                  <AlertTriangle className="h-7 w-7 text-[#C53030]" />
+                </div>
+                <span className="mt-3 inline-block text-[11px] font-bold uppercase tracking-widest text-[#C53030]">
+                  Step 1 of 2 · Delete Invitation
+                </span>
+                <h3 className="mt-1 font-serif text-2xl sm:text-3xl text-[#2B1F17]">
+                  Are you sure?
+                </h3>
+                <p className="mt-2 text-xs sm:text-sm text-[#695343] leading-relaxed">
+                  Do you really want to delete this invitation for{" "}
+                  <b>
+                    {content.brideName || "Bride"} &amp; {content.groomName || "Groom"}
+                  </b>
+                  ? All your entered events, gallery images and drafts will be removed.
+                </p>
+
+                <div className="mt-6 flex flex-col sm:flex-row gap-2.5 justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteModal({ open: false, step: 1, busy: false, error: "" })}
+                    className="rounded-xl border border-[#DECFC0] bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-[#4A2F1B] hover:bg-[#FAF6EE]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteModal((p) => ({ ...p, step: 2 }))}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#C53030] px-5 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-[#9B2C2C] shadow-sm"
+                  >
+                    Yes, continue <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Final Confirmation */}
+            {deleteModal.step === 2 && (
+              <div>
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#9B2C2C] text-white shadow-md">
+                  <Trash2 className="h-7 w-7" />
+                </div>
+                <span className="mt-3 inline-block text-[11px] font-bold uppercase tracking-widest text-[#9B2C2C]">
+                  Final Step 2 of 2 · Confirmation
+                </span>
+                <h3 className="mt-1 font-serif text-2xl sm:text-3xl text-[#2B1F17]">
+                  Are you absolutely sure?
+                </h3>
+                <p className="mt-2 text-xs sm:text-sm text-[#9B2C2C] bg-[#FFF5F5] border border-[#FED7D7] rounded-xl p-3 leading-relaxed">
+                  ⚠️ <b>This action cannot be undone.</b>
+                  {invitation?.status === "published"
+                    ? " Your public invitation link will be permanently taken down."
+                    : " All your entered wedding details, story milestones, and drafts will be erased."}
+                </p>
+
+                {deleteModal.error && (
+                  <p className="mt-3 text-xs text-[#C53030] font-semibold">{deleteModal.error}</p>
+                )}
+
+                <div className="mt-6 flex flex-col sm:flex-row gap-2.5 justify-center">
+                  <button
+                    type="button"
+                    disabled={deleteModal.busy}
+                    onClick={() => setDeleteModal({ open: false, step: 1, busy: false, error: "" })}
+                    className="rounded-xl border border-[#DECFC0] bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-[#4A2F1B] hover:bg-[#FAF6EE] disabled:opacity-50"
+                  >
+                    No, keep my invitation
+                  </button>
+                  <button
+                    type="button"
+                    disabled={deleteModal.busy}
+                    onClick={handleDeleteInvitation}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#C53030] px-6 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-[#822727] shadow-md disabled:opacity-50"
+                  >
+                    {deleteModal.busy ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="h-4 w-4" />
+                        Yes, permanently delete
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Global Minimal Footer */}
+      <footer className="relative z-10 w-full px-6 py-5 text-center text-xs text-[#7A6353]/80 border-t border-[#E8DEC4]/40">
+        Personalizing in Mehfill Studio · All changes auto-saved
+      </footer>
+    </main>
+  );
+}
+
+/* ───────────────────────── Sub-components ───────────────────────── */
+
+const inputCls =
+  "w-full rounded-xl border border-[#DECFC0] bg-white/95 px-4 py-2.5 text-xs sm:text-sm text-[#2B1F17] outline-none transition-all placeholder:text-[#B5A496] focus:border-[#8B4828] focus:ring-2 focus:ring-[#8B4828]/15";
+
+function Section({
+  title,
+  sub,
+  children,
+}: {
+  title: string;
+  sub: string;
+  children: React.ReactNode;
+  floral?: "garland" | "wreath";
+}) {
+  return (
+    <div className="relative rounded-[2rem] border border-[#DECFC0] bg-white/85 backdrop-blur-xl p-6 sm:p-8 shadow-[0_12px_40px_rgba(110,75,45,0.06)]">
+      <div className="pt-1">
+        <h2 className="font-serif font-light text-2xl sm:text-4xl text-[#2B1F17]">{title}</h2>
+        <p className="mt-1 text-xs sm:text-sm text-[#695343]">{sub}</p>
+        <div className="mt-6">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, children, wide }: { label: string; children: React.ReactNode; wide?: boolean }) {
+  return (
+    <label className={`block ${wide ? "sm:col-span-2" : ""}`}>
+      <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-[#7A6353]">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function NavButtons({
+  onBack,
+  onNext,
+  saving,
+  hideNext,
+}: {
+  onBack?: () => void;
+  onNext?: () => void;
+  saving: boolean;
+  hideNext?: boolean;
+}) {
+  return (
+    <div className="mt-8 flex items-center justify-between gap-3 border-t border-[#DECFC0]/50 pt-5">
+      {onBack ? (
+        <button
+          onClick={onBack}
+          className="text-xs sm:text-sm font-semibold text-[#695343] hover:text-[#2B1F17] transition-colors"
+        >
+          ← Back
+        </button>
+      ) : <span />}
+      {!hideNext && onNext && (
+        <button
+          onClick={onNext}
+          disabled={saving}
+          className="inline-flex items-center gap-2 rounded-xl bg-[#8B4828] px-7 py-2.5 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-[#72391F] transition-all disabled:opacity-50"
+        >
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+          Next Step →
+        </button>
+      )}
+    </div>
+  );
+}
+
+function LoveStoryEditor({
+  milestones,
+  onChange,
+  onRemove,
+}: {
+  milestones: LoveStoryMilestone[];
+  onChange: (ms: LoveStoryMilestone[]) => void;
+  onRemove: (id: string) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  const add = () => {
+    onChange([...milestones, newMilestone()]);
+  };
+
+  const uploadPhoto = async (file: File) => {
+    const fd = new FormData();
+    fd.set("file", file);
+    fd.set("kind", "photo");
+    const res = await fetch("/api/invitations/upload", { method: "POST", body: fd });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || "Upload failed.");
+    return data.url as string;
+  };
+
+  return (
+    <div className="rounded-[2rem] border border-[#DECFC0] bg-white/85 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="font-serif font-light text-2xl sm:text-4xl text-[#2B1F17]">Our Love Story</h2>
+          <p className="mt-1 text-xs sm:text-sm text-[#695343]">Chronicle how you first met, the proposal, and moments leading to marriage.</p>
+        </div>
+        <button
+          onClick={add}
+          disabled={busy}
+          className="inline-flex items-center gap-1.5 rounded-xl bg-[#8B4828] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#72391F]"
+        >
+          <Plus className="h-3.5 w-3.5" /> Milestone
+        </button>
+      </div>
+
+      {milestones.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-[#DECFC0] p-10 text-center">
+          <p className="font-serif text-2xl italic text-[#695343]">No milestones added yet</p>
+          <p className="mt-1 text-xs text-[#7A6353]">Add when you first met, first date, or the proposal.</p>
+          <button
+            onClick={add}
+            className="mt-4 rounded-xl bg-[#8B4828] px-6 py-2.5 text-xs font-bold text-white"
+          >
+            Add First Milestone
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {milestones.map((m) => (
+            <div key={m.id} className="rounded-2xl border border-[#DECFC0]/60 bg-white p-4 shadow-xs">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 space-y-2">
+                  <input
+                    value={m.title}
+                    onChange={(e) => onChange(milestones.map((x) => x.id === m.id ? { ...x, title: e.target.value } : x))}
+                    placeholder="Milestone title (e.g. The First Date)"
+                    className={inputCls}
+                  />
+                  <MehfillDatePicker
+                    value={m.date}
+                    onChange={(val) => onChange(milestones.map((x) => x.id === m.id ? { ...x, date: val } : x))}
+                    placeholder="Milestone date"
+                  />
+                  <textarea
+                    value={m.description}
+                    onChange={(e) => onChange(milestones.map((x) => x.id === m.id ? { ...x, description: e.target.value } : x))}
+                    rows={2}
+                    className={inputCls + " resize-none"}
+                    placeholder="What made this moment unforgettable…"
+                    maxLength={500}
+                  />
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <label className="cursor-pointer rounded-xl border border-[#DECFC0] p-2 text-xs font-bold text-[#8B4828] hover:bg-[#FAF6EE] text-center">
+                    Photo
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        if (!f) return;
+                        try {
+                          const url = await uploadPhoto(f);
+                          onChange(milestones.map((x) => x.id === m.id ? { ...x, imageUrl: url } : x));
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }}
+                    />
+                  </label>
+                  <button onClick={() => onRemove(m.id)} className="text-[#A89484] hover:text-[#A63C26]" aria-label="Remove">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EventCard({
+  event,
+  onChange,
+  onRemove,
+  canRemove,
+  index,
+}: {
+  event: InvitationEvent;
+  onChange: (patch: Partial<InvitationEvent>) => void;
+  onRemove: () => void;
+  canRemove: boolean;
+  index: number;
+}) {
+  return (
+    <div className="rounded-2xl border border-[#DECFC0]/70 bg-white p-4 shadow-xs">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E6D4B]">EVENT {index + 1}</span>
+        {canRemove && (
+          <button onClick={onRemove} className="text-[#A89484] hover:text-[#A63C26]" aria-label="Remove event">
+            <Trash2 className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <input value={event.name} onChange={(e) => onChange({ name: e.target.value })} placeholder="Event name (e.g. Sangeet)" className={inputCls} />
+        <MehfillDatePicker
+          value={event.date}
+          onChange={(val) => onChange({ date: val })}
+          placeholder="Event date"
+        />
+        <MehfillTimePicker
+          value={event.time}
+          onChange={(val) => onChange({ time: val })}
+          placeholder="Event timing"
+        />
+        <input value={event.venue} onChange={(e) => onChange({ venue: e.target.value })} placeholder="Venue (Optional)" className={inputCls} />
+        <input value={event.description || ""} onChange={(e) => onChange({ description: e.target.value })} placeholder="Short description or attire guidelines (Optional)" className={inputCls + " sm:col-span-2"} />
+      </div>
+    </div>
+  );
+}
+
+function PremiumBriefCard({ invitationId }: { invitationId: string }) {
+  const [brief, setBrief] = useState("");
+  const [colours, setColours] = useState("");
+  const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
+  const [msg, setMsg] = useState("");
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setState("busy");
+    try {
+      const res = await fetch("/api/customisation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invitationId, brief, colourPrefs: colours }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Could not submit.");
+      setState("done");
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Something went wrong.");
+      setState("error");
+    }
+  };
+
+  if (state === "done") {
+    return (
+      <div className="rounded-2xl border border-[#C5E1BB] bg-[#EDF5E9] p-5">
+        <p className="text-xs sm:text-sm font-bold text-[#2F6824]">Customisation brief submitted successfully ✓</p>
+        <p className="mt-1 text-xs text-[#4A2F1B]">
+          Our design team will review your brief and update your dashboard with preview drafts.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} className="rounded-2xl border border-[#DECFC0] bg-white p-6 shadow-sm">
+      <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#9E6D4B]">PREMIUM BESPOKE SERVICE</span>
+      <h3 className="mt-1 font-serif text-2xl text-[#2B1F17]">Submit Customisation Brief</h3>
+      <p className="mt-1 text-xs text-[#695343]">
+        Tell our design team your preferred colour schemes, typography desires, or special motifs.
+      </p>
+      <textarea
+        value={brief}
+        onChange={(e) => setBrief(e.target.value)}
+        required
+        rows={4}
+        placeholder="Describe your bespoke requirements in detail…"
+        className="mt-3 w-full rounded-xl border border-[#DECFC0] bg-[#FAF6EE]/50 p-3 text-xs sm:text-sm outline-none focus:border-[#8B4828] resize-none"
+      />
+      <input
+        value={colours}
+        onChange={(e) => setColours(e.target.value)}
+        placeholder="Preferred colours (e.g. Royal emerald & Champagne gold)"
+        className="mt-3 w-full rounded-xl border border-[#DECFC0] bg-[#FAF6EE]/50 px-3 py-2 text-xs sm:text-sm outline-none focus:border-[#8B4828]"
+      />
+      {state === "error" && <p className="mt-2 text-xs text-[#A63C26]">{msg}</p>}
+      <button
+        disabled={state === "busy"}
+        className="mt-4 rounded-xl bg-[#8B4828] px-6 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-[#72391F] disabled:opacity-50"
+      >
+        {state === "busy" ? "Submitting…" : "Submit Design Brief"}
+      </button>
+    </form>
+  );
+}

@@ -14,8 +14,8 @@ const ForEveryFaith = dynamic(() => import("@/components/ForEveryFaith"));
 const WhyMehfill = dynamic(() => import("@/components/WhyMehfill"));
 const FeatureShowcase = dynamic(() => import("@/components/FeatureShowcase"));
 const Pricing = dynamic(() => import("@/components/Pricing"));
-const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const FAQ = dynamic(() => import("@/components/FAQ"));
+import { FAQS } from "@/lib/faq-data";
 import SeoCopy from "@/components/SeoCopy";
 const BrandMoment = dynamic(() => import("@/components/BrandMoment"));
 const CTA = dynamic(() => import("@/components/CTA"));
@@ -40,61 +40,16 @@ export const metadata: Metadata = {
   },
 };
 
-// Visible FAQs are in components/FAQ.tsx — keep this JSON-LD in sync.
-// FAQPage schema is only valid because these questions are visible on this page.
+// Visible FAQs are in components/FAQ.tsx — this JSON-LD is generated from the
+// same array so schema and UI can never drift apart.
 const FAQ_JSON_LD = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: [
-    {
-      "@type": "Question",
-      name: "How do I order an invitation?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Watch a live demo, message us on WhatsApp with your celebration details, and pay online or on chat. We design your custom invitation and deliver one beautiful shareable link.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Do you make invitations for all religions?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Yes — Hindu, Muslim, Sikh, Christian and interfaith families. Nikah, Pheras, Anand Karaj, Church weddings, Puja, Dawat, Baptism and more, in your language and customs.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "What details do you need from me?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Names, date, venue, event schedule, photos, and any special wording, blessings or music. Just forward everything on WhatsApp — we handle the rest.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "How long does delivery take?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Essential in 3 days, Signature in 2 days, Royal in 24–48 hours on priority. Need it urgently for tomorrow's function? Message us — we will try our best.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "How do guests open and RSVP?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Guests get one link — it opens beautifully on any phone, no app needed. They can view events, locations and confirm RSVP in one tap.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Do I need an account to order?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "No. You can order directly on WhatsApp. An account simply lets you track your orders and revisit your invitations anytime.",
-      },
-    },
-  ],
+  mainEntity: FAQS.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
 };
 
 export default function Home() {
@@ -111,7 +66,6 @@ export default function Home() {
       <WhyMehfill />
       <FeatureShowcase />
       <Pricing />
-      <Testimonials />
       <FAQ />
       <SeoCopy />
       <BrandMoment />
