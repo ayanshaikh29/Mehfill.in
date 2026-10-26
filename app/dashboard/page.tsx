@@ -387,7 +387,7 @@ function DashboardContent() {
                     <ArrowRight className="h-4 w-4" />
                   </button>
                   <a
-                    href={`/site-${selectedTemplate.slug.startsWith("luxury-ivory-reception") ? "8" : selectedTemplate.slug === "royal-marigold" ? "1" : selectedTemplate.slug === "rose-royale" ? "2" : selectedTemplate.slug === "nikah-emerald" ? "3" : selectedTemplate.slug === "midnight-gold" ? "4" : selectedTemplate.slug === "botanical-sage" ? "5" : selectedTemplate.slug === "blush-garden" ? "6" : "7"}/`}
+                    href={selectedTemplate.demoUrl || "/templates"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[#DECFC0] bg-white px-6 py-3.5 text-xs sm:text-sm font-bold text-[#4A2F1B] hover:bg-[#FBF7F0]"
@@ -931,7 +931,7 @@ function BrowseView({
                   <Sparkles className="h-3.5 w-3.5" /> Start With This Design
                 </button>
                 <a
-                  href={`/site-${t.slug.startsWith("luxury-ivory-reception") ? "8" : t.slug === "royal-marigold" ? "1" : t.slug === "rose-royale" ? "2" : t.slug === "nikah-emerald" ? "3" : t.slug === "midnight-gold" ? "4" : t.slug === "botanical-sage" ? "5" : t.slug === "blush-garden" ? "6" : "7"}/`}
+                  href={t.demoUrl || "/templates"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-[#DECFC0] bg-white/70 py-2 text-xs font-semibold text-[#4A2F1B] hover:bg-white"

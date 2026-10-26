@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { err, rateLimit, clientIp, requireUser } from "@/lib/api-helpers";
 import { isValidContent, isProvisionalSlug, generateSlug, validateForPublish } from "@/lib/invitation";
+import { getBinding } from "@/lib/templates/bindings";
 
 export const runtime = "nodejs";
 
@@ -25,6 +26,15 @@ export async function POST(request: Request, ctx: Ctx) {
 
   if (!invitation) return err("Invitation not found.", 404);
   if (invitation.status === "deleted") return err("Invitation was deleted.", 410);
+
+  // Never publish an invitation whose selected design can't render — guests
+  // would hit a 404. Draft stays intact so the customer can fix or contact us.
+  if (!getBinding(invitation.template_slug || "")) {
+    return err(
+      "This invitation's selected design could not be loaded. Your draft is saved — please contact support.",
+      400
+    );
+  }
 
   // Payment requirement: an invitation can ONLY go live after verified payment.
   if (!invitation.order_id) {

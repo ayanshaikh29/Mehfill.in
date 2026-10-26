@@ -25,6 +25,13 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
 
+  // The customer's explicit design selection is sacred — if it no longer
+  // exists in the catalog, fail loudly instead of silently creating a
+  // draft for a different (default) design.
+  if (body.templateSlug && !getCatalogTemplate(body.templateSlug)) {
+    return err("This design is no longer available. Please choose another design.", 400);
+  }
+
   // Find a paid order without an invitation for this user.
   let order: { id: number; template_slug: string | null; package: string } | null = null;
   if (body.orderId) {
@@ -59,9 +66,11 @@ export async function POST(request: Request) {
       .limit(1)
       .maybeSingle();
     if (upi) {
-      const templateSlug = (upi.template_slug || "").split(",")[0];
+      // Selection wins over the UPI record's template — the customer picked
+      // THIS design on the dashboard just now (validated above).
+      const upiTemplate = (upi.template_slug || "").split(",")[0];
       const pkg = String(upi.plan || "").includes("premium") ? "premium" : "basic";
-      return createInvitation(user.id, upi.id, templateSlug, pkg, admin);
+      return createInvitation(user.id, upi.id, body.templateSlug || upiTemplate, pkg, admin);
     }
   }
 

@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Manrope, Noto_Nastaliq_Urdu, Noto_Sans_Devanagari }
 import "./globals.css";
 import SmoothScrollLoader from "@/components/SmoothScrollLoader";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import SupportWidget from "@/components/support/SupportWidget";
 import IntroReveal from "@/components/IntroReveal";
 import VisitTracker from "@/components/VisitTracker";
 import LaunchGate from "@/components/LaunchGate";
@@ -231,6 +232,7 @@ export default function RootLayout({
             <PostLaunch>
               <IntroReveal />
               <WhatsAppFloat />
+              <SupportWidget />
             </PostLaunch>
           </CurrencyProvider>
         </I18nProvider>

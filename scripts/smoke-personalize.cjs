@@ -5,9 +5,13 @@
    2. customer names/date/venue are present
    3. scratch-card date cells show the customer's day/month/year
    4. demo event lists are cleared when the customer has none
+   Plus: the product catalog (what customers SELECT) must map 1:1 onto the
+   personaliser bindings (what actually RENDERS) — the selection→editor bug.
 */
 require("../.smoke/register.js");
 const { renderPersonalizedInvitation } = require("../.smoke/lib/templates/personalize.js");
+const { getBinding } = require("../.smoke/lib/templates/bindings.js");
+const { CATALOG } = require("../.smoke/lib/catalog.js");
 
 const SLUGS = [
   "nikah-emerald",
@@ -61,6 +65,36 @@ function stripScripts(html) {
 
 async function main() {
   let failures = 0;
+
+  // 0. Catalog ↔ binding consistency — the selection→editor root-cause guard:
+  //    every purchasable slug must render (binding exists) and its demo link
+  //    must point at the same site-N the personaliser loads.
+  for (const t of CATALOG) {
+    const b = getBinding(t.slug);
+    if (!b) {
+      console.log(`FAIL catalog: '${t.slug}' has no personaliser binding`);
+      failures++;
+      continue;
+    }
+    if (t.demoUrl !== `/${b.siteDir}`) {
+      console.log(`FAIL catalog: '${t.slug}' demoUrl ${t.demoUrl} != binding siteDir /${b.siteDir}`);
+      failures++;
+    }
+    if (!SLUGS.includes(t.slug)) {
+      console.log(`FAIL catalog: '${t.slug}' missing from render smoke list`);
+      failures++;
+    }
+  }
+  for (const s of SLUGS) {
+    if (!CATALOG.some((t) => t.slug === s)) {
+      console.log(`FAIL smoke list: '${s}' not in product catalog`);
+      failures++;
+    }
+  }
+  console.log(
+    failures ? "FAIL catalog ↔ binding consistency" : `PASS catalog ↔ binding consistency (${CATALOG.length} templates)`
+  );
+
   for (const slug of SLUGS) {
     const res = await renderPersonalizedInvitation(slug, content, "priya-kabir");
     if (!res) {

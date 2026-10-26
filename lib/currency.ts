@@ -66,7 +66,46 @@ function regionFromLocale(locale: string | undefined | null): string | null {
   return region && region.length === 2 ? region.toUpperCase() : null;
 }
 
-/** Stored preference → browser region → INR (primary market). */
+/**
+ * Browser timezone → currency — the reliable *location* proxy.
+ *
+ * navigator.language is NOT a location: plenty of machines physically in
+ * India ship with an en-US Windows locale, which used to flip every price
+ * to $ for visitors in India. The OS timezone reflects where the visitor
+ * actually is, so India (Asia/Kolkata) always resolves to INR.
+ */
+function currencyFromTimezone(tz: string | null | undefined): CurrencyCode | null {
+  if (!tz) return null;
+  // Primary market first — India is the default everywhere.
+  if (tz === "Asia/Kolkata" || tz === "Asia/Calcutta") return "INR";
+  if (tz.startsWith("Europe/London")) return "GBP";
+  if (tz === "Europe/Dublin") return "EUR";
+  if (tz.startsWith("Asia/Dubai")) return "AED";
+  if (tz.startsWith("Asia/Riyadh")) return "SAR";
+  if (tz.startsWith("Asia/Qatar")) return "SAR";
+  if (tz.startsWith("Asia/Kuwait")) return "SAR";
+  if (tz.startsWith("Asia/Bahrain")) return "SAR";
+  if (tz.startsWith("Asia/Singapore")) return "SGD";
+  if (tz.startsWith("Australia/") || tz.startsWith("Antarctica/")) return "AUD";
+  if (
+    tz.startsWith("America/Toronto") ||
+    tz.startsWith("America/Vancouver") ||
+    tz.startsWith("America/Edmonton") ||
+    tz.startsWith("America/Winnipeg") ||
+    tz.startsWith("America/Halifax") ||
+    tz.startsWith("America/St_Johns") ||
+    tz.startsWith("America/Regina") ||
+    tz.startsWith("America/Moncton") ||
+    tz.startsWith("America/Iqaluit")
+  ) {
+    return "CAD";
+  }
+  if (tz.startsWith("America/")) return "USD";
+  if (tz.startsWith("Europe/")) return "EUR";
+  return null;
+}
+
+/** Stored preference → browser timezone → browser region → INR (primary market). */
 export function detectCurrency(): CurrencyCode {
   if (typeof window === "undefined") return "INR";
   try {
@@ -80,6 +119,11 @@ export function detectCurrency(): CurrencyCode {
   } catch {
     /* storage may be blocked */
   }
+  // Location first (timezone), language tag only as a fallback.
+  const tzCurrency = currencyFromTimezone(
+    typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : null
+  );
+  if (tzCurrency) return tzCurrency;
   const region =
     regionFromLocale(typeof navigator !== "undefined" ? navigator.language : null) ||
     regionFromLocale(typeof navigator !== "undefined" ? navigator.languages?.[0] : null);
