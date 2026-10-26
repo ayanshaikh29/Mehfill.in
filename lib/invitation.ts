@@ -1,6 +1,8 @@
 // Invitation content model — the single source of truth stored as
 // JSONB on invitations.content. Every template renders from this shape.
 
+import { isValidCalendarDate } from "./templates/date-format";
+
 export interface InvitationEvent {
   id: string;
   name: string;
@@ -138,6 +140,21 @@ export function isContentShaped(c: unknown): c is InvitationContent {
 export function isValidContent(c: unknown): c is InvitationContent {
   if (!isContentShaped(c)) return false;
   return c.weddingDate.length > 0;
+}
+
+/** Every field a published invitation MUST have. All 8 templates display the
+ *  start time and the full address, so both are mandatory — a missing value
+ *  would leave demo data or an empty line on the live page. Returns the list
+ *  of human-readable problems; empty array = publishable. */
+export function validateForPublish(c: InvitationContent): string[] {
+  const problems: string[] = [];
+  if (!c.brideName?.trim()) problems.push("bride name");
+  if (!c.groomName?.trim()) problems.push("groom name");
+  if (!isValidCalendarDate(c.weddingDate)) problems.push("wedding date");
+  if (!c.startTime || !/^\d{1,2}:\d{2}$/.test(c.startTime)) problems.push("start time");
+  if (!c.venueName?.trim()) problems.push("venue name");
+  if (!c.venueAddress?.trim()) problems.push("venue address");
+  return problems;
 }
 
 export function newEvent(): InvitationEvent {

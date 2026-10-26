@@ -11,9 +11,17 @@
 
 import { promises as fs } from "fs";
 import path from "path";
-import { getBinding } from "./bindings";
+import { getBinding, type TemplateBinding } from "./bindings";
 import type { InvitationContent, InvitationEvent, LoveStoryMilestone } from "@/lib/invitation";
 import { deriveInitials } from "@/lib/initials";
+import {
+  MONTHS_EN,
+  dateTokenPairs,
+  formatTime12 as fmtTime12,
+  isValidCalendarDate,
+  parseCalendarDate,
+  type TokenPair,
+} from "./date-format";
 
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 
@@ -186,6 +194,205 @@ function replaceInitialsAnchors(html: string, anchors: string[], bi: string, gi:
   return out;
 }
 
+function escapeRe(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Apply demo→customer token pairs, longest form first so full dates are
+ *  consumed before bare month/weekday tokens. `word` pairs only match on word
+ *  boundaries so a bare "May" can never hit part of another word. */
+function applyTokenPairs(html: string, pairs: TokenPair[]): string {
+  const ordered = pairs
+    .filter((p) => p.from && p.to && p.from !== p.to)
+    .sort(
+      (a, b) =>
+        Math.max(b.from.length, b.to.length) - Math.max(a.from.length, a.to.length)
+    );
+  let out = html;
+  for (const p of ordered) {
+    // \b boundaries only work for pure-ASCII word tokens ("May", "Mon").
+    // Urdu month/weekday names (and mixed pairs) fall back to plain
+    // split/join — JS \b is defined over [A-Za-z0-9_] so "پیر" never matches.
+    const asciiWords =
+      p.word &&
+      /^[A-Za-z0-9_]+$/.test(p.from) &&
+      /^[A-Za-z0-9_]+$/.test(p.to);
+    if (asciiWords) {
+      out = out.replace(new RegExp(`\\b${escapeRe(p.from)}\\b`, "g"), () => p.to);
+    } else {
+      out = out.split(p.from).join(p.to);
+      const amp = p.from.replace(/&/g, "&amp;");
+      if (amp !== p.from) out = out.split(amp).join(p.to);
+    }
+  }
+  return out;
+}
+
+/** Rewrite every display form of the template's demo date (long, short,
+ *  dotted, uppercase, weekday composites, Urdu, YYYYMMDD calendar stamps,
+ *  strings inside inlined scripts) to the customer's saved wedding date. */
+function replaceDemoDateTokens(html: string, binding: TemplateBinding, customerIso: string): string {
+  if (!binding.demoDateISO || !isValidCalendarDate(customerIso)) return html;
+  return applyTokenPairs(html, dateTokenPairs(binding.demoDateISO, customerIso));
+}
+
+/** Same rewrite for inlined SCRIPT text — but skips bare month/weekday word
+ *  tokens: sites 6/7 carry `var MONTHS = ['January', …]` arrays (and site-8's
+ *  renderer carries WEEKDAYS) that must never be rewritten. Full date forms
+ *  ("31 August 2026", "See you on Aug 31") are still rewritten. */
+function replaceDemoDateTokensInScript(
+  html: string,
+  binding: TemplateBinding,
+  customerIso: string
+): string {
+  if (!binding.demoDateISO || !isValidCalendarDate(customerIso)) return html;
+  return applyTokenPairs(
+    html,
+    dateTokenPairs(binding.demoDateISO, customerIso).filter((p) => !p.word)
+  );
+}
+
+/** Rewrite demo clock times ("7:00 PM", "11 AM", "صبح 10:30 بجے") to the
+ *  saved start time. Runs before any customer value is inserted. */
+function replaceDemoTimeTokens(html: string, startTime?: string): string {
+  if (!startTime || !/^\d{1,2}:\d{2}$/.test(startTime)) return html;
+  const t12 = fmtTime12(startTime);
+  if (!t12) return html;
+  let out = html.replace(/\b\d{1,2}(?::\d{2})?\s*(?:AM|PM)\b/gi, () => t12);
+  const hour = Number(startTime.split(":")[0]);
+  const urPrefix = hour >= 12 ? "شام" : "صبح";
+  out = out.replace(
+    /(?:صبح|شام|رات)\s*\d{1,2}(?::\d{2})?\s*بجے/g,
+    `${urPrefix} ${t12} بجے`
+  );
+  return out;
+}
+
+/** The bilingual templates (sites 1 & 2) carry personal data inside
+ *  data-en / data-ur attributes. Dates/times/weekdays in data-ur are handled
+ *  by the token layer; names, venues and cities have no Urdu equivalent we
+ *  can fabricate, so when the English side carries a personal token we mirror
+ *  the corrected English value into data-ur — the guest then sees the real
+ *  customer data instead of the demo couple. */
+function mirrorBilingualPersonalData(
+  html: string,
+  binding: TemplateBinding,
+  vals: { bride: string; groom: string; coupleLabel: string; andLabel: string; venue: string; city: string }
+): string {
+  const tokens = [
+    ...(binding.andNameAnchors || []),
+    ...(binding.coupleAnchors || []),
+    ...(binding.brideAnchors || []),
+    ...(binding.groomAnchors || []),
+    ...(binding.demoVenues || []),
+    ...(binding.demoCities || []),
+  ].filter(Boolean);
+  if (!tokens.length) return html;
+
+  return html.replace(/data-en="([^"]*)"(\s+data-ur="([^"]*)")/g, (match, en: string) => {
+    if (!tokens.some((t) => en.includes(t))) return match;
+    let next = en;
+    if (vals.andLabel) next = replaceAnchors(next, binding.andNameAnchors || [], vals.andLabel);
+    if (vals.coupleLabel) next = replaceAnchors(next, binding.coupleAnchors || [], vals.coupleLabel);
+    if (vals.bride) next = replaceAnchors(next, binding.brideAnchors || [], vals.bride);
+    if (vals.groom) next = replaceAnchors(next, binding.groomAnchors || [], vals.groom);
+    if (vals.venue) next = replaceAnchors(next, binding.demoVenues || [], vals.venue);
+    if (vals.city) next = replaceAnchors(next, binding.demoCities || [], vals.city);
+    if (next === en) return match;
+    return `data-en="${next}" data-ur="${next}"`;
+  });
+}
+
+/** Split scratch-card date cells (day / month / year in separate elements). */
+function replaceDateCells(html: string, binding: TemplateBinding, customerIso: string): string {
+  if (!binding.dateCells?.length || !isValidCalendarDate(customerIso)) return html;
+  const c = parseCalendarDate(customerIso)!;
+  let out = html;
+  for (const cell of binding.dateCells) {
+    const value =
+      cell.part === "day" ? String(c.d) : cell.part === "month" ? MONTHS_EN[c.m - 1] : String(c.y);
+    const re = new RegExp(
+      `(<([a-z0-9]+)[^>]*\\bclass="[^"]*\\b${escapeRe(cell.cls)}\\b[^"]*"[^>]*>)([\\s\\S]*?)(</\\2>)`,
+      "gi"
+    );
+    let i = 0;
+    out = out.replace(re, (m, open: string) => {
+      const current = i++;
+      if (cell.nth !== undefined && current !== cell.nth) return m;
+      const tagMatch = /^<([a-z0-9]+)/.exec(open);
+      const close = tagMatch ? `</${tagMatch[1]}>` : "</p>";
+      return `${open}${esc(value)}${close}`;
+    });
+  }
+  return out;
+}
+
+/** Google Calendar buttons carry the demo couple, demo venue and a demo
+ *  UTC window. Rewrite the date window from the saved date + start time and
+ *  the encoded text/details/location fields from the customer's data. */
+function patchCalendarLinks(html: string, binding: TemplateBinding, content: InvitationContent): string {
+  const c = parseCalendarDate(content.weddingDate);
+  if (!c) return html;
+
+  const enc = (s: string) => s.replace(/&/g, "%26").replace(/ /g, "+");
+  const enc20 = (s: string) => s.replace(/&/g, "%26").replace(/ /g, "%20");
+
+  return html.replace(/href="https:\/\/calendar\.google\.com\/[^"]*"/g, (tag) => {
+    let out = tag;
+
+    const dm = /dates=(\d{8})T(\d{2})(\d{2})(\d{2})Z\/(\d{8})T(\d{2})(\d{2})(\d{2})Z/.exec(out);
+    if (dm) {
+      const startUTC = Date.UTC(
+        Number(dm[1].slice(0, 4)), Number(dm[1].slice(4, 6)) - 1, Number(dm[1].slice(6, 8)),
+        Number(dm[2]), Number(dm[3]), Number(dm[4])
+      );
+      const endUTC = Date.UTC(
+        Number(dm[5].slice(0, 4)), Number(dm[5].slice(4, 6)) - 1, Number(dm[5].slice(6, 8)),
+        Number(dm[6]), Number(dm[7]), Number(dm[8])
+      );
+      const duration = Math.max(endUTC - startUTC, 60 * 60 * 1000);
+      // The template's demo window is IST (+05:30); keep the same local clock
+      // unless the customer supplied their own start time.
+      let localH: number;
+      let localM: number;
+      const validStart = content.startTime && /^\d{1,2}:\d{2}$/.test(content.startTime)
+        ? content.startTime
+        : null;
+      if (validStart) {
+        const [h, m] = validStart.split(":").map(Number);
+        localH = h;
+        localM = m;
+      } else {
+        const demoLocal = new Date(startUTC + 5.5 * 60 * 60 * 1000);
+        localH = demoLocal.getUTCHours();
+        localM = demoLocal.getUTCMinutes();
+      }
+      const newStart = Date.UTC(c.y, c.m - 1, c.d, localH, localM) - 5.5 * 60 * 60 * 1000;
+      const stamp = (ms: number) => {
+        const d = new Date(ms);
+        const p = (n: number) => String(n).padStart(2, "0");
+        return `${d.getUTCFullYear()}${p(d.getUTCMonth() + 1)}${p(d.getUTCDate())}T${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}Z`;
+      };
+      out = out.replace(/dates=[^&"]*/, `dates=${stamp(newStart)}/${stamp(newStart + duration)}`);
+    }
+
+    // Encoded personal tokens in text=/details=/location=.
+    const couple = [content.brideName, content.groomName].filter((n) => n && n.trim()).join(" & ");
+    const swap = (demo: string | undefined, value: string) => {
+      if (!demo || !value) return;
+      for (const form of [enc(demo), enc20(demo)]) {
+        if (form && out.includes(form)) out = out.split(form).join(enc(value));
+      }
+    };
+    for (const a of binding.andNameAnchors || []) swap(a, couple ? couple.replace(" & ", " and ") : "");
+    for (const a of binding.coupleAnchors || []) swap(a, couple);
+    if (content.venueName) for (const v of binding.demoVenues || []) swap(v, content.venueName);
+    if (content.venueAddress) for (const city of binding.demoCities || []) swap(city, content.venueAddress);
+
+    return out;
+  });
+}
+
 // Rewrite relative asset references so they resolve from /site-N/ when the
 // personalised page is served at /i/<slug>.
 function rewriteAssetPaths(html: string, siteDir: string): string {
@@ -230,7 +437,10 @@ function validEvents(events: InvitationEvent[] | undefined): InvitationEvent[] {
 
 function rebuildTimeline(html: string, events: InvitationEvent[]): string {
   const named = validEvents(events);
-  if (!named.length) return html;
+  if (!named.length) {
+    // No customer events — never leave the demo timeline behind.
+    return html.replace(/<ol class="timeline">[\s\S]*?<\/ol>/, `<ol class="timeline"></ol>`);
+  }
   const items = named
     .map((e) => {
       const time = formatTime12(e.time) || (e.time ? esc(e.time) : "");
@@ -249,7 +459,12 @@ function rebuildTimeline(html: string, events: InvitationEvent[]): string {
 
 function rebuildEventCards(html: string, events: InvitationEvent[]): string {
   const named = validEvents(events);
-  if (!named.length) return html;
+  if (!named.length) {
+    return html.replace(
+      /(<div class="events">)[\s\S]*?(<\/div>\s*<!--|<\/div>\s*<div class="dress-strip"|<\/div>\s*<\/section>)/,
+      (match, open: string, close: string) => `${open}${close}`
+    );
+  }
   const cards = named
     .map((e, i) => {
       const when = [
@@ -278,7 +493,12 @@ function rebuildEventCards(html: string, events: InvitationEvent[]): string {
 
 function rebuildEvCards(html: string, events: InvitationEvent[]): string {
   const named = validEvents(events);
-  if (!named.length) return html;
+  if (!named.length) {
+    return html.replace(
+      /(<div class="events">)[\s\S]*?(<\/div>\s*<\/section>)/,
+      (match, open: string, close: string) => `${open}${close}`
+    );
+  }
   const corners = `<span class="ev-corner tl"></span><span class="ev-corner tr"></span><span class="ev-corner bl"></span><span class="ev-corner br"></span>`;
   const cards = named
     .map((e, i) => {
@@ -313,7 +533,12 @@ function content_venue_default(): string {
 
 function rebuildErows(html: string, events: InvitationEvent[]): string {
   const named = validEvents(events);
-  if (!named.length) return html;
+  if (!named.length) {
+    return html.replace(
+      /(<div class="elist">)[\s\S]*?(<\/div>\s*<\/div>\s*<\/section>)/,
+      (match, open: string, close: string) => `${open}${close}`
+    );
+  }
   const rows = named
     .map((e, i) => {
       const day = e.date ? String(new Date(e.date + "T00:00:00").getDate()) : "";
@@ -343,7 +568,12 @@ function rebuildErows(html: string, events: InvitationEvent[]): string {
 
 function rebuildMiniRows(html: string, events: InvitationEvent[]): string {
   const named = validEvents(events);
-  if (!named.length) return html;
+  if (!named.length) {
+    return html.replace(
+      /(<div class="mini-list">)[\s\S]*?(<\/div>\s*<p class="dress)/,
+      (match, open: string, close: string) => `${open}${close}`
+    );
+  }
   const rows = named
     .map((e, i) => {
       const d = e.date ? new Date(e.date + "T00:00:00") : null;
@@ -411,6 +641,11 @@ function patchWeddingConfig(html: string, content: InvitationContent, musicUrl?:
 
   if (content.brideName) setField("bride", content.brideName);
   if (content.groomName) setField("groom", content.groomName);
+  // site-8 renders "Aarav & Kiara" via WEDDING.displayName / .initials.
+  const couplePair = [content.brideName, content.groomName].filter((n) => n && n.trim());
+  if (couplePair.length === 2) setField("displayName", couplePair.join(" & "));
+  const ini = deriveInitials(content.brideName || "", content.groomName || "");
+  if (ini.bride || ini.groom) setField("initials", `${ini.bride} · ${ini.groom}`);
   if (content.weddingDate) {
     const [y, m, d] = content.weddingDate.split("-");
     const time = content.startTime && /^\d{2}:\d{2}$/.test(content.startTime) ? content.startTime : "19:00";
@@ -482,7 +717,7 @@ function clearImgOnerror(html: string): string {
 function buildOverrideScript(
   content: InvitationContent,
   slug: string,
-  opts: { hasGallery: boolean; storyPhoto?: string; loveStory?: LoveStoryMilestone[] }
+  opts: { hasGallery: boolean; storyPhoto?: string; loveStory?: LoveStoryMilestone[]; nativeRsvp?: boolean }
 ): string {
   const loveStory = opts.loveStory || [];
   const loveStoryJson = JSON.stringify(loveStory).replace(/</g, "\\u003c").replace(/>/g, "\\u003e");
@@ -543,7 +778,23 @@ if(__L && __L.length){
     }
   }
 }` : ""}
-${rsvpEnabled ? `
+${rsvpEnabled ? (
+  opts.nativeRsvp
+    ? `
+/* site-8 wires its own RSVP form (opens WhatsApp + success panel). We only
+   record the response — never preventDefault, never open a second WhatsApp. */
+var f=document.getElementById('rsvp-form');
+if(f && !f.dataset.__mf){
+  f.dataset.__mf='1';
+  f.addEventListener('submit',function(e){
+    try{
+      var fd=new FormData(f);
+      fd.set('slug',__M.slug);
+      fetch('/api/rsvp',{method:'POST',body:fd}).catch(function(){});
+    }catch(err){}
+  });
+}`
+    : `
 /* Point the template's own RSVP form at our API without touching its markup. */
 var f=document.getElementById('rsvp-form');
 if(f && !f.dataset.__mf){
@@ -567,7 +818,8 @@ if(f && !f.dataset.__mf){
       if(ok){ok.hidden=false;ok.scrollIntoView({behavior:'smooth',block:'center'});}
     }).catch(function(){});
   });
-}` : ""}
+}`
+) : ""}
 ${waNumber ? `
 /* Ensure a WhatsApp fallback exists if the template has a contact button. */
 try{var wa=document.querySelector('a[href*="wa.me"]');if(wa&&!wa.dataset.locked){wa.href='https://wa.me/${waNumber}';}}catch(e){}` : ""}
@@ -599,13 +851,31 @@ export async function renderPersonalizedInvitation(
   const coupleLabel = [bride, groom].filter(Boolean).join(" & ");
   const andLabel = [bride, groom].filter(Boolean).join(" and ");
 
-  // 1. External script: inline it so we can patch the countdown target while
+  const weddingIso = (content.weddingDate || "").trim();
+  const startTime =
+    content.startTime && /^\d{1,2}:\d{2}$/.test(content.startTime) ? content.startTime : "";
+
+  // 1. DEMO TOKEN LAYER — rewrite every display form of the template's demo
+  //    date/weekday/month ("August 31, 2026", "31 · 08 · 2026", "Monday",
+  //    "صبح 10:30 بجे", strings inside inlined scripts…) to the saved values
+  //    BEFORE any customer text is inserted, so a customer venue or name can
+  //    never be mangled by the rewrite (e.g. a venue containing "August").
+  html = replaceDemoDateTokens(html, binding, weddingIso);
+  html = replaceDemoTimeTokens(html, startTime);
+
+  // 2. External script: inline it so we can patch the countdown target while
   //    keeping every animation/function identical.
   if (binding.externalScript) {
     try {
       const script = await readTemplateFile(siteDir, "script.js");
-      let patched = patchScript(script, content);
-      // site-6/7: patch the WEDDING config object inside the inlined script.
+      // Same demo-token layer on the raw script text first ("See you on Aug
+      // 31" / "31 August 2026" live there), THEN the config patches. Word
+      // tokens (bare month/weekday) are skipped — site-6/7 scripts contain
+      // `var MONTHS = [...]` arrays that must stay intact.
+      let patched = replaceDemoDateTokensInScript(script, binding, weddingIso);
+      patched = replaceDemoTimeTokens(patched, startTime);
+      patched = patchScript(patched, content);
+      // site-6/7/8: patch the WEDDING config object inside the inlined script.
       if (binding.eventsStyle === "wedding") {
         patched = patchWeddingConfig(patched, content, content.musicUrl || undefined);
       }
@@ -621,6 +891,28 @@ export async function renderPersonalizedInvitation(
     } catch {
       // No external script — leave as-is.
     }
+    // site-8 loads js/invitation-data.js, which still holds the demo couple
+    // and the demo RSVP phone numbers — inline and patch it too.
+    if (/src="js\/invitation-data\.js"/i.test(html)) {
+      try {
+        const dataSrc = await readTemplateFile(siteDir, "js/invitation-data.js");
+        const phone = (content.rsvp?.contactPhone || "").replace(/['"\\]/g, "");
+        let data = dataSrc;
+        if (phone) {
+          // The data module uses single OR double quotes depending on the key.
+          data = data.replace(/(contactPhone|whatsappPhone):\s*(['"])[^'"]*\2/g, (_m, key: string) => `${key}: '${phone}'`);
+        }
+        data = replaceDemoDateTokensInScript(data, binding, weddingIso);
+        data = replaceDemoTimeTokens(data, startTime);
+        html = html.replace(
+          /<script[^>]*src="js\/invitation-data\.js"[^>]*>\s*<\/script>/i,
+          () => `<script>\n${data}\n</script>`
+        );
+        html = html.replace(/<script[^>]*src="js\/invitation-data\.js"[^>]*><\/script>/i, "");
+      } catch {
+        // No data module — leave as-is.
+      }
+    }
   } else {
     // Inline script (site-5): patch the countdown ISO directly in the HTML.
     html = patchScript(html, content);
@@ -629,7 +921,32 @@ export async function renderPersonalizedInvitation(
     }
   }
 
-  // 1b. Rewrite relative asset paths → /site-N/.
+  // 2b. site-8 reads window.__MEHFILL__ at boot to decide whether to load a
+  //     localStorage studio draft — define it BEFORE the template scripts run
+  //     so a published invitation always renders the saved data.
+  if (binding.externalScript) {
+    html = html.replace(
+      /<head([^>]*)>/i,
+      (m) => `${m}<script>window.__MEHFILL__=window.__MEHFILL__||{slug:${jsonForScript(slug)},published:true};</script>`
+    );
+  }
+
+  // 2c. Bilingual templates (sites 1 & 2) keep personal data inside data-en /
+  //     data-ur attributes. Dates/times/weekdays in data-ur were already fixed
+  //     by the token layer; names, venues and cities have no Urdu equivalent
+  //     we can fabricate, so when the English side carries a personal token we
+  //     mirror the corrected English into data-ur — guests then see the real
+  //     customer data instead of the demo couple.
+  html = mirrorBilingualPersonalData(html, binding, {
+    bride,
+    groom,
+    coupleLabel,
+    andLabel,
+    venue: content.venueName || "",
+    city: content.venueAddress || "",
+  });
+
+  // 2d. Rewrite relative asset paths → /site-N/.
   html = rewriteAssetPaths(html, siteDir);
 
   // 2. Names — replace demo anchors with the customer's, only when provided.
@@ -763,6 +1080,15 @@ export async function renderPersonalizedInvitation(
       }
     }
   }
+  // A demo line may list venue + district + city ("Lakeview Rose Lawns,
+  // Shamshabad Road, Hyderabad"); once each token is replaced independently
+  // the customer's address can appear twice in a row — collapse it.
+  if (content.venueAddress) {
+    const addr = esc(content.venueAddress);
+    for (let i = 0; i < 2; i++) {
+      html = html.split(`${addr}, ${addr}`).join(addr);
+    }
+  }
   const mapsUrl = buildMapsQuery(content.venueName, content.venueAddress, content.mapsUrl);
   if (mapsUrl) {
     html = html.replace(/https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=[^"']*/g, mapsUrl);
@@ -770,8 +1096,20 @@ export async function renderPersonalizedInvitation(
     html = html.replace(/https:\/\/maps\.google\.com\/\?q=[^"']*/g, mapsUrl);
   }
 
+  // 5b. Google Calendar buttons (sites 2 & 3) carry the demo couple, demo
+  //     venue and a demo UTC window — rewrite the window from the saved date
+  //     + start time and the encoded text fields from the customer's data.
+  html = patchCalendarLinks(html, binding, content);
+
+  // 5c. Scratch-card split date cells (site-3 sr-num/sr-month/sr-year, site-4
+  //     big-day/big-month/big-year) have no runtime overwrite — patch them
+  //     directly from the customer's wedding date.
+  html = replaceDateCells(html, binding, weddingIso);
+
   // 6. Customer event list — rebuild inside the template's own markup.
-  if (binding.eventsStyle && content.events?.length) {
+  //    When the customer has NO named events the demo list must be cleared,
+  //    never left behind.
+  if (binding.eventsStyle) {
     switch (binding.eventsStyle) {
       case "timeline":
         html = rebuildTimeline(html, content.events);
@@ -888,6 +1226,10 @@ export async function renderPersonalizedInvitation(
     html = html.replace(/<div class="fam reveal rv-up">[\s\S]*?<\/div>/i, `<div class="fam reveal rv-up"><p>${esc(family)}</p></div>`);
     html = html.replace(/<p class="finale-fam">[\s\S]*?<\/p>/i, `<p class="finale-fam">${esc(family)}</p>`);
     html = html.replace(/(data-bind="couple\.familyInvitation">)[^<]*(<\/p>)/i, `$1${esc(family)}$2`);
+    // When the customer supplied family details, also drop any demo person
+    // lines the template still carries (they name the demo couple's parents).
+    html = html.replace(/<small data-en="Son of [^"]*"[^>]*>[\s\S]*?<\/small>/gi, "");
+    html = html.replace(/<small data-en="Daughter of [^"]*"[^>]*>[\s\S]*?<\/small>/gi, "");
   } else {
     // If not provided, cleanly remove demo family details
     html = cleanOmit(html, /<div class="couple-lines">[\s\S]*?<\/div>/i);
@@ -960,6 +1302,9 @@ export async function renderPersonalizedInvitation(
     hasGallery,
     storyPhoto: gallery[0],
     loveStory: content.loveStory || [],
+    // site-8 already owns its RSVP form UX (WhatsApp + success panel) — only
+    // record the response, never open a second WhatsApp window.
+    nativeRsvp: binding.siteDir === "site-8",
   });
   if (html.includes("</body>")) {
     html = html.replace("</body>", `${override}\n</body>`);

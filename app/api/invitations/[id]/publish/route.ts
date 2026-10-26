@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { err, rateLimit, clientIp, requireUser } from "@/lib/api-helpers";
-import { isValidContent, isProvisionalSlug, generateSlug } from "@/lib/invitation";
+import { isValidContent, isProvisionalSlug, generateSlug, validateForPublish } from "@/lib/invitation";
 
 export const runtime = "nodejs";
 
@@ -65,9 +65,12 @@ export async function POST(request: Request, ctx: Ctx) {
     return err("Please complete all required details before publishing.", 400);
   }
 
+  // Names, date, start time, venue name and full address are ALL required —
+  // every template displays them, and a missing one would leak demo data.
   const c = invitation.content;
-  if (!c.brideName || !c.groomName || !c.weddingDate || !c.venueName) {
-    return err("Names, wedding date and venue are required to publish.", 400);
+  const problems = validateForPublish(c);
+  if (problems.length) {
+    return err(`Please add: ${problems.join(", ")}.`, 400);
   }
 
   // Generate slug from couple names when missing OR still provisional

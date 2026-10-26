@@ -100,8 +100,8 @@ const nextConfig: NextConfig = {
         destination: "https://mehfill.in/:path*",
         permanent: true,
       },
-      // Old template demos retired — only site-1..5 are live.
-      // Anything under /demos/<old-slug> goes back to /demos (site-1..5 + coming soon).
+      // Old template demos retired — only site-1..8 are live.
+      // Anything under /demos/<old-slug> goes back to /demos (site-1..8 + coming soon).
       {
         source: "/demos/eternal",
         destination: "/demos",

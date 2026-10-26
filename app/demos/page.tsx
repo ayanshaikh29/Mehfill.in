@@ -34,9 +34,26 @@ export default function DemosIndex() {
       { "@type": "ListItem", position: 2, name: "Live demos", item: canonical("/demos") },
     ],
   };
+  // ItemList of the live demo invitations — each item links its real URL so
+  // search engines can surface the individual demos.
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Live Mehfill invitation demos",
+    numberOfItems: SHOWCASE.length,
+    itemListElement: SHOWCASE.map((s, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: `${s.names} — ${s.occasion}`,
+      url: s.url,
+      image: canonical(s.image),
+      description: s.description,
+    })),
+  };
   return (
     <main className="min-h-screen">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }} />
       <Navbar />
       <div className="mx-auto max-w-6xl px-5 md:px-8 pt-28 md:pt-36 pb-10">
         <p className="eyebrow text-terracotta">LIVE DEMOS</p>

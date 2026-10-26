@@ -15,6 +15,10 @@ export async function GET(request: Request) {
   const ip = clientIp(request);
   if (!rateLimit(ip, 60)) return err("Too many requests.", 429);
 
+  // Slug probing is only for signed-in customers editing their invitation.
+  const user = await requireUser();
+  if (!user?.id) return err("Please sign in.", 401);
+
   const { searchParams } = new URL(request.url);
   const rawSlug = searchParams.get("slug") || "";
   const currentInvitationId = searchParams.get("invitationId") || "";

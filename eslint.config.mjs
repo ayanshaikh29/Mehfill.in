@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Smoke-test build artifacts (scripts/smoke-personalize.cjs compiles here):
+    ".smoke/**",
+    ".smoke-tsconfig.json",
   ]),
 ]);
 

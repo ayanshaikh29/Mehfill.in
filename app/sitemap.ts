@@ -35,6 +35,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.9,
     })),
+    // Free tools — link magnets (indexable tool pages, per off-page plan).
+    { url: `${BASE}/free`, lastModified, changeFrequency: "monthly" as const, priority: 0.7 },
+    {
+      url: `${BASE}/free/whatsapp-invitation-wording`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    },
     // Static HTML demo invitations (real designs guests open).
     ...["site-1", "site-2", "site-3", "site-4", "site-5", "site-6", "site-7", "site-8"].map((s) => ({
       url: `${BASE}/${s}`,

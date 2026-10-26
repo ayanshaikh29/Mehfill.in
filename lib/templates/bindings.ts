@@ -51,6 +51,16 @@ export interface TemplateBinding {
   andNameAnchors?: string[];
   /** Demo date strings that appear in the markup. */
   demoDates: string[];
+  /** The demo wedding date itself (YYYY-MM-DD). The personaliser derives EVERY
+   *  display form of that date (long, short, dotted, uppercase, weekday,
+   *  Urdu…) from this value and rewrites them to the customer's saved date —
+   *  including scratch-card reveals, split day/month/year cells, meta tags and
+   *  strings inside the inlined script. */
+  demoDateISO: string;
+  /** Optional CSS-class split date cells (scratch-card day/month/year blocks)
+   *  that must be rewritten positionally because the value is split across
+   *  elements. `nth` targets the nth element carrying that class. */
+  dateCells?: { cls: string; part: "day" | "month" | "year"; nth?: number }[];
   /** Demo venue name(s). */
   demoVenues: string[];
   /** Demo city / address string(s). */
@@ -96,6 +106,7 @@ export const BINDINGS: Record<string, TemplateBinding> = {
     initialsAnchors: ["H&nbsp;·&nbsp;M", "H · M", "H & M", "H &amp; M"],
     andNameAnchors: ["Hamza and Maryam", "Maryam and Hamza"],
     demoDates: ["31 August 2026", "31 . 08 . 2026", "31/08/2026"],
+    demoDateISO: "2026-08-31",
     demoVenues: ["Grand Palace Hall"],
     demoCities: ["London"],
     demoTimes: ["10:30 AM"],
@@ -137,8 +148,17 @@ export const BINDINGS: Record<string, TemplateBinding> = {
     ],
     andNameAnchors: ["Arham and Zoya", "Zoya and Arham"],
     demoDates: ["28 December 2026", "28 . 12 . 2026"],
+    demoDateISO: "2026-12-28",
     demoVenues: ["Lakeview Rose Lawns"],
-    demoCities: ["Hyderabad"],
+    // Longest first — "Shamshabad Road, Hyderabad" appears inside address
+    // lines and maps URLs that only list the venue as "Lakeview Rose Lawns".
+    demoCities: [
+      "Shamshabad Road, Near Gandipet Lake, Hyderabad",
+      "Shamshabad Road, Hyderabad",
+      "Shamshabad Road",
+      "Shamshabad",
+      "Hyderabad",
+    ],
     demoTimes: ["11:00 AM"],
     eventsStyle: "miniRow",
     externalScript: true,
@@ -174,6 +194,13 @@ export const BINDINGS: Record<string, TemplateBinding> = {
     ],
     andNameAnchors: ["Aarav and Meera", "Aariz and Zoya", "Meera and Aarav"],
     demoDates: ["18 December 2026", "18 . 12 . 2026"],
+    demoDateISO: "2026-12-18",
+    // Scratch-card reveal splits the date across three elements.
+    dateCells: [
+      { cls: "sr-num", part: "day" },
+      { cls: "sr-month", part: "month" },
+      { cls: "sr-year", part: "year" },
+    ],
     demoVenues: ["Sangeet Garden", "The Garden Estate", "The Grand Hall"],
     demoCities: ["Mumbai"],
     demoTimes: ["7:00 PM"],
@@ -211,6 +238,13 @@ export const BINDINGS: Record<string, TemplateBinding> = {
     ],
     andNameAnchors: ["Aarav and Meera", "Meera and Aarav"],
     demoDates: ["18 December 2026", "18 . 12 . 2026"],
+    demoDateISO: "2026-12-18",
+    // Heart scratch reveal splits the date across three elements.
+    dateCells: [
+      { cls: "big-day", part: "day" },
+      { cls: "big-month", part: "month" },
+      { cls: "big-year", part: "year" },
+    ],
     demoVenues: ["The Garden Estate"],
     demoCities: ["Mumbai"],
     demoTimes: ["7 PM", "7:00 PM"],
@@ -239,6 +273,7 @@ export const BINDINGS: Record<string, TemplateBinding> = {
     ],
     andNameAnchors: ["Amit and Siya", "Siya and Amit"],
     demoDates: ["18 December 2026", "18 · 12 · 2026", "18 . 12 . 2026"],
+    demoDateISO: "2026-12-18",
     demoVenues: ["The Grand Celebration Hall"],
     demoCities: ["Nashik, Maharashtra", "Nashik"],
     demoTimes: ["7:00 PM onwards", "7:00 PM"],
@@ -273,6 +308,7 @@ export const BINDINGS: Record<string, TemplateBinding> = {
     initialsAnchors: ["A&nbsp;·&nbsp;V", "V&nbsp;·&nbsp;A", "A · V", "V · A"],
     andNameAnchors: ["Anaya and Vihaan", "Vihaan and Anaya"],
     demoDates: ["14 February 2027", "14 . 02 . 2027"],
+    demoDateISO: "2027-02-14",
     demoVenues: ["The Celebration Gardens"],
     demoCities: ["Mumbai, Maharashtra"],
     demoTimes: ["7:00 PM onwards"],
@@ -307,6 +343,7 @@ export const BINDINGS: Record<string, TemplateBinding> = {
     initialsAnchors: ["D&nbsp;·&nbsp;A", "A&nbsp;·&nbsp;D", "D · A", "A · D"],
     andNameAnchors: ["Diya and Aditya", "Aditya and Diya"],
     demoDates: ["28 November 2027", "28 . 11 . 2027"],
+    demoDateISO: "2027-11-28",
     demoVenues: ["Shree Celebration Lawns"],
     demoCities: ["Pune, Maharashtra"],
     demoTimes: ["7:00 PM onwards"],
@@ -341,6 +378,7 @@ export const BINDINGS: Record<string, TemplateBinding> = {
     initialsAnchors: ["A · K", "A&nbsp;·&nbsp;K", "K · A"],
     andNameAnchors: ["Aarav and Kiara", "Kiara and Aarav"],
     demoDates: ["15 November 2026", "15 . 11 . 2026", "15 · 11 · 2026"],
+    demoDateISO: "2026-11-15",
     demoVenues: ["The Grand Orchid Palace"],
     demoCities: ["Nashik, Maharashtra 422002", "Nashik"],
     demoTimes: ["7:00 PM onwards", "7:00 PM"],

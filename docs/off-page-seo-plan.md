@@ -16,7 +16,7 @@ nothing here can be automated inside the codebase.
       submit `https://mehfill.in/sitemap.xml` in Search Console.
 - [x] Analytics: `/api/track` → `visits` table (bot-filtered) for measuring
       referral traffic from off-page work.
-- [ ] Create `robots.txt` rules allowing AI/ads crawlers you want; block
+- [x] Create `robots.txt` rules allowing AI/ads crawlers you want; block
       nothing that matters (GPTBot decisions are a business call).
 
 ## 2. Directories & citations (highest ROI for India market)
@@ -51,9 +51,12 @@ citation consistency.
 
 ## 4. Content assets that naturally earn links
 
-- [ ] **Free tools** (link magnets): "WhatsApp Wedding Invitation Wording
+- [x] **Free tools** (link magnets): "WhatsApp Wedding Invitation Wording
   Generator" (hi/en/ur), "Muhrat/date finder", "Seating RSVP calculator".
-  Host under `/free/…`, indexable, tool-page schema.
+  Host under `/free/…`, indexable, tool-page schema. *(Wording generator LIVE
+  at `/free/whatsapp-invitation-wording` — WebApplication + FAQ + Breadcrumb
+  schema, sitemap entries; date finder & RSVP calculator listed as
+  coming-soon on `/free`.)*
 - [ ] **Statistics page**: "Indian wedding invitation trends 2026" —
   anonymised aggregate data from `visits`/templates (no PII). Data pages get
   cited by bloggers.

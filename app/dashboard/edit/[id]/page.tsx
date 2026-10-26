@@ -59,6 +59,7 @@ import {
   type InvitationRecord,
   type LoveStoryMilestone,
 } from "@/lib/invitation";
+import { isValidCalendarDate } from "@/lib/templates/date-format";
 import { WhatsAppIcon } from "@/components/BrandIcons";
 import { PhoneFrame, PreviewBackdrop } from "@/components/invitation/PhoneFrame";
 import { deriveInitials } from "@/lib/initials";
@@ -78,6 +79,46 @@ const STEPS = [
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
+
+type FieldKey =
+  | "slug"
+  | "brideName"
+  | "groomName"
+  | "weddingDate"
+  | "startTime"
+  | "venueName"
+  | "venueAddress";
+
+/** Fields that must be filled before the invitation can be published.
+ *  All 8 templates display the start time and the full address, so both are
+ *  mandatory — never silently dropped. */
+function validatePublishContent(content: InvitationContent): Partial<Record<FieldKey, string>> {
+  const e: Partial<Record<FieldKey, string>> = {};
+  if (!content.brideName.trim()) e.brideName = "Bride's name is required.";
+  if (!content.groomName.trim()) e.groomName = "Groom's name is required.";
+  if (!isValidCalendarDate(content.weddingDate)) e.weddingDate = "Pick a valid wedding date.";
+  if (!content.startTime || !/^\d{1,2}:\d{2}$/.test(content.startTime)) {
+    e.startTime = "Start time is required — every template shows it.";
+  }
+  if (!content.venueName.trim()) e.venueName = "Venue name is required.";
+  if (!content.venueAddress.trim()) e.venueAddress = "Full address is required — every template shows it.";
+  return e;
+}
+
+function cleanSlugValue(raw: string): string {
+  return raw.trim().toLowerCase().replace(/[\s_]+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
+/** Drop undefined/empty entries so error maps only carry real problems. */
+function pruneErrors(
+  e: Partial<Record<FieldKey, string>>
+): Partial<Record<FieldKey, string>> {
+  const out: Partial<Record<FieldKey, string>> = {};
+  for (const [k, v] of Object.entries(e)) {
+    if (v) out[k as FieldKey] = v;
+  }
+  return out;
+}
 
 export default function EditInvitationPage() {
   const { id } = useParams<{ id: string }>();
@@ -127,6 +168,14 @@ export default function EditInvitationPage() {
     error: "",
   });
 
+  // Per-field validation errors (keyed by field id — see validateStep).
+  const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
+  // Honest save state: "unsaved" | "saving" | "saved" | "error".
+  const [saveState, setSaveState] = useState<"unsaved" | "saving" | "saved" | "error">("saved");
+  const autoSaveReady = useRef(false);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savingRef = useRef(false);
+
   const template = useMemo(
     () => getCatalogTemplate(invitation?.template_slug || ""),
     [invitation]
@@ -169,11 +218,98 @@ export default function EditInvitationPage() {
     load();
   }, [load]);
 
-  const set = <K extends keyof InvitationContent>(k: K, v: InvitationContent[K]) =>
+  const set = <K extends keyof InvitationContent>(k: K, v: InvitationContent[K]) => {
     setContent((p) => ({ ...p, [k]: v }));
+    // Typing in a field clears its validation error.
+    if (typeof k === "string") {
+      setErrors((prev) => {
+        if (!prev[k as FieldKey]) return prev;
+        const next = { ...prev };
+        delete next[k as FieldKey];
+        return next;
+      });
+    }
+  };
 
   const setRsvp = (patch: Partial<InvitationContent["rsvp"]>) =>
     setContent((p) => ({ ...p, rsvp: { ...p.rsvp, ...patch } }));
+
+  const scrollToFirstError = (errs: Partial<Record<FieldKey, string>>) => {
+    const order: FieldKey[] = [
+      "slug",
+      "brideName",
+      "groomName",
+      "weddingDate",
+      "startTime",
+      "venueName",
+      "venueAddress",
+    ];
+    const first = order.find((k) => errs[k]);
+    if (!first) return;
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`f-${first}`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (el instanceof HTMLElement) {
+        const focusable = el.matches("input, textarea, select") ? el : el.querySelector("input, textarea, select, button");
+        if (focusable instanceof HTMLElement) focusable.focus({ preventScroll: true });
+      }
+    });
+  };
+
+  /** Validate the CURRENT step before advancing to the next one.
+   *  Manual "Save" never validates — drafts are allowed to be incomplete. */
+  const validateStep = (s: StepId): Partial<Record<FieldKey, string>> => {
+    if (s === "couple") {
+      const e: Partial<Record<FieldKey, string>> = {
+        brideName: content.brideName.trim() ? undefined : "Bride's name is required.",
+        groomName: content.groomName.trim() ? undefined : "Groom's name is required.",
+      };
+      const clean = cleanSlugValue(customSlug);
+      if (clean.length < 3) e.slug = "Add your invitation link (min 3 characters).";
+      else if (slugAvailable === false) e.slug = "This link is already taken — pick another.";
+      return pruneErrors(e);
+    }
+    if (s === "date") {
+      return pruneErrors({
+        weddingDate: isValidCalendarDate(content.weddingDate)
+          ? undefined
+          : "Pick a valid wedding date.",
+        startTime:
+          content.startTime && /^\d{1,2}:\d{2}$/.test(content.startTime)
+            ? undefined
+            : "Start time is required — every template shows it.",
+      });
+    }
+    if (s === "venue") {
+      return pruneErrors({
+        venueName: content.venueName.trim() ? undefined : "Venue name is required.",
+        venueAddress: content.venueAddress.trim()
+          ? undefined
+          : "Full address is required — every template shows it.",
+      });
+    }
+    if (s === "publish") {
+      const e = validatePublishContent(content);
+      const clean = cleanSlugValue(customSlug);
+      if (clean.length < 3) e.slug = "Add your invitation link (min 3 characters).";
+      else if (slugAvailable === false) e.slug = slugError || "This link is already taken — pick another.";
+      else if (slugAvailable !== true) e.slug = "Still checking this link — try again in a moment.";
+      return pruneErrors(e);
+    }
+    return {};
+  };
+
+  const handlePublishErrors = () => {
+    const e = validateStep("publish");
+    if (Object.keys(e).length) {
+      setErrors((prev) => ({ ...prev, ...e }));
+      scrollToFirstError(e);
+      setErr("Please complete the required details before publishing.");
+      return true;
+    }
+    return false;
+  };
 
   // Check slug availability with debounce
   useEffect(() => {
@@ -216,12 +352,23 @@ export default function EditInvitationPage() {
   }, [customSlug, id]);
 
   const save = async (nextStep?: StepId) => {
+    // Advancing to the next step requires the CURRENT step to be complete.
+    // Manual "Save" (no nextStep) never blocks — drafts may be incomplete.
+    if (nextStep) {
+      const stepErrs = validateStep(step);
+      if (Object.keys(stepErrs).length) {
+        setErrors((prev) => ({ ...prev, ...stepErrs }));
+        scrollToFirstError(stepErrs);
+        return;
+      }
+    }
+    savingRef.current = true;
     setSaving(true);
     setErr("");
     try {
       const payload: { content: InvitationContent; slug?: string } = { content };
       if (customSlug && customSlug.trim() && slugAvailable !== false) {
-        payload.slug = customSlug.trim().toLowerCase().replace(/[\s_]+/g, "-").replace(/[^a-z0-9-]/g, "");
+        payload.slug = cleanSlugValue(customSlug);
       }
       const res = await fetch(`/api/invitations/${id}`, {
         method: "PATCH",
@@ -231,13 +378,53 @@ export default function EditInvitationPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || "Could not save.");
       setInvitation(data.invitation as InvitationRecord);
+      setSaveState("saved");
       if (nextStep) setStep(nextStep);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Could not save.");
+      setSaveState("error");
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   };
+
+  // Debounced autosave — content/slug edits persist ~1.2s after the last
+  // keystroke. The initial load never counts as a change.
+  useEffect(() => {
+    if (!autoSaveReady.current) return;
+    if (savingRef.current) return;
+    setSaveState("unsaved");
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(async () => {
+      setSaveState("saving");
+      try {
+        const payload: { content: InvitationContent; slug?: string } = { content };
+        if (customSlug && customSlug.trim() && slugAvailable !== false) {
+          payload.slug = cleanSlugValue(customSlug);
+        }
+        const res = await fetch(`/api/invitations/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error();
+        setSaveState("saved");
+      } catch {
+        setSaveState("error");
+      }
+    }, 1200);
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [content, customSlug, slugAvailable, id]);
+
+  // Flip autosave on only AFTER the first post-load render has passed through
+  // the autosave effect above (this effect is declared later, so it runs after
+  // it) — loading the invitation is never treated as a user edit.
+  useEffect(() => {
+    if (!loading && invitation) autoSaveReady.current = true;
+  }, [loading, invitation]);
 
   // Load Razorpay script dynamically
   useEffect(() => {
@@ -317,6 +504,9 @@ export default function EditInvitationPage() {
   };
 
   const publishWithPayment = async () => {
+    // Block publish until every required detail (names, date, start time,
+    // venue, address, link) is filled — the server re-validates as well.
+    if (handlePublishErrors()) return;
     await save();
 
     // If invitation already has verified payment, publish directly
@@ -723,10 +913,17 @@ export default function EditInvitationPage() {
                   <LinkIcon className="h-4 w-4 text-[#8B4828]" />
                 </div>
                 <input
+                  id="f-slug"
                   value={customSlug}
                   onChange={(e) => {
                     const formatted = e.target.value.toLowerCase().replace(/[\s_]+/g, "-").replace(/[^a-z0-9-]/g, "");
                     setCustomSlug(formatted);
+                    setErrors((prev) => {
+                      if (!prev.slug) return prev;
+                      const next = { ...prev };
+                      delete next.slug;
+                      return next;
+                    });
                   }}
                   className={`w-full rounded-xl border pl-10 pr-10 py-3 text-xs sm:text-sm font-medium outline-none transition-all ${
                     slugAvailable === true
@@ -749,6 +946,11 @@ export default function EditInvitationPage() {
               </div>
 
               {/* Status Message */}
+              {errors.slug && (
+                <p role="alert" className="mt-2 text-xs font-semibold text-[#A63C26]">
+                  {errors.slug}
+                </p>
+              )}
               {slugSuccess && (
                 <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[#2F6824]">
                   <Check className="h-3.5 w-3.5" /> {slugSuccess}
@@ -784,11 +986,23 @@ export default function EditInvitationPage() {
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Bride's name *">
-                <input value={content.brideName} onChange={(e) => set("brideName", e.target.value)} className={inputCls} placeholder="e.g. Aisha" />
+              <Field label="Bride's name" required error={errors.brideName}>
+                <input
+                  id="f-brideName"
+                  value={content.brideName}
+                  onChange={(e) => set("brideName", e.target.value)}
+                  className={inputCls + inputErrCls(errors.brideName)}
+                  placeholder="e.g. Aisha"
+                />
               </Field>
-              <Field label="Groom's name *">
-                <input value={content.groomName} onChange={(e) => set("groomName", e.target.value)} className={inputCls} placeholder="e.g. Hamza" />
+              <Field label="Groom's name" required error={errors.groomName}>
+                <input
+                  id="f-groomName"
+                  value={content.groomName}
+                  onChange={(e) => set("groomName", e.target.value)}
+                  className={inputCls + inputErrCls(errors.groomName)}
+                  placeholder="e.g. Hamza"
+                />
               </Field>
               <Field label="Couple initials (Auto-derived from names)">
                 <div className="relative">
@@ -827,20 +1041,24 @@ export default function EditInvitationPage() {
             sub="When the celebration begins."
           >
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Wedding date *">
-                <MehfillDatePicker
-                  value={content.weddingDate}
-                  onChange={(val) => set("weddingDate", val)}
-                  min={new Date().toISOString().split("T")[0]}
-                  placeholder="Select wedding date"
-                />
+              <Field label="Wedding date" required error={errors.weddingDate}>
+                <div id="f-weddingDate" className={errors.weddingDate ? "rounded-xl ring-2 ring-[#A63C26]/40" : ""}>
+                  <MehfillDatePicker
+                    value={content.weddingDate}
+                    onChange={(val) => set("weddingDate", val)}
+                    min={new Date().toISOString().split("T")[0]}
+                    placeholder="Select wedding date"
+                  />
+                </div>
               </Field>
-              <Field label="Start time">
-                <MehfillTimePicker
-                  value={content.startTime || ""}
-                  onChange={(val) => set("startTime", val)}
-                  placeholder="Select celebration start time"
-                />
+              <Field label="Start time" required error={errors.startTime}>
+                <div id="f-startTime" className={errors.startTime ? "rounded-xl ring-2 ring-[#A63C26]/40" : ""}>
+                  <MehfillTimePicker
+                    value={content.startTime || ""}
+                    onChange={(val) => set("startTime", val)}
+                    placeholder="Select celebration start time"
+                  />
+                </div>
               </Field>
               <Field label="End time (Optional)">
                 <MehfillTimePicker
@@ -868,14 +1086,26 @@ export default function EditInvitationPage() {
             floral="garland"
           >
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Venue name *">
-                <input value={content.venueName} onChange={(e) => set("venueName", e.target.value)} className={inputCls} placeholder="e.g. The Grand Orchid Palace" />
+              <Field label="Venue name" required error={errors.venueName}>
+                <input
+                  id="f-venueName"
+                  value={content.venueName}
+                  onChange={(e) => set("venueName", e.target.value)}
+                  className={inputCls + inputErrCls(errors.venueName)}
+                  placeholder="e.g. The Grand Orchid Palace"
+                />
               </Field>
               <Field label="Google Maps link">
                 <input value={content.mapsUrl || ""} onChange={(e) => set("mapsUrl", e.target.value)} className={inputCls} placeholder="https://maps.google.com/…" />
               </Field>
-              <Field label="Full address &amp; directions" wide>
-                <textarea value={content.venueAddress} onChange={(e) => set("venueAddress", e.target.value)} rows={2} className={inputCls + " resize-none"} />
+              <Field label="Full address &amp; directions" wide required error={errors.venueAddress}>
+                <textarea
+                  id="f-venueAddress"
+                  value={content.venueAddress}
+                  onChange={(e) => set("venueAddress", e.target.value)}
+                  rows={2}
+                  className={inputCls + " resize-none" + inputErrCls(errors.venueAddress)}
+                />
               </Field>
             </div>
             <NavButtons onBack={() => setStep("date")} onNext={() => save("events")} saving={saving} />
@@ -1015,7 +1245,7 @@ export default function EditInvitationPage() {
                     )}
                   </div>
                   <p className="text-[11px] text-[#7A6353] leading-relaxed">
-                    Keep the template's artistic sample imagery in slots where you haven't uploaded a photo yet.
+                    Keep the template&rsquo;s artistic sample imagery in slots where you haven&rsquo;t uploaded a photo yet.
                   </p>
                 </button>
               </div>
@@ -1075,7 +1305,7 @@ export default function EditInvitationPage() {
                 if (m) set("loveStory", content.loveStory!.filter((x) => x.id !== id));
               }}
             />
-            <NavButtons onBack={() => setStep("photos")} onNext={() => save("rsvp")} saving={saving} />
+            <NavButtons onBack={() => setStep("photos")} onNext={() => save("music")} saving={saving} />
           </div>
         )}
 
@@ -1155,7 +1385,7 @@ export default function EditInvitationPage() {
                 This design uses authentic curated instrumental audio that stays active by default.
               </p>
             )}
-            <NavButtons onBack={() => setStep("photos")} onNext={() => save("rsvp")} saving={saving} />
+            <NavButtons onBack={() => setStep("loveStory")} onNext={() => save("rsvp")} saving={saving} />
           </Section>
         )}
 
@@ -1454,7 +1684,21 @@ export default function EditInvitationPage() {
 
       {/* Global Minimal Footer */}
       <footer className="relative z-10 w-full px-6 py-5 text-center text-xs text-[#7A6353]/80 border-t border-[#E8DEC4]/40">
-        Personalizing in Mehfill Studio · All changes auto-saved
+        {saveState === "saving" ? (
+          <span className="inline-flex items-center gap-1.5">
+            <Loader2 className="h-3 w-3 animate-spin" /> Saving…
+          </span>
+        ) : saveState === "saved" ? (
+          <span className="inline-flex items-center gap-1.5 text-[#2F6824]">
+            <Check className="h-3 w-3" /> All changes saved
+          </span>
+        ) : saveState === "error" ? (
+          <span className="font-semibold text-[#A63C26]">
+            Couldn’t save — your latest edits are not persisted. Tap Save.
+          </span>
+        ) : (
+          <span>Personalizing in Mehfill Studio · Unsaved changes</span>
+        )}
       </footer>
     </main>
   );
@@ -1486,13 +1730,38 @@ function Section({
   );
 }
 
-function Field({ label, children, wide }: { label: string; children: React.ReactNode; wide?: boolean }) {
+function Field({
+  label,
+  children,
+  wide,
+  required,
+  error,
+}: {
+  label: string;
+  children: React.ReactNode;
+  wide?: boolean;
+  required?: boolean;
+  error?: string;
+}) {
   return (
     <label className={`block ${wide ? "sm:col-span-2" : ""}`}>
-      <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-[#7A6353]">{label}</span>
+      <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-[#7A6353]">
+        {label}
+        {required && <span className="text-[#A63C26]"> *</span>}
+      </span>
       {children}
+      {error && (
+        <span role="alert" className="mt-1 block text-[11px] font-semibold text-[#A63C26]">
+          {error}
+        </span>
+      )}
     </label>
   );
+}
+
+/** Input className with an error state overlay. */
+function inputErrCls(error?: string) {
+  return error ? " !border-[#A63C26] !bg-[#FDF4F2] !ring-2 !ring-[#A63C26]/15" : "";
 }
 
 function NavButtons({
