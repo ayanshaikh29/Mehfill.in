@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <base href="/site-9/" />
+  <title>Mehfill.in · Site 9 Royal Floral Customization Studio</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="editor.css" />
+</head>
+<body>
+
+  <!-- ==========================================
+       TOP GLOBAL TOOLBAR
+       ========================================== -->
+  <header class="ed-toolbar">
+    <div class="ed-brand-group">
+      <a class="ed-logo" href="https://mehfill.in/" target="_blank" rel="noopener">Mehfill.in</a>
+      <span class="ed-dot">·</span>
+      <span class="ed-template-title">Site 9 Studio · Royal Floral Garden</span>
+    </div>
+
+    <div id="save-status" class="ed-status-badge" role="status" aria-live="polite">Draft Ready</div>
+
+    <div class="ed-toolbar-tools">
+      <!-- Device Preview Switcher -->
+      <div class="ed-device-toggle" role="group" aria-label="Device Preview">
+        <button type="button" class="btn-seg is-active" data-device="desktop" title="Desktop Preview">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H3V4h18v10z"/></svg>
+          <span>Desktop</span>
+        </button>
+        <button type="button" class="btn-seg" data-device="mobile" title="Mobile Preview">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+          <span>Mobile</span>
+        </button>
+      </div>
+
+      <!-- Undo / Redo -->
+      <button type="button" id="btn-undo" class="ed-btn-tool" title="Undo (Ctrl+Z)" disabled>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>
+      </button>
+      <button type="button" id="btn-redo" class="ed-btn-tool" title="Redo (Ctrl+Y)" disabled>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>
+      </button>
+
+      <!-- Import / Export -->
+      <button type="button" id="btn-export" class="ed-btn-tool" title="Export Template JSON">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Export</span>
+      </button>
+      <button type="button" id="btn-import" class="ed-btn-tool" title="Import Template JSON">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Import</span>
+      </button>
+
+      <!-- Reset -->
+      <button type="button" id="btn-reset" class="ed-btn-tool" title="Reset to Demo Defaults">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></svg>
+        <span>Reset</span>
+      </button>
+
+      <!-- Save & Preview -->
+      <button type="button" id="btn-save" class="ed-btn-save">Save Draft</button>
+      <button type="button" id="btn-preview-link" class="ed-btn-publish">Open Live Site ↗</button>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       MAIN 3-PART STUDIO WORKSPACE
+       ========================================== -->
+  <div class="ed-workspace">
+
+    <!-- 1. LEFT SIDEBAR: Section Navigators & Tabs -->
+    <nav class="ed-nav-sidebar" aria-label="Section Navigation">
+      <div class="ed-nav-header">
+        <span class="ed-nav-title">Customize Sections</span>
+      </div>
+      <ul class="ed-nav-list" id="section-nav-list">
+        <li class="nav-item is-active" data-tab="general">
+          <span class="nav-icon">❖</span>
+          <span class="nav-label">General &amp; Couple</span>
+        </li>
+        <li class="nav-item" data-tab="hero">
+          <span class="nav-icon">🏛️</span>
+          <span class="nav-label">Royal Jaipur Mandap (Hero)</span>
+        </li>
+        <li class="nav-item" data-tab="scratch">
+          <span class="nav-icon">🎁</span>
+          <span class="nav-label">Surprise Scratch Card</span>
+        </li>
+        <li class="nav-item" data-tab="countdown">
+          <span class="nav-icon">⏳</span>
+          <span class="nav-label">Wedding Countdown</span>
+        </li>
+        <li class="nav-item" data-tab="couple">
+          <span class="nav-icon">👑</span>
+          <span class="nav-label">Bride &amp; Groom Profiles</span>
+        </li>
+        <li class="nav-item" data-tab="events">
+          <span class="nav-icon">📅</span>
+          <span class="nav-label">Wedding Events</span>
+        </li>
+        <li class="nav-item" data-tab="story">
+          <span class="nav-icon">📖</span>
+          <span class="nav-label">Our Love Story</span>
+        </li>
+        <li class="nav-item" data-tab="gallery">
+          <span class="nav-icon">🖼️</span>
+          <span class="nav-label">Photo Gallery</span>
+        </li>
+        <li class="nav-item" data-tab="rsvp">
+          <span class="nav-icon">✉️</span>
+          <span class="nav-label">Minimal RSVP Card</span>
+        </li>
+        <li class="nav-item" data-tab="venue">
+          <span class="nav-icon">📍</span>
+          <span class="nav-label">Venue &amp; Location</span>
+        </li>
+        <li class="nav-item" data-tab="introVideo">
+          <span class="nav-icon">🎬</span>
+          <span class="nav-label">Video Opening Sequence</span>
+        </li>
+        <li class="nav-item" data-tab="theme">
+          <span class="nav-icon">🎨</span>
+          <span class="nav-label">Theme Colours &amp; Fonts</span>
+        </li>
+        <li class="nav-item" data-tab="animations">
+          <span class="nav-icon">✨</span>
+          <span class="nav-label">Animations &amp; Petals</span>
+        </li>
+        <li class="nav-item" data-tab="music">
+          <span class="nav-icon">🎵</span>
+          <span class="nav-label">Background Music</span>
+        </li>
+      </ul>
+      <div class="ed-nav-footer">
+        <p>100% Editable Studio. Changes reflect instantly in live preview.</p>
+      </div>
+    </nav>
+
+    <!-- 2. CENTER PANEL: Live Invitation Preview with Devices -->
+    <main class="ed-preview-center">
+      <div class="preview-viewport-bar">
+        <span class="viewport-badge">Live Real-time Preview</span>
+      </div>
+      <div class="preview-stage-container">
+        <div id="device-frame" class="device-frame mode-desktop">
+          <iframe id="preview-iframe" src="index.html?embed=1" title="Live Wedding Invitation Preview"></iframe>
+        </div>
+      </div>
+    </main>
+
+    <!-- 3. RIGHT PANEL: Selected Element Settings & Properties -->
+    <aside class="ed-inspector-sidebar" id="inspector-panel" aria-label="Section Inspector">
+      <!-- Active Section Controls dynamically populated by editor.js -->
+      <div id="inspector-content" class="inspector-content"></div>
+    </aside>
+
+  </div>
+
+  <!-- Hidden File Input for Image Uploads -->
+  <input type="file" id="ed-file-input" accept="image/jpeg,image/png,image/webp" style="display:none;" />
+
+  <!-- Toast Notification -->
+  <div id="ed-toast" class="ed-toast" role="status" aria-live="polite" style="display:none;"></div>
+
+  <!-- Shared Configuration & Editor Engine -->
+  <script src="js/invitation-data.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>

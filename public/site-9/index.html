@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#075E50" />
+  <base href="/site-9/" />
+  <title>Ananya &amp; Kabir — Royal Jaipur Wedding Invitation | Mehfill.in</title>
+  <meta name="description" content="Step into the royal wedding celebration of Ananya Roy &amp; Kabir Singhania at The Grand Heritage Palace, Jaipur. A digital wedding invitation by Mehfill.in." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Mehfill.in" />
+  <meta property="og:title" content="Ananya &amp; Kabir — Royal Jaipur Wedding Invitation" />
+  <meta property="og:description" content="You're cordially invited to celebrate the royal wedding of Ananya &amp; Kabir amidst blooming roses and grand palace mandap in Jaipur." />
+  <meta property="og:image" content="https://mehfill.in/site-9/cover.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <noscript>
+    <style>
+      #video-intro-gate { display: none !important; }
+      body.mf-locked { overflow: auto !important; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+    </style>
+  </noscript>
+</head>
+<body class="mf-locked">
+
+  <!-- Canvas for Falling Rose Petals -->
+  <canvas id="petals-canvas" aria-hidden="true"></canvas>
+
+  <!-- Background Music Audio -->
+  <audio id="bg-music" preload="auto" loop>
+    <source src="assets/audio/music.mp3" type="audio/mpeg" />
+  </audio>
+
+  <!-- ==========================================
+       SECTION 1: OPENING VIDEO EXPERIENCE GATE
+       NO AUTOPLAY! Static poster + "Play Invitation" button.
+       0:01-0:03: "YOU'RE INVITED"
+       0:03 onwards: "The Wedding Celebration Of" + "Ananya & Kabir" + "18 December 2026"
+       Video ends -> Auto-transitions to main site!
+       ========================================== -->
+  <aside id="video-intro-gate" class="video-intro-gate" role="dialog" aria-modal="true" aria-label="Wedding Video Opening">
+    <video id="intro-video" class="intro-video-bg" playsinline preload="auto" muted poster="assets/images/video-poster.jpg">
+      <source src="lv_0_20261018234041.mp4" type="video/mp4" />
+    </video>
+    <div class="intro-video-overlay"></div>
+
+    <!-- Skip button in top corner -->
+    <button type="button" id="btn-skip-intro" class="intro-skip-corner" aria-label="Skip to Invitation">
+      <span>Skip</span> <span class="skip-arrow">⟶</span>
+    </button>
+
+    <!-- Floating Overlay Elements directly over the video -->
+    <div class="intro-overlay-container">
+      <!-- 1. Top banner: A Royal Celebration of Love (Static on initial load) -->
+      <div class="intro-top-banner">
+        <span class="intro-eyebrow-text">A Royal Wedding Invitation</span>
+        <h1 class="intro-main-title" data-bind="video.heading">A Royal Celebration of Love</h1>
+        <div class="intro-gold-divider">❦</div>
+      </div>
+
+      <!-- 2. Phase 1 (0:01 - 0:03): "YOU'RE INVITED" -->
+      <div id="intro-invited-reveal" class="intro-invited-reveal">
+        <span class="invited-accent-text" data-bind="video.introHeading">YOU'RE INVITED</span>
+      </div>
+
+      <!-- 3. Phase 2 (0:03 onwards): "The Wedding Celebration Of" + Bride & Groom + Date -->
+      <div id="intro-couple-reveal" class="intro-couple-reveal" aria-live="polite">
+        <p class="intro-sub-text" data-bind="video.introSubheading">The Wedding Celebration Of</p>
+        <h2 class="intro-names-text" data-bind="couple.displayName">Ananya &amp; Kabir</h2>
+        <span class="intro-date-badge" data-bind="event.dateFormatted">18 December 2026</span>
+      </div>
+
+      <!-- 4. Initial "Play Invitation" Button (User must tap to start) -->
+      <div class="intro-bottom-action">
+        <button type="button" id="btn-open-invitation" class="btn-royal-open-compact btn-play-pulse" aria-label="Play Wedding Invitation">
+          <span class="btn-compact-sparkle">🌸</span>
+          <span data-bind="video.openButtonLabel">Play Invitation</span>
+          <span class="btn-compact-arrow">⟶</span>
+        </button>
+
+        <button type="button" id="btn-enter-invitation" class="btn-royal-enter-compact" style="display: none;" aria-label="Step Inside Celebration">
+          <span class="btn-compact-sparkle">✨</span>
+          <span>Step Inside Celebration</span>
+          <span class="btn-compact-arrow">⟶</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==========================================
+       FLOATING INTERACTION CONTROLS
+       ========================================== -->
+  <div class="floating-controls" role="toolbar" aria-label="Interactive options">
+    <button type="button" id="btn-music-toggle" class="float-btn float-music" title="Toggle Shehnai Music" aria-label="Toggle Shehnai Music">
+      <svg class="icon-music" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+      </svg>
+      <span class="music-wave-ring"></span>
+    </button>
+    <button type="button" id="btn-replay-video" class="float-btn float-replay" title="Watch Wedding Video" aria-label="Watch Wedding Video">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ==========================================
+       MAIN INVITATION WRAPPER
+       ========================================== -->
+  <main class="invitation-main">
+
+    <!-- ==========================================
+         SECTION 1: HERO SECTION – ROYAL JAIPUR WEDDING MANDAP
+         Carved Sandstone Pillars, Pink Roses, Ivory Drapes,
+         Antique Golden Lanterns & Real HTML Couple Names Overlay!
+         ========================================== -->
+    <section id="hero" class="hero-section" data-section="hero">
+      <div class="mandap-hero-frame reveal">
+        <!-- Mandap Image (Responsive: Portrait on mobile / Landscape on desktop) -->
+        <picture class="mandap-picture">
+          <source media="(min-width: 768px)" srcset="assets/images/jaipur-mandap-landscape.jpg" />
+          <img src="assets/images/jaipur-mandap.jpg" alt="Royal Jaipur Wedding Mandap" class="mandap-hero-img" id="hero-mandap-img" data-bind-img="hero.mandapImage" />
+        </picture>
+
+        <!-- Real HTML Text Overlay with Bride & Groom names over the Mandap -->
+        <div class="mandap-hero-content">
+          <div class="mandap-badge reveal">
+            <span class="badge-floral-icon">❖</span>
+            <span class="badge-text" data-bind="hero.badgeText">Shubh Vivah</span>
+            <span class="badge-floral-icon">❖</span>
+          </div>
+
+          <p class="mandap-family-intro reveal" data-bind="couple.introduction">Together With Their Families</p>
+
+          <h1 class="mandap-couple-names reveal">
+            <span class="bride-first" data-bind="couple.brideName">Ananya</span>
+            <span class="mandap-ampersand">&amp;</span>
+            <span class="groom-first" data-bind="couple.groomName">Kabir</span>
+          </h1>
+
+          <p class="mandap-invitation-lead reveal" data-bind="hero.subtitle">Invite You To Celebrate Their Wedding</p>
+
+          <div class="mandap-date-badge reveal" data-bind="event.dateFormatted">18 December 2026</div>
+          <p class="mandap-venue-text reveal" data-bind="event.venueName">The Grand Heritage Palace, Jaipur</p>
+
+          <div class="mandap-actions reveal">
+            <button type="button" id="btn-hero-watch-video" class="btn-royal-primary">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              <span data-bind="hero.watchVideoLabel">Watch Wedding Video</span>
+            </button>
+            <a href="#rsvp" class="btn-royal-secondary">
+              <span data-bind="hero.rsvpButtonLabel">Confirm RSVP</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Royal Welcome Floral Toran Garland Divider -->
+    <div class="royal-garland-divider-wrap reveal" aria-hidden="true">
+      <img src="assets/images/royal-floral-garland.png" alt="" class="royal-swag-garland" />
+    </div>
+
+    <!-- ==========================================
+         SECTION 2: SPECIAL SURPRISE SCRATCH CARD
+         Placed perfectly BEFORE The Royal Couple section!
+         Creative Royal Arched Keepsake & Interactive Scratch
+         ========================================== -->
+    <section id="scratch-card" class="scratch-card-section" data-section="scratchCard">
+      <div class="section-container">
+        <div class="scratch-card-wrapper reveal">
+          <!-- Royal Ornate Outer Arch Card -->
+          <div class="scratch-card-inner royal-jharokha-frame">
+            <!-- Transparent Royal Floral Corner Decorations -->
+            <img src="assets/images/floral-corner-tl.png" alt="" class="card-floral-corner corner-top-left" aria-hidden="true" />
+            <img src="assets/images/floral-corner-tr.png" alt="" class="card-floral-corner corner-top-right" aria-hidden="true" />
+            <img src="assets/images/floral-corner-bl.png" alt="" class="card-floral-corner corner-bottom-left" aria-hidden="true" />
+            <img src="assets/images/floral-corner-br.png" alt="" class="card-floral-corner corner-bottom-right" aria-hidden="true" />
+
+            <div class="scratch-header-content">
+              <span class="scratch-badge">🎁 Special Keepsake</span>
+              <h2 class="scratch-title" data-bind="scratchCard.title">A Special Keepsake For You</h2>
+              <img src="assets/images/royal-floral-divider.png" alt="" class="section-floral-divider" aria-hidden="true" />
+              <p class="scratch-subtitle" data-bind="scratchCard.subtitle">Scratch to reveal our special wedding date!</p>
+            </div>
+
+            <!-- Royal Ticket / Medallion Shaped Scratch Box -->
+            <div id="scratch-wrap" class="scratch-wrap royal-scratch-ticket">
+              <!-- Celebration Confetti Particles Canvas -->
+              <canvas id="scratch-confetti-canvas" class="scratch-confetti-canvas" aria-hidden="true"></canvas>
+
+              <!-- Hidden Content Dynamically Revealed -->
+              <div id="scratch-revealed-content" class="scratch-revealed-content">
+                <img src="assets/images/royal-rose-blossom.png" alt="" class="scratch-revealed-rose-img" aria-hidden="true" />
+                <div class="scratch-reveal-save-tag" data-bind="scratchCard.hiddenSub">Save The Date</div>
+                <h3 class="scratch-reveal-date" data-bind="event.dateFormatted">18 DECEMBER 2026</h3>
+                <p class="scratch-reveal-msg" data-bind="scratchCard.hiddenMessage">
+                  Join us as we unite under Jaipur's royal skies. Your presence and blessings are our greatest treasure.
+                </p>
+                <div class="surprise-blessing">✨ Ananya &amp; Kabir · Jaipur ✨</div>
+              </div>
+
+              <!-- HTML5 Canvas for Golden Scratch Surface -->
+              <canvas id="scratch-canvas" class="scratch-canvas" aria-label="Interactive scratch surface"></canvas>
+            </div>
+
+            <div id="scratch-celebration-banner" class="scratch-celebration-banner" style="display:none;">
+              <span class="sparkle-anim">✨</span>
+              <span>Auspicious Wedding Date Revealed!</span>
+              <span class="sparkle-anim">✨</span>
+            </div>
+
+            <p class="scratch-tip">Swipe across the card with finger or mouse to scratch</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 3: WEDDING COUNTDOWN
+         Horizontal 4-card row on desktop & mobile!
+         Placed BEFORE The Royal Couple section!
+         ========================================== -->
+    <section id="countdown" class="countdown-section" data-section="countdown">
+      <div class="section-container">
+        <div class="countdown-row-wrapper reveal">
+          <!-- Background Rotating Royal Mandala -->
+          <img src="assets/images/royal-mandala.png" alt="" class="countdown-mandala-bg" aria-hidden="true" />
+
+          <!-- Transparent Royal Floral Corner Decorations -->
+          <img src="assets/images/floral-corner-tl.png" alt="" class="card-floral-corner corner-top-left" aria-hidden="true" />
+          <img src="assets/images/floral-corner-tr.png" alt="" class="card-floral-corner corner-top-right" aria-hidden="true" />
+          <img src="assets/images/floral-corner-bl.png" alt="" class="card-floral-corner corner-bottom-left" aria-hidden="true" />
+          <img src="assets/images/floral-corner-br.png" alt="" class="card-floral-corner corner-bottom-right" aria-hidden="true" />
+
+          <span class="countdown-badge">⏳ The Auspicious Vivah</span>
+          <h2 class="countdown-title" data-bind="countdown.heading">Counting Down To Our Wedding</h2>
+          <img src="assets/images/royal-floral-divider.png" alt="" class="section-floral-divider" aria-hidden="true" />
+          <p class="countdown-subtitle" data-bind="countdown.subheading">Every heartbeat brings us closer to our sacred vows</p>
+
+          <div id="cd-timer-wrap" class="countdown-horizontal-row">
+            <div class="countdown-timer-card">
+              <span id="cd-days" class="timer-num">00</span>
+              <span class="timer-label" data-bind="countdown.daysLabel">Days</span>
+            </div>
+            <div class="countdown-timer-card">
+              <span id="cd-hours" class="timer-num">00</span>
+              <span class="timer-label" data-bind="countdown.hoursLabel">Hours</span>
+            </div>
+            <div class="countdown-timer-card">
+              <span id="cd-minutes" class="timer-num">00</span>
+              <span class="timer-label" data-bind="countdown.minutesLabel">Minutes</span>
+            </div>
+            <div class="countdown-timer-card">
+              <span id="cd-seconds" class="timer-num">00</span>
+              <span class="timer-label" data-bind="countdown.secondsLabel">Seconds</span>
+            </div>
+          </div>
+
+          <div id="cd-passed-msg" class="countdown-passed-message" style="display:none;" data-bind="countdown.passedMessage">
+            The celebrations have commenced! Thank you for showering your heartfelt love and blessings upon us.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 4: BRIDE & GROOM SECTION
+         ========================================== -->
+    <section id="couple" class="couple-section" data-section="couple">
+      <div class="section-container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">The Royal Couple</span>
+          <h2 class="section-title">The Bride &amp; Groom</h2>
+          <img src="assets/images/royal-floral-divider.png" alt="" class="section-floral-divider" aria-hidden="true" />
+          <p class="section-subtitle" data-bind="couple.introduction">Together with their families</p>
+        </div>
+
+        <div class="couple-showcase-grid">
+          <!-- Bride Card -->
+          <article class="couple-card bride-card reveal">
+            <div class="couple-card-inner">
+              <div class="couple-img-wrap">
+                <img src="assets/images/bride.jpg" alt="Ananya Roy - The Bride" class="couple-portrait-img" data-bind-img="media.bridePhoto" loading="lazy" />
+                <span class="couple-role-tag">The Bride</span>
+              </div>
+              <div class="couple-info">
+                <h3 class="couple-person-name" data-bind="couple.brideName">Ananya Roy</h3>
+                <p class="couple-parents-text" data-bind="couple.brideParents">Daughter of Mr. Rajesh &amp; Mrs. Madhuri Roy</p>
+                <div class="couple-bio-quote" data-bind="couple.brideBio">
+                  "A classical dancer and botanical artist who finds music in every blooming rose."
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Royal Monogram Emblem -->
+          <div class="couple-center-emblem reveal" aria-hidden="true">
+            <div class="monogram-ring-wrap">
+              <img src="assets/images/royal-mandala.png" alt="" class="monogram-mandala-spin" aria-hidden="true" />
+              <div class="monogram-ring">
+                <span class="monogram-initials" data-bind="couple.initials">A · K</span>
+                <span class="monogram-knot">❦</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Groom Card -->
+          <article class="couple-card groom-card reveal">
+            <div class="couple-card-inner">
+              <div class="couple-img-wrap">
+                <img src="assets/images/groom.jpg" alt="Kabir Singhania - The Groom" class="couple-portrait-img" data-bind-img="media.groomPhoto" loading="lazy" />
+                <span class="couple-role-tag">The Groom</span>
+              </div>
+              <div class="couple-info">
+                <h3 class="couple-person-name" data-bind="couple.groomName">Kabir Singhania</h3>
+                <p class="couple-parents-text" data-bind="couple.groomParents">Son of Mr. Vikram &amp; Mrs. Sunita Singhania</p>
+                <div class="couple-bio-quote" data-bind="couple.groomBio">
+                  "An architect drawn to ancient heritage, starry nights and life's quiet poetry."
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 3: WEDDING CELEBRATION EVENTS
+         ========================================== -->
+    <section id="events" class="events-section" data-section="events">
+      <div class="section-container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Auspicious Gatherings</span>
+          <h2 class="section-title">The Wedding Ceremonies</h2>
+          <img src="assets/images/royal-floral-divider.png" alt="" class="section-floral-divider" aria-hidden="true" />
+          <p class="section-subtitle">Five sacred celebrations of music, colour and timeless vows</p>
+        </div>
+
+        <div id="events-grid" class="events-cards-grid"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 4: OUR STORY / MILESTONES
+         ========================================== -->
+    <section id="story" class="story-section" data-section="story">
+      <div class="section-container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">A Symphony of Fate</span>
+          <h2 class="section-title" data-bind="story.heading">Our Royal Love Story</h2>
+          <img src="assets/images/royal-floral-divider.png" alt="" class="section-floral-divider" aria-hidden="true" />
+          <p class="section-subtitle" data-bind="story.description">
+            Two souls brought together by destiny, walking hand in hand through gardens of love.
+          </p>
+        </div>
+
+        <div id="story-timeline" class="story-timeline"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 5: WEDDING GALLERY (COMPACT MULTI-COLUMN ALBUM GRID)
+         ========================================== -->
+    <section id="gallery" class="gallery-section" data-section="gallery">
+      <div class="section-container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Cherished Moments</span>
+          <h2 class="section-title">Royal Wedding Album</h2>
+          <img src="assets/images/royal-floral-divider.png" alt="" class="section-floral-divider" aria-hidden="true" />
+          <p class="section-subtitle">Glimpses of love, laughter and timeless heritage captured forever</p>
+        </div>
+
+        <!-- Filter Category Tabs -->
+        <div class="gallery-filter-tabs reveal" role="tablist" aria-label="Photo filter tabs">
+          <button type="button" class="tab-btn active" data-filter="all" role="tab" aria-selected="true">All Moments</button>
+          <button type="button" class="tab-btn" data-filter="couple" role="tab" aria-selected="false">The Couple</button>
+          <button type="button" class="tab-btn" data-filter="ceremonies" role="tab" aria-selected="false">Ceremonies</button>
+          <button type="button" class="tab-btn" data-filter="palace" role="tab" aria-selected="false">Palace &amp; Decor</button>
+        </div>
+
+        <!-- Gallery Grid (2-3 columns on mobile, 4 columns on desktop) -->
+        <div id="gallery-grid" class="gallery-compact-grid"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 8: MINIMAL RSVP
+         Clean, elegant and compact card
+         ========================================== -->
+    <section id="rsvp" class="rsvp-section" data-section="rsvp">
+      <div class="section-container">
+        <div class="rsvp-card-wrapper reveal">
+          <div class="section-header">
+            <span class="section-eyebrow">Guest Confirmation</span>
+            <h2 class="section-title" data-bind="rsvp.heading">Will You Join Us?</h2>
+            <img src="assets/images/royal-floral-divider.png" alt="" class="section-floral-divider" aria-hidden="true" />
+            <p class="section-subtitle" data-bind="rsvp.subheading">Kindly confirm your presence.</p>
+          </div>
+
+          <form id="rsvp-form" class="rsvp-form-minimal" novalidate>
+            <div class="rsvp-form-grid">
+              <div class="form-group">
+                <label for="rsvp-name">Full Name *</label>
+                <input type="text" id="rsvp-name" name="name" required placeholder="Enter your name" />
+              </div>
+              <div class="form-group">
+                <label for="rsvp-phone">Phone Number *</label>
+                <input type="tel" id="rsvp-phone" name="phone" required placeholder="Enter phone number" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="rsvp-guests">Number of Guests *</label>
+              <select id="rsvp-guests" name="guests">
+                <option value="1">1 Guest</option>
+                <option value="2" selected>2 Guests</option>
+                <option value="3">3 Guests</option>
+                <option value="4">4 Guests</option>
+                <option value="5">5+ Guests</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Attendance *</label>
+              <div class="rsvp-radio-row">
+                <label class="rsvp-pill-choice">
+                  <input type="radio" name="rsvp-attendance" value="Joyfully Accept" checked />
+                  <span>🌸 Joyfully Accept</span>
+                </label>
+                <label class="rsvp-pill-choice">
+                  <input type="radio" name="rsvp-attendance" value="Regretfully Decline" />
+                  <span>🕊️ Regretfully Decline</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="rsvp-submit-wrap">
+              <button type="submit" id="btn-submit-rsvp" class="btn-royal-primary btn-rsvp-submit">
+                <span data-bind="rsvp.submitLabel">Submit RSVP</span>
+                <span class="arrow">⟶</span>
+              </button>
+            </div>
+
+            <div id="rsvp-status-msg" class="rsvp-feedback-msg" role="alert"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 9: VENUE & LOCATION
+         ========================================== -->
+    <section id="venue" class="venue-section" data-section="venue">
+      <div class="section-container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Destination &amp; Location</span>
+          <h2 class="section-title">The Royal Wedding Venue</h2>
+          <img src="assets/images/royal-floral-divider.png" alt="" class="section-floral-divider" aria-hidden="true" />
+          <p class="section-subtitle">Find your way to the grand palace celebration in the Pink City</p>
+        </div>
+
+        <div class="venue-showcase-card reveal">
+          <div class="venue-image-wrap">
+            <img src="assets/images/venue.jpg" alt="The Grand Heritage Palace, Jaipur" class="venue-cover-img" data-bind-img="media.venuePhoto" />
+            <div class="venue-tag">Palace Courtyard &amp; Royal Mandap</div>
+          </div>
+          <div class="venue-details-body">
+            <h3 class="venue-palace-name" data-bind="event.venueName">The Grand Heritage Palace &amp; Royal Gardens</h3>
+            <p class="venue-address" data-bind="event.address">Palace Road, Civil Lines, Jaipur, Rajasthan 302006, India</p>
+
+            <div class="venue-meta-pills">
+              <span class="pill-item">🏛️ Royal Rajput Architecture</span>
+              <span class="pill-item">🚗 Valet Parking Available</span>
+              <span class="pill-item">☕ Royal High Tea &amp; Banquet</span>
+            </div>
+
+            <p class="venue-notes" data-bind="event.notes">
+              Royal Shehnai welcome, valet parking and a lavish gala banquet at the Maharaja Courtyard.
+            </p>
+
+            <div class="venue-cta-row">
+              <a href="https://maps.google.com/?q=The+Grand+Heritage+Palace+Jaipur" target="_blank" rel="noopener" class="btn-royal-primary" data-bind-href="event.mapsUrl">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+                <span>Get Directions on Google Maps</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Royal Floral Toran Garland Divider Before Blessings -->
+    <div class="royal-garland-divider-wrap reveal" aria-hidden="true">
+      <img src="assets/images/royal-floral-garland.png" alt="" class="royal-swag-garland" />
+    </div>
+
+    <!-- ==========================================
+         SECTION 10: CLOSING BLESSINGS & FOOTER
+         ========================================== -->
+    <section class="closing-section" data-section="closing">
+      <div class="section-container">
+        <div class="closing-box reveal">
+          <img src="assets/images/royal-rose-blossom.png" alt="" class="closing-rose-badge" aria-hidden="true" />
+          <h2 class="closing-title">With Warm Blessings &amp; Gratitude</h2>
+          <div class="royal-flourish">❦</div>
+          <p class="closing-message" data-bind="couple.closingMessage">
+            Your presence, warm smiles and sacred blessings will be the greatest ornament on our special day.
+          </p>
+          <div class="closing-names" data-bind="couple.displayName">Ananya &amp; Kabir</div>
+          <p class="closing-footer-family" data-bind="couple.footerMessage">
+            With heartfelt gratitude from the Singhania &amp; Roy Families
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="invitation-footer" data-section="footer">
+      <div class="footer-container">
+        <p class="footer-brand">
+          Crafted with love on <a href="https://mehfill.in/" target="_blank" rel="noopener">Mehfill.in</a> · Luxury Digital Wedding Invitations
+        </p>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ==========================================
+       PHOTO LIGHTBOX MODAL
+       ========================================== -->
+  <div id="gallery-lightbox" class="lightbox-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="lb-backdrop"></div>
+    <div class="lb-dialog">
+      <button type="button" id="lb-close" class="lb-close-btn" aria-label="Close photo view">✕</button>
+      <button type="button" id="lb-prev" class="lb-nav-btn lb-prev" aria-label="Previous photo">‹</button>
+      <button type="button" id="lb-next" class="lb-nav-btn lb-next" aria-label="Next photo">›</button>
+      <div class="lb-content">
+        <img id="lb-image" src="" alt="Wedding Gallery Photo" />
+        <div class="lb-caption-bar">
+          <span id="lb-caption" class="lb-caption-text"></span>
+          <span id="lb-counter" class="lb-counter-text"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared Configuration & Script Architecture -->
+  <script src="js/invitation-data.js"></script>
+  <script src="js/invitation-renderer.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

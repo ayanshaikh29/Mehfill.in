@@ -121,4 +121,17 @@ export const SHOWCASE: Showcase[] = [
     badge: "NEW DESIGN",
     palette: { bg: "#F8F3EA", ink: "#30251F", accent: "#C6A46A" },
   },
+  {
+    slug: "ananya-kabir-royal-floral",
+    catalogSlug: "royal-floral-garden",
+    names: "Ananya & Kabir",
+    occasion: "Royal Wedding · Vivah",
+    title: "Royal Jaipur Mandap Wedding Invitation",
+    description:
+      "A majestic royal Indian wedding invitation featuring full-screen Jaipur Mandap, cascading floral garlands, hanging golden lanterns, romantic story milestones, interactive scratch card, countdown and live RSVP.",
+    url: "https://mehfill.in/site-9/",
+    image: "/site-9/cover.jpg",
+    badge: "NEW LAUNCH",
+    palette: { bg: "#FFF7E9", ink: "#075E50", accent: "#C49A48" },
+  },
 ];

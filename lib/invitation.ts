@@ -175,7 +175,7 @@ const RESERVED_SLUGS = new Set([
   "admin", "api", "dashboard", "demos", "login", "checkout", "about",
   "contact", "privacy-policy", "terms-and-conditions", "refund-policy",
   "cookie-policy", "studio", "site-1", "site-2", "site-3", "site-4",
-  "site-5", "site-6", "site-7", "site-8", "i", "static", "assets",
+  "site-5", "site-6", "site-7", "site-8", "site-9", "i", "static", "assets",
 ]);
 
 export function slugify(input: string): string {

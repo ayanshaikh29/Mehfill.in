@@ -385,6 +385,33 @@ export const BINDINGS: Record<string, TemplateBinding> = {
     eventsStyle: "wedding",
     externalScript: true,
   },
+  // site-9 · Ananya & Kabir — Royal Floral Garden (Jaipur Mandap)
+  "royal-floral-garden": {
+    siteDir: "site-9",
+    coupleAnchors: [
+      "Ananya &amp; Kabir",
+      "Ananya & Kabir",
+      "Kabir &amp; Ananya",
+      "Kabir & Ananya",
+    ],
+    coupleSplit: [
+      {
+        original: '<span class="bride-first" data-bind="couple.brideName">Ananya</span>\n            <span class="mandap-ampersand">&amp;</span>\n            <span class="groom-first" data-bind="couple.groomName">Kabir</span>',
+        template: '<span class="bride-first" data-bind="couple.brideName">{{bride}}</span>\n            <span class="mandap-ampersand">&amp;</span>\n            <span class="groom-first" data-bind="couple.groomName">{{groom}}</span>',
+      },
+    ],
+    brideAnchors: ["Ananya", "Ananya Roy"],
+    groomAnchors: ["Kabir", "Kabir Singhania"],
+    initialsAnchors: ["A · K", "A&nbsp;·&nbsp;K", "K · A"],
+    andNameAnchors: ["Ananya and Kabir", "Kabir and Ananya"],
+    demoDates: ["18 December 2026", "18 . 12 . 2026", "18 · 12 · 2026"],
+    demoDateISO: "2026-12-18",
+    demoVenues: ["The Grand Heritage Palace & Royal Gardens", "The Grand Heritage Palace, Jaipur"],
+    demoCities: ["Jaipur, Rajasthan", "Jaipur"],
+    demoTimes: ["5:30 PM onwards", "5:30 PM"],
+    eventsStyle: "wedding",
+    externalScript: true,
+  },
 };
 
 export function getBinding(templateSlug: string): TemplateBinding | undefined {

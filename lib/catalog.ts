@@ -158,6 +158,20 @@ export const CATALOG: CatalogTemplate[] = [
     fields: { ...ALL_FIELDS, music: true },
     demoUrl: "/site-8",
   },
+  {
+    slug: "royal-floral-garden",
+    name: "Royal Floral Garden",
+    occasion: "Royal Wedding · Vivah",
+    tagline: "Full-screen Jaipur Mandap, cascading rose garlands & royal gold",
+    description:
+      "A majestic royal Indian wedding invitation featuring full-screen Jaipur Mandap, cascading floral garland torans, hanging golden lanterns, falling rose petals, romantic story milestones, interactive scratch card, countdown and live RSVP.",
+    image: "/site-9/cover.jpg",
+    variant: "emerald",
+    palette: { bg: "#FFF7E9", ink: "#075E50", accent: "#C49A48", muted: "#E85C83" },
+    coverImage: "/site-9/cover.jpg",
+    fields: { ...ALL_FIELDS, music: true },
+    demoUrl: "/site-9",
+  },
 ];
 
 export function getCatalogTemplate(slug: string): CatalogTemplate | undefined {

@@ -1302,9 +1302,9 @@ export async function renderPersonalizedInvitation(
     hasGallery,
     storyPhoto: gallery[0],
     loveStory: content.loveStory || [],
-    // site-8 already owns its RSVP form UX (WhatsApp + success panel) — only
+    // site-8 and site-9 already own their RSVP form UX (WhatsApp + success panel) — only
     // record the response, never open a second WhatsApp window.
-    nativeRsvp: binding.siteDir === "site-8",
+    nativeRsvp: binding.siteDir === "site-8" || binding.siteDir === "site-9",
   });
   if (html.includes("</body>")) {
     html = html.replace("</body>", `${override}\n</body>`);

@@ -44,7 +44,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     // Static HTML demo invitations (real designs guests open).
-    ...["site-1", "site-2", "site-3", "site-4", "site-5", "site-6", "site-7", "site-8"].map((s) => ({
+    ...["site-1", "site-2", "site-3", "site-4", "site-5", "site-6", "site-7", "site-8", "site-9"].map((s) => ({
       url: `${BASE}/${s}`,
       lastModified,
       changeFrequency: "monthly" as const,

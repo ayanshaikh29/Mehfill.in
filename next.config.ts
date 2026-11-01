@@ -140,6 +140,8 @@ const nextConfig: NextConfig = {
       { source: "/site-7/", destination: "/site-7/index.html" },
       { source: "/site-8", destination: "/site-8/index.html" },
       { source: "/site-8/", destination: "/site-8/index.html" },
+      { source: "/site-9", destination: "/site-9/index.html" },
+      { source: "/site-9/", destination: "/site-9/index.html" },
       {
         source: "/security.txt",
         destination: "/.well-known/security.txt",

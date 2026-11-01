@@ -22,9 +22,10 @@ const SLUGS = [
   "blush-garden",
   "royal-marigold",
   "luxury-ivory-reception",
+  "royal-floral-garden",
 ];
 
-const DEMO_COUPLE = ["Hamza", "Maryam", "Arham", "Zoya", "Rehan", "Ishita", "Aarav", "Kiara"];
+const DEMO_COUPLE = ["Hamza", "Maryam", "Arham", "Zoya", "Rehan", "Ishita", "Aarav", "Kiara", "Ananya", "Kabir"];
 const DEMO_DATES = [
   "2026-08-31", "2026-12-28", "2026-12-18", "2026-11-15", "2027-02-14", "2027-11-28",
   "August 31", "31 August 2026", "28 December 2026", "December 28", "18 December 2026",

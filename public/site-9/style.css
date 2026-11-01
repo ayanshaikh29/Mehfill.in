@@ -1,0 +1,2377 @@
+/*
+ * Mehfill.in — Site 9: Royal Floral Wedding Invitation
+ * Theme: Pink Floral + Emerald Green + Cream + Antique Gold
+ * Typography: Cormorant Garamond, Playfair Display, Montserrat
+ */
+
+:root {
+  --color-emerald: #075E50;
+  --color-deep-green: #064A40;
+  --color-floral-pink: #E85C83;
+  --color-blush-pink: #F7DDE5;
+  --color-ivory: #FFF7E9;
+  --color-gold: #C49A48;
+  --color-gold-light: #F4E2B7;
+  --color-gold-hover: #A67C2E;
+  --color-soft-white: #FFFCF7;
+  --color-text-dark: #2A2421;
+  --color-text-muted: #6B5E57;
+
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-names: 'Playfair Display', Georgia, serif;
+  --font-body: 'Montserrat', system-ui, -apple-system, sans-serif;
+  --font-script: 'Allura', cursive;
+
+  --shadow-subtle: 0 4px 20px rgba(7, 94, 80, 0.08);
+  --shadow-medium: 0 10px 30px rgba(7, 94, 80, 0.14);
+  --shadow-gold: 0 6px 25px rgba(196, 154, 72, 0.28);
+  --radius-card: 18px;
+  --radius-pill: 50px;
+  --transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-ivory);
+  color: var(--color-text-dark);
+  line-height: 1.6;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body.mf-locked {
+  overflow: hidden !important;
+}
+
+/* ============================================================
+   FALLING PETALS CANVAS
+   ============================================================ */
+#petals-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 99;
+}
+
+/* ============================================================
+   SECTION 1: DIRECT VIDEO EXPERIENCE GATE
+   Full-screen video with direct text overlay (no separate card)
+   At 0:04, Bride & Groom names animate in on top of the video!
+   ============================================================ */
+.video-intro-gate {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background-color: #031F1A;
+  overflow: hidden;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.video-intro-gate.fade-out {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+.intro-video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.85) contrast(1.05);
+}
+
+.intro-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(3, 31, 26, 0.45) 0%, rgba(3, 31, 26, 0.08) 35%, rgba(3, 31, 26, 0.12) 65%, rgba(3, 31, 26, 0.65) 100%);
+  pointer-events: none;
+}
+
+.intro-skip-corner {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(3, 31, 26, 0.65);
+  color: var(--color-gold-light);
+  border: 1px solid rgba(196, 154, 72, 0.4);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: var(--transition);
+}
+
+.intro-skip-corner:hover {
+  background: rgba(7, 94, 80, 0.9);
+  border-color: var(--color-gold);
+  color: #FFFFFF;
+  transform: translateX(2px);
+}
+
+.intro-overlay-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 50px 20px 48px;
+  text-align: center;
+  color: var(--color-soft-white);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.intro-top-banner {
+  pointer-events: auto;
+  animation: introFadeDown 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.intro-top-banner.fade-subtle {
+  opacity: 0.85;
+}
+
+.intro-eyebrow-text {
+  display: block;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--color-gold-light);
+  margin-bottom: 8px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.intro-main-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 6vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--color-soft-white);
+  line-height: 1.1;
+  text-shadow: 0 4px 25px rgba(0, 0, 0, 0.9);
+}
+
+.intro-gold-divider {
+  color: var(--color-gold);
+  font-size: 1.4rem;
+  margin-top: 6px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* 2. Phase 1: Revelations at 0:01 - 0:03 */
+.intro-invited-reveal {
+  pointer-events: auto;
+  opacity: 0;
+  transform: scale(0.92) translateY(12px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: auto 0;
+}
+
+.intro-invited-reveal.revealed {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.invited-accent-text {
+  font-family: var(--font-heading);
+  font-size: clamp(2.6rem, 7.5vw, 4.8rem);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: #FFF7E9;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.95), 0 0 35px rgba(222, 186, 110, 0.65);
+}
+
+/* 3. Phase 2: Revelations at 0:03 onwards */
+.intro-couple-reveal {
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(28px) scale(0.92);
+  transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 18px 26px;
+  background: radial-gradient(circle at center, rgba(3, 31, 26, 0.72) 0%, rgba(3, 31, 26, 0.4) 70%, transparent 100%);
+  border-radius: 20px;
+}
+
+.intro-couple-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.intro-sub-text {
+  font-family: var(--font-heading);
+  font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+  font-style: italic;
+  color: var(--color-blush-pink);
+  margin-bottom: 6px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+}
+
+.intro-names-text {
+  font-family: var(--font-names);
+  font-size: clamp(2.8rem, 8vw, 4.8rem);
+  font-weight: 700;
+  color: var(--color-gold-light);
+  line-height: 1.1;
+  margin-bottom: 12px;
+  text-shadow: 0 0 25px rgba(222, 186, 110, 0.55), 0 4px 30px rgba(0, 0, 0, 0.95);
+}
+
+.intro-date-badge {
+  display: inline-block;
+  background-color: rgba(7, 94, 80, 0.9);
+  color: var(--color-gold-light);
+  border: 1px solid var(--color-gold);
+  border-radius: var(--radius-pill);
+  padding: 6px 22px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* 3. Small compact Open Invitation button */
+.intro-bottom-action {
+  pointer-events: auto;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-royal-open-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--color-gold), #A67C2E);
+  color: #171206;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-gold-light);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(196, 154, 72, 0.3);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-royal-open-compact:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 30px rgba(196, 154, 72, 0.7);
+  background: linear-gradient(135deg, #DEBA6E, var(--color-gold));
+}
+
+.btn-royal-enter-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #075E50, #064A40);
+  color: #FFF7E9;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-gold);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(196, 154, 72, 0.4);
+  cursor: pointer;
+  transition: var(--transition);
+  animation: enterPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes enterPulse {
+  0%, 100% { box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(196, 154, 72, 0.4); }
+  50% { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(222, 186, 110, 0.75); }
+}
+
+.btn-royal-enter-compact:hover {
+  transform: translateY(-2px) scale(1.03);
+  background: linear-gradient(135deg, #097564, #075E50);
+}
+
+.btn-compact-sparkle {
+  font-size: 1.1rem;
+}
+
+.btn-compact-arrow {
+  font-size: 1.1rem;
+  transition: transform 0.25s ease;
+}
+
+.btn-royal-open-compact:hover .btn-compact-arrow,
+.btn-royal-enter-compact:hover .btn-compact-arrow {
+  transform: translateX(4px);
+}
+
+@keyframes introFadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   FLOATING INTERACTION CONTROLS
+   ============================================================ */
+.floating-controls {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.float-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--color-emerald);
+  color: var(--color-gold-light);
+  border: 2px solid var(--color-gold);
+  box-shadow: var(--shadow-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+
+.float-btn:hover {
+  transform: scale(1.1);
+  background: var(--color-deep-green);
+}
+
+.float-music.is-playing .icon-music {
+  animation: spinSlow 4s linear infinite;
+  color: var(--color-floral-pink);
+}
+
+.float-music.is-playing .music-wave-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--color-floral-pink);
+  animation: rippleRing 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+/* ============================================================
+   SECTION 1: HERO SECTION – ROYAL JAIPUR WEDDING MANDAP
+   Carved Sandstone Pillars, Pink Roses, Ivory Drapes,
+   Antique Golden Lanterns & Real HTML Couple Names Overlay
+   ============================================================ */
+.hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  background-color: var(--color-ivory);
+  overflow: hidden;
+}
+
+.mandap-hero-frame {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+}
+
+.mandap-picture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.mandap-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  filter: brightness(1.02) contrast(1.02);
+  transition: transform 12s ease;
+}
+
+.mandap-hero-frame:hover .mandap-hero-img {
+  transform: scale(1.02);
+}
+
+.mandap-overlay-tint {
+  display: none !important;
+}
+
+.mandap-hero-content {
+  position: relative;
+  z-index: 10;
+  max-width: 680px;
+  width: calc(100% - 32px);
+  margin: 0 auto;
+  padding: 44px 24px 40px;
+  text-align: center;
+  color: var(--color-soft-white);
+  box-sizing: border-box;
+  background: radial-gradient(ellipse at center, rgba(8, 28, 22, 0.72) 0%, rgba(8, 28, 22, 0.46) 55%, rgba(8, 28, 22, 0.12) 80%, transparent 100%);
+  border-radius: 32px;
+}
+
+.mandap-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(7, 94, 80, 0.95), rgba(4, 53, 45, 0.98));
+  color: #F8D98C;
+  border: 1.5px solid #C49A48;
+  border-radius: var(--radius-pill);
+  padding: 8px 24px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.mandap-family-intro {
+  font-family: var(--font-heading);
+  font-size: clamp(1.2rem, 3.2vw, 1.7rem);
+  font-style: italic;
+  font-weight: 600;
+  color: #FFF2DA;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 1), 0 4px 18px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.04em;
+}
+
+.mandap-couple-names {
+  font-family: var(--font-names);
+  font-size: clamp(2.8rem, 8.5vw, 5.2rem);
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.08;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0, 0, 0, 1), 0 8px 32px rgba(0, 0, 0, 0.85);
+}
+
+.mandap-ampersand {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.55em;
+  font-style: italic;
+  font-weight: 400;
+  color: #F8D98C;
+  margin: -4px 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 1);
+}
+
+.mandap-invitation-lead {
+  font-family: var(--font-heading);
+  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  font-style: italic;
+  font-weight: 600;
+  color: #FFF2DA;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 1);
+}
+
+.mandap-date-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(7, 94, 80, 0.95), rgba(4, 53, 45, 0.98));
+  color: #F8D98C;
+  border: 1.5px solid #C49A48;
+  border-radius: var(--radius-pill);
+  padding: 9px 28px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+  margin-bottom: 12px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.mandap-venue-text {
+  font-family: var(--font-body);
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 3px rgba(0, 0, 0, 1);
+  margin-bottom: 26px;
+}
+
+.mandap-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-royal-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #075E50, #043F36);
+  color: #FFF7E9;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 13px 28px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid #C49A48;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 16px rgba(196, 154, 72, 0.3);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-royal-primary:hover {
+  background: linear-gradient(135deg, #097564, #075E50);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), 0 0 22px rgba(196, 154, 72, 0.5);
+}
+
+.btn-royal-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #C49A48, #9A7228);
+  color: #0A221C;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 13px 28px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid #F3D89A;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 16px rgba(196, 154, 72, 0.4);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-royal-secondary:hover {
+  background: linear-gradient(135deg, #DEBA6E, #C49A48);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), 0 0 24px rgba(222, 186, 110, 0.6);
+}
+
+/* ============================================================
+   SHARED SECTION HEADERS
+   ============================================================ */
+.section-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 70px 24px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 44px;
+}
+
+.section-eyebrow {
+  display: inline-block;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--color-floral-pink);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  color: var(--color-emerald);
+  line-height: 1.15;
+  margin-bottom: 6px;
+}
+
+.royal-flourish {
+  color: var(--color-gold);
+  font-size: 1.4rem;
+  margin: 8px auto;
+}
+
+.section-subtitle {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   SECTION 6: SPECIAL SURPRISE SCRATCH CARD
+   Must appear BEFORE Countdown!
+   ============================================================ */
+.scratch-card-section {
+  background-color: #FAF4EB;
+  border-top: 1px solid rgba(196, 154, 72, 0.25);
+  border-bottom: 1px solid rgba(196, 154, 72, 0.25);
+}
+
+.scratch-card-wrapper {
+  max-width: 580px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.scratch-card-inner.royal-jharokha-frame {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: radial-gradient(ellipse at 50% 15%, #FFFDF9 0%, #FBF3E8 100%);
+  border: 2px solid var(--color-gold);
+  border-radius: 70px 70px 24px 24px;
+  padding: 44px 30px 36px;
+  text-align: center;
+  box-shadow: 0 0 0 5px #FFFDF9, 0 0 0 7px rgba(196, 154, 72, 0.4), 0 20px 50px rgba(7, 94, 80, 0.16);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.scratch-header-content {
+  position: relative;
+  z-index: 3;
+}
+
+.royal-flourish-mini {
+  color: var(--color-gold);
+  font-size: 1.2rem;
+  margin: 2px 0 10px;
+}
+
+.scratch-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-floral-pink);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.scratch-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 4vw, 2.3rem);
+  color: var(--color-emerald);
+  margin-bottom: 2px;
+}
+
+.scratch-subtitle {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+  margin-bottom: 20px;
+}
+
+.scratch-wrap.royal-scratch-ticket {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  height: 220px;
+  margin: 20px auto 14px;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 3px solid #D9B866;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.85), inset 0 -3px 6px rgba(0, 0, 0, 0.25), 0 14px 40px rgba(6, 74, 64, 0.22);
+  background: #FFFDF9;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.scratch-wrap.royal-scratch-ticket.celebration-glow {
+  transform: scale(1.02);
+  border-color: #FFF3C4;
+  box-shadow: 0 0 35px rgba(217, 184, 102, 0.95), 0 0 75px rgba(232, 92, 131, 0.55), 0 16px 45px rgba(6, 74, 64, 0.35);
+  animation: celebrationPulse 2.2s infinite alternate ease-in-out;
+}
+
+@keyframes celebrationPulse {
+  0% { box-shadow: 0 0 25px rgba(217, 184, 102, 0.8), 0 0 50px rgba(232, 92, 131, 0.4); }
+  100% { box-shadow: 0 0 45px rgba(217, 184, 102, 1), 0 0 85px rgba(232, 92, 131, 0.7); }
+}
+
+.scratch-confetti-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.scratch-revealed-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 22px 20px;
+  box-sizing: border-box;
+  background: radial-gradient(circle at center, #FFFDF9 0%, #FAF0E0 100%);
+  border: 2px dashed rgba(196, 154, 72, 0.65);
+  border-radius: 20px;
+  text-align: center;
+  z-index: 1;
+}
+
+.surprise-icon {
+  font-size: 1.8rem;
+  margin-bottom: 2px;
+  animation: floatFlower 3s ease-in-out infinite;
+}
+
+@keyframes floatFlower {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.scratch-reveal-save-tag {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--color-floral-pink);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.scratch-reveal-date {
+  font-family: var(--font-names);
+  font-size: clamp(2rem, 5.5vw, 2.7rem);
+  font-weight: 700;
+  color: var(--color-emerald);
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 10px rgba(7, 94, 80, 0.15);
+}
+
+.scratch-reveal-msg {
+  font-size: 0.88rem;
+  color: var(--color-text-dark);
+  line-height: 1.45;
+  margin-bottom: 6px;
+  max-width: 340px;
+}
+
+.surprise-blessing {
+  font-size: 0.85rem;
+  color: var(--color-gold-dark, #8A6420);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.scratch-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  z-index: 5;
+  touch-action: none;
+  border-radius: 20px;
+}
+
+.scratch-celebration-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--color-emerald), var(--color-deep-green));
+  color: var(--color-gold-light);
+  border: 1px solid var(--color-gold);
+  border-radius: var(--radius-pill);
+  padding: 8px 22px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-top: 12px;
+  box-shadow: 0 6px 20px rgba(7, 94, 80, 0.3);
+  animation: bounceBanner 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bounceBanner {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.sparkle-anim {
+  animation: sparkleTwinkle 1.2s infinite alternate;
+}
+
+@keyframes sparkleTwinkle {
+  0% { transform: scale(0.8) rotate(0deg); }
+  100% { transform: scale(1.3) rotate(20deg); }
+}
+
+.scratch-tip {
+  font-size: 0.84rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin-top: 12px;
+}
+
+/* Transparent Floral Corner Decorations */
+.card-floral-corner {
+  position: absolute;
+  width: clamp(55px, 11vw, 115px);
+  height: auto;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.92;
+  transition: opacity 0.3s ease;
+}
+
+.corner-top-left {
+  top: -8px;
+  left: -8px;
+}
+
+.corner-top-right {
+  top: -8px;
+  right: -8px;
+}
+
+.corner-bottom-left {
+  bottom: -8px;
+  left: -8px;
+}
+
+.corner-bottom-right {
+  bottom: -8px;
+  right: -8px;
+}
+
+/* ============================================================
+   SECTION 3: WEDDING COUNTDOWN (HORIZONTAL 4-CARD ROW)
+   Guaranteed single-row fit without clipping or overflow!
+   ============================================================ */
+.countdown-section {
+  background: radial-gradient(circle at 50% 30%, #FFFDF9 0%, var(--color-ivory) 100%);
+  padding: 60px 16px;
+}
+
+.countdown-row-wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 44px 28px 38px;
+  background: linear-gradient(135deg, #075E50 0%, #04362E 100%);
+  border: 2px solid var(--color-gold);
+  border-radius: 26px;
+  color: var(--color-soft-white);
+  box-shadow: 0 20px 50px rgba(6, 74, 64, 0.28);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.countdown-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-gold-light);
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 3;
+}
+
+.countdown-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+  color: var(--color-soft-white);
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 3;
+}
+
+.countdown-subtitle {
+  font-family: var(--font-heading);
+  font-size: clamp(0.92rem, 2vw, 1.05rem);
+  font-style: italic;
+  color: var(--color-blush-pink);
+  margin: 0 auto 20px;
+  max-width: 520px;
+  line-height: 1.45;
+  position: relative;
+  z-index: 3;
+}
+
+.countdown-horizontal-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, 2vw, 18px);
+  width: 100%;
+  max-width: 740px;
+  margin: 22px auto 0;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 3;
+}
+
+.countdown-timer-card {
+  background-color: rgba(3, 31, 26, 0.75);
+  border: 1px solid rgba(196, 154, 72, 0.6);
+  border-radius: 14px;
+  padding: 20px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.countdown-timer-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-gold);
+}
+
+.countdown-timer-card .timer-num {
+  font-family: var(--font-names);
+  font-size: clamp(1.6rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--color-gold-light);
+  line-height: 1;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.countdown-timer-card .timer-label {
+  font-size: clamp(0.62rem, 1.4vw, 0.75rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-blush-pink);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.countdown-passed-message {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--color-gold-light);
+  margin-top: 16px;
+  position: relative;
+  z-index: 3;
+}
+
+@media (max-width: 600px) {
+  .countdown-row-wrapper {
+    padding: 32px 12px 26px;
+  }
+  .countdown-horizontal-row {
+    gap: 6px;
+    margin-top: 16px;
+  }
+  .countdown-timer-card {
+    padding: 12px 2px;
+    border-radius: 10px;
+  }
+  .countdown-timer-card .timer-num {
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
+    margin-bottom: 2px;
+  }
+  .countdown-timer-card .timer-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+  }
+}
+
+@media (max-width: 340px) {
+  .countdown-horizontal-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .countdown-timer-card {
+    padding: 14px 6px;
+  }
+}
+
+/* ============================================================
+   SECTION 3: BRIDE & GROOM PROFILES
+   ============================================================ */
+.couple-section {
+  background-color: var(--color-ivory);
+}
+
+.couple-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 36px;
+  margin-bottom: 48px;
+}
+
+.couple-card {
+  background-color: var(--color-soft-white);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  border: 1px solid rgba(196, 154, 72, 0.3);
+  box-shadow: var(--shadow-medium);
+  text-align: center;
+  transition: var(--transition);
+}
+
+.couple-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-gold);
+}
+
+.couple-img-frame {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 4 / 5;
+  margin: 0 auto 20px;
+  border-radius: 140px 140px 14px 14px;
+  overflow: hidden;
+  border: 3px solid var(--color-gold);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.couple-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+}
+
+.couple-card:hover .couple-portrait-img {
+  transform: scale(1.05);
+}
+
+.card-role-tag {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-emerald);
+  color: var(--color-gold-light);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 4px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-gold);
+}
+
+.couple-name {
+  font-family: var(--font-names);
+  font-size: 1.8rem;
+  color: var(--color-emerald);
+  margin-bottom: 6px;
+}
+
+.couple-parents {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 14px;
+}
+
+.parents-label {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-floral-pink);
+}
+
+.couple-bio {
+  font-size: 0.92rem;
+  color: var(--color-text-dark);
+  line-height: 1.6;
+}
+
+.couple-center-emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emblem-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: var(--color-emerald);
+  border: 2px solid var(--color-gold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gold-light);
+  box-shadow: var(--shadow-gold);
+}
+
+.emblem-initials {
+  font-family: var(--font-names);
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.emblem-sub {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-blush-pink);
+}
+
+.family-invitation-box {
+  background: linear-gradient(135deg, rgba(7, 94, 80, 0.04), rgba(232, 92, 131, 0.05));
+  border: 1px dashed var(--color-gold);
+  border-radius: var(--radius-card);
+  padding: 32px 40px;
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.family-invitation-text {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--color-emerald);
+  line-height: 1.8;
+}
+
+/* ============================================================
+   SECTION 4: OUR LOVE STORY
+   ============================================================ */
+.story-section {
+  background-color: #FAF4EB;
+}
+
+.story-timeline {
+  position: relative;
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+.story-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--color-gold) 15%, var(--color-gold) 85%, transparent);
+  transform: translateX(-50%);
+}
+
+.story-item {
+  position: relative;
+  display: flex;
+  margin-bottom: 48px;
+  width: 100%;
+}
+
+.story-left {
+  justify-content: flex-start;
+  padding-right: calc(50% + 28px);
+}
+
+.story-right {
+  justify-content: flex-end;
+  padding-left: calc(50% + 28px);
+}
+
+.story-node {
+  position: absolute;
+  left: 50%;
+  top: 24px;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.story-node-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--color-gold);
+  background-color: var(--color-soft-white);
+}
+
+.story-node-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-floral-pink);
+  z-index: 2;
+}
+
+.story-card {
+  background-color: var(--color-soft-white);
+  border: 1px solid rgba(196, 154, 72, 0.3);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: var(--shadow-subtle);
+  width: 100%;
+  transition: var(--transition);
+}
+
+.story-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+}
+
+.story-img-wrap {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.story-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.story-card:hover .story-img-wrap img {
+  transform: scale(1.06);
+}
+
+.story-date {
+  display: inline-block;
+  background-color: rgba(232, 92, 131, 0.12);
+  color: var(--color-floral-pink);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 8px;
+}
+
+.story-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: var(--color-emerald);
+  margin-bottom: 8px;
+}
+
+.story-desc {
+  font-size: 0.92rem;
+  color: var(--color-text-dark);
+  line-height: 1.6;
+}
+
+/* ============================================================
+   SECTION 5: WEDDING EVENTS & FUNCTIONS
+   ============================================================ */
+.events-section {
+  background-color: var(--color-ivory);
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.event-card {
+  background-color: var(--color-soft-white);
+  border-radius: var(--radius-card);
+  border: 1px solid rgba(196, 154, 72, 0.35);
+  box-shadow: var(--shadow-subtle);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+}
+
+.event-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-gold);
+}
+
+.event-banner {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.event-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+}
+
+.event-card:hover .event-banner img {
+  transform: scale(1.08);
+}
+
+.event-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.event-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.event-date-chip, .event-time-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.event-date-chip {
+  background-color: var(--color-emerald);
+  color: var(--color-gold-light);
+}
+
+.event-time-chip {
+  background-color: rgba(232, 92, 131, 0.15);
+  color: var(--color-floral-pink);
+}
+
+.event-title {
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+  color: var(--color-emerald);
+  margin-bottom: 8px;
+}
+
+.event-desc {
+  font-size: 0.92rem;
+  color: var(--color-text-dark);
+  line-height: 1.6;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.event-venue-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+.event-icon {
+  color: var(--color-floral-pink);
+  flex-shrink: 0;
+}
+
+.event-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-emerald);
+  text-decoration: none;
+  border-top: 1px solid rgba(196, 154, 72, 0.2);
+  padding-top: 14px;
+  transition: color 0.2s ease;
+}
+
+.event-link:hover {
+  color: var(--color-floral-pink);
+}
+
+.dress-code-banner {
+  background: linear-gradient(135deg, var(--color-emerald), var(--color-deep-green));
+  color: var(--color-soft-white);
+  border-radius: var(--radius-card);
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: 1px solid var(--color-gold);
+  box-shadow: 0 8px 25px rgba(7, 94, 80, 0.3);
+}
+
+.dress-code-icon {
+  font-size: 2rem;
+  color: var(--color-gold-light);
+}
+
+.dress-code-heading {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+
+.dress-code-text {
+  font-size: 0.95rem;
+  color: var(--color-gold-light);
+}
+
+/* ============================================================
+   SECTION 6: PHOTO GALLERY (COMPACT GROUPED ALBUM)
+   ============================================================ */
+.gallery-section {
+  background-color: #FAF4EB;
+}
+
+.gallery-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.gal-tab {
+  background: var(--color-soft-white);
+  border: 1px solid rgba(196, 154, 72, 0.4);
+  color: var(--color-emerald);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.gal-tab:hover {
+  background-color: rgba(7, 94, 80, 0.08);
+}
+
+.gal-tab.is-active {
+  background-color: var(--color-emerald);
+  color: var(--color-gold-light);
+  border-color: var(--color-gold);
+}
+
+.gallery-compact-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-subtle);
+  border: 1px solid rgba(196, 154, 72, 0.25);
+  background-color: #EFE7DA;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.08);
+}
+
+.gallery-cap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 12px;
+  background: linear-gradient(0deg, rgba(3, 31, 26, 0.88) 0%, transparent 100%);
+  color: var(--color-soft-white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: var(--transition);
+}
+
+.gallery-item:hover .gallery-cap {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gallery-cap-title {
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gallery-zoom-icon {
+  color: var(--color-gold-light);
+  font-size: 1rem;
+}
+
+/* ============================================================
+   SECTION 7: VENUE & GOOGLE MAPS LOCATION
+   ============================================================ */
+.venue-section {
+  background-color: var(--color-ivory);
+}
+
+.venue-showcase-card {
+  background-color: var(--color-soft-white);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(196, 154, 72, 0.35);
+  box-shadow: var(--shadow-medium);
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+}
+
+.venue-image-wrap {
+  position: relative;
+  height: 100%;
+  min-height: 380px;
+}
+
+.venue-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.venue-tag {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background-color: var(--color-emerald);
+  color: var(--color-gold-light);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-gold);
+}
+
+.venue-details-body {
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.venue-palace-name {
+  font-family: var(--font-heading);
+  font-size: 2.1rem;
+  color: var(--color-emerald);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.venue-address {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin-bottom: 20px;
+}
+
+.venue-meta-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.pill-item {
+  font-size: 0.8rem;
+  background-color: rgba(7, 94, 80, 0.08);
+  color: var(--color-emerald);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+}
+
+.venue-notes {
+  font-size: 0.92rem;
+  color: var(--color-text-dark);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+/* ============================================================
+   SECTION 8: MINIMAL RSVP CARD
+   ============================================================ */
+.rsvp-section {
+  background-color: #FAF4EB;
+  border-top: 1px solid rgba(196, 154, 72, 0.2);
+  border-bottom: 1px solid rgba(196, 154, 72, 0.2);
+}
+
+.rsvp-card-wrapper {
+  max-width: 580px;
+  margin: 0 auto;
+  background-color: var(--color-soft-white);
+  border: 2px solid var(--color-gold);
+  border-radius: 24px;
+  padding: 42px 34px;
+  box-shadow: 0 16px 45px rgba(7, 94, 80, 0.12);
+}
+
+.rsvp-form-minimal {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 10px;
+}
+
+.rsvp-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 560px) {
+  .rsvp-form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .rsvp-card-wrapper {
+    padding: 30px 18px;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.form-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-emerald);
+  letter-spacing: 0.04em;
+}
+
+.form-group input[type="text"],
+.form-group input[type="tel"],
+.form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  border: 1px solid rgba(196, 154, 72, 0.45);
+  border-radius: 10px;
+  background-color: #FFFDF9;
+  color: var(--color-text-dark);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-emerald);
+  box-shadow: 0 0 0 3px rgba(7, 94, 80, 0.15);
+}
+
+.rsvp-radio-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rsvp-pill-choice {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  background-color: var(--color-ivory);
+  border: 1.5px solid rgba(196, 154, 72, 0.45);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-emerald);
+  transition: var(--transition);
+}
+
+.rsvp-pill-choice input {
+  display: none;
+}
+
+.rsvp-pill-choice:has(input:checked) {
+  background: linear-gradient(135deg, var(--color-emerald), var(--color-deep-green));
+  color: #FFF7E9;
+  border-color: var(--color-gold);
+  box-shadow: 0 4px 15px rgba(7, 94, 80, 0.3);
+}
+
+.rsvp-submit-wrap {
+  margin-top: 8px;
+}
+
+.btn-rsvp-submit {
+  width: 100%;
+  justify-content: center;
+  padding: 15px 28px;
+  font-size: 0.96rem;
+  box-sizing: border-box;
+}
+
+.rsvp-feedback-msg {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  display: none;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.rsvp-feedback-msg.success {
+  display: block;
+  background-color: rgba(7, 94, 80, 0.1);
+  color: var(--color-emerald);
+  border: 1px solid var(--color-emerald);
+}
+
+.rsvp-feedback-msg.error {
+  display: block;
+  background-color: rgba(232, 92, 131, 0.1);
+  color: #C02650;
+  border: 1px solid #C02650;
+}
+
+/* ============================================================
+   SECTION 9: CLOSING BLESSINGS & FOOTER
+   ============================================================ */
+.closing-section {
+  background-color: var(--color-ivory);
+  text-align: center;
+  padding: 70px 24px;
+}
+
+.closing-box {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.closing-emblem {
+  color: var(--color-gold);
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.closing-title {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  color: var(--color-emerald);
+  margin-bottom: 16px;
+}
+
+.closing-message {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--color-text-dark);
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+
+.closing-names {
+  font-family: var(--font-names);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-emerald);
+  margin-bottom: 8px;
+}
+
+.closing-footer-family {
+  font-size: 0.9rem;
+  color: var(--color-floral-pink);
+  font-weight: 500;
+}
+
+.invitation-footer {
+  background-color: var(--color-deep-green);
+  color: var(--color-gold-light);
+  padding: 24px 20px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.footer-brand a {
+  color: var(--color-soft-white);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ============================================================
+   PHOTO LIGHTBOX MODAL
+   ============================================================ */
+.lightbox-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.lightbox-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lb-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(3, 31, 26, 0.92);
+  backdrop-filter: blur(8px);
+}
+
+.lb-dialog {
+  position: relative;
+  z-index: 2;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lb-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lb-content img {
+  max-width: 85vw;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--color-gold);
+}
+
+.lb-caption-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 12px;
+  color: var(--color-soft-white);
+  font-size: 0.9rem;
+}
+
+.lb-counter-text {
+  color: var(--color-gold-light);
+  font-size: 0.8rem;
+}
+
+.lb-close-btn {
+  position: absolute;
+  top: -45px;
+  right: 0;
+  background: none;
+  border: none;
+  color: var(--color-soft-white);
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.lb-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(7, 94, 80, 0.65);
+  border: 1px solid var(--color-gold);
+  color: var(--color-soft-white);
+  font-size: 2.2rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: var(--transition);
+}
+
+.lb-prev { left: -65px; }
+.lb-next { right: -65px; }
+
+.lb-nav-btn:hover {
+  background-color: var(--color-emerald);
+}
+
+/* ============================================================
+   REVEAL ON SCROLL ANIMATIONS
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes cardFloat {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rippleRing {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@keyframes pulseRotate {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* ============================================================
+   RESPONSIVE QUERIES
+   ============================================================ */
+@media (max-width: 900px) {
+  .auspicious-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .couple-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .couple-center-emblem {
+    display: none;
+  }
+  .venue-showcase-card {
+    grid-template-columns: 1fr;
+  }
+  .venue-image-wrap {
+    min-height: 240px;
+  }
+  .gallery-compact-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .gallery-compact-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .hero-door-stage {
+    width: min(340px, 92vw);
+  }
+  .form-row-two {
+    grid-template-columns: 1fr;
+  }
+  .story-timeline::before {
+    left: 20px;
+  }
+  .story-item {
+    padding-left: 54px !important;
+    padding-right: 0 !important;
+  }
+  .story-node {
+    left: 20px;
+  }
+  .lb-prev { left: 10px; }
+  .lb-next { right: 10px; }
+  .hero-date-card {
+    flex-direction: column;
+    gap: 6px;
+    border-radius: var(--radius-card);
+  }
+  .date-sep {
+    display: none;
+  }
+  .timer-boxes {
+    gap: 8px;
+  }
+  .timer-box {
+    min-width: 64px;
+    padding: 10px 6px;
+  }
+  .timer-num {
+    font-size: 1.6rem;
+  }
+  .timer-sep {
+    display: none;
+  }
+}
+
+/* ============================================================
+   ROYAL FLORAL & DECORATIVE AI ELEMENTS (SITE-9 ENHANCEMENTS)
+   ============================================================ */
+
+/* 1. Dedicated Royal Garland Section Separator */
+.royal-garland-divider-wrap {
+  width: 100%;
+  max-width: 680px;
+  margin: 32px auto 20px;
+  padding: 0 16px;
+  text-align: center;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.royal-swag-garland {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  filter: drop-shadow(0 6px 16px rgba(196, 154, 72, 0.28));
+  animation: floatSubtle 4s ease-in-out infinite alternate;
+}
+
+/* 2. Global Section Floral Divider (Non-overlapping, clear margin) */
+.section-floral-divider {
+  display: block;
+  width: clamp(140px, 26vw, 240px);
+  height: auto;
+  margin: 10px auto 14px;
+  filter: drop-shadow(0 3px 8px rgba(196, 154, 72, 0.3));
+  pointer-events: none;
+  clear: both;
+}
+
+/* 3. Scratch Card Revealed Rose */
+.scratch-revealed-rose-img {
+  width: clamp(44px, 8vw, 58px);
+  height: auto;
+  margin: 0 auto 10px;
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(232, 92, 131, 0.4));
+  animation: popRotate 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 4. Countdown Watermark Mandala */
+.countdown-mandala-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(260px, 45vw, 480px);
+  height: auto;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+  animation: spinSlow 90s linear infinite;
+  mix-blend-mode: screen;
+}
+
+/* 5. Couple Section: Monogram Rotating Mandala */
+.monogram-ring-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 130px;
+  height: 130px;
+}
+
+.monogram-mandala-spin {
+  position: absolute;
+  inset: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  pointer-events: none;
+  opacity: 0.85;
+  filter: drop-shadow(0 4px 12px rgba(196, 154, 72, 0.4));
+  animation: spinInPlace 45s linear infinite;
+}
+
+.monogram-ring {
+  position: relative;
+  z-index: 2;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #075E50 0%, #032822 100%);
+  border: 2px solid var(--color-gold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gold-light);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.monogram-initials {
+  font-family: var(--font-names);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+}
+
+.monogram-knot {
+  font-size: 0.8rem;
+  color: var(--color-floral-pink);
+  margin-top: 2px;
+}
+
+/* 6. Ceremony Event Cards Corner Accents */
+.event-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.event-banner {
+  position: relative;
+  overflow: hidden;
+}
+
+.event-card-corner {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: clamp(42px, 8vw, 68px);
+  height: auto;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+}
+
+/* 7. Story Timeline Rose Milestone Icon */
+.story-node {
+  width: 30px;
+  height: 30px;
+}
+
+.story-node-ring {
+  border-color: rgba(196, 154, 72, 0.5);
+  background: rgba(255, 252, 247, 0.9);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.story-rose-icon {
+  position: relative;
+  z-index: 3;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 5px rgba(232, 92, 131, 0.4));
+  animation: pulseSubtle 3s ease-in-out infinite alternate;
+}
+
+.story-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.story-card-corner {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: clamp(36px, 6vw, 54px);
+  height: auto;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.8;
+}
+
+/* 8. Closing Blessings Box Frame & Rose Badge */
+.closing-box {
+  position: relative;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 44px 28px 38px;
+  background: linear-gradient(135deg, rgba(255, 252, 247, 0.98) 0%, rgba(247, 221, 229, 0.35) 100%);
+  border: 2px solid var(--color-gold);
+  border-radius: 24px;
+  box-shadow: 0 12px 35px rgba(7, 94, 80, 0.1);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.closing-rose-badge {
+  width: clamp(48px, 8vw, 64px);
+  height: auto;
+  margin: 0 auto 10px;
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(232, 92, 131, 0.35));
+  animation: pulseSubtle 3.5s ease-in-out infinite alternate;
+}
+
+/* 9. Floating & Keyframe Animations */
+@keyframes floatSubtle {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pulseSubtle {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes popRotate {
+  0% {
+    transform: scale(0.3) rotate(-25deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes spinInPlace {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mobile responsive optimizations */
+@media (max-width: 680px) {
+  .mandap-hero-content {
+    width: calc(100% - 24px);
+    padding: 32px 14px 28px;
+    border-radius: 24px;
+  }
+  .mandap-couple-names {
+    font-size: clamp(2.4rem, 9.5vw, 3.8rem);
+  }
+  .mandap-actions {
+    gap: 10px;
+  }
+  .btn-royal-primary,
+  .btn-royal-secondary {
+    padding: 12px 22px;
+    font-size: 0.88rem;
+  }
+  .floating-controls {
+    bottom: 16px;
+    right: 16px;
+    gap: 10px;
+  }
+  .float-btn {
+    width: 44px;
+    height: 44px;
+  }
+  .royal-garland-divider-wrap {
+    margin: 24px auto 14px;
+  }
+  .royal-swag-garland {
+    max-width: 92vw;
+  }
+  .closing-box {
+    padding: 32px 18px 28px;
+  }
+}
