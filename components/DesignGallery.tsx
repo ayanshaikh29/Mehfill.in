@@ -8,7 +8,7 @@ import { Reveal } from "./Reveal";
 import { useT } from "./i18n/I18nProvider";
 
 const CATEGORIES = [
-  { id: "all", label: "All Demos (8)" },
+  { id: "all", label: "All Demos (9)" },
   { id: "wedding", label: "Royal Weddings" },
   { id: "nikah", label: "Nikah & Muslim" },
   { id: "reception", label: "Reception & Modern" },
@@ -25,7 +25,8 @@ export default function DesignGallery() {
       return (
         tpl.slug === "royal-marigold" ||
         tpl.slug === "rose-royale" ||
-        tpl.slug === "blush-garden"
+        tpl.slug === "blush-garden" ||
+        tpl.slug === "royal-floral-garden"
       );
     }
     if (activeCategory === "nikah") {
@@ -42,7 +43,8 @@ export default function DesignGallery() {
       return (
         tpl.slug === "botanical-sage" ||
         tpl.slug === "blush-garden" ||
-        tpl.slug === "luxury-ivory-reception"
+        tpl.slug === "luxury-ivory-reception" ||
+        tpl.slug === "royal-floral-garden"
       );
     }
     return true;
@@ -66,7 +68,7 @@ export default function DesignGallery() {
               {t("gallery.title")} <span className="italic font-medium">{t("gallery.accent")}</span>
             </h2>
             <p className="mt-4 text-[15px] md:text-base text-charcoal/65 leading-relaxed">
-              Every Mehfill invitation is designed specifically for mobile screens — experience all 8 signature wedding, Nikah and reception designs in real iPhone presentation.
+              Every Mehfill invitation is designed specifically for mobile screens — experience all 9 signature wedding, Nikah and reception designs in real iPhone presentation.
             </p>
           </Reveal>
 
@@ -98,7 +100,7 @@ export default function DesignGallery() {
           ))}
         </div>
 
-        {/* ── All 8 Demos Presented in Phone Style Mockups ───────────── */}
+        {/* ── All 9 Demos Presented in Phone Style Mockups ───────────── */}
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6 lg:gap-7 justify-items-center">
           {filteredTemplates.map((template, i) => (
             <PhoneDemoCard

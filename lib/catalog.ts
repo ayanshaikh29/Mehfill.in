@@ -3,7 +3,7 @@
 // exposes for that design. Static showcase demos (site-1..7) stay on
 // /demos as inspiration; these are the product templates.
 
-export type RendererVariant = "royal" | "botanical" | "ivory";
+export type RendererVariant = "royal" | "botanical" | "ivory" | "emerald";
 
 export interface TemplateFieldFlags {
   names: boolean;
