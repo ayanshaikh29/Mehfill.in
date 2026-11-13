@@ -134,6 +134,12 @@ export function PhoneFrame({
     );
   }
 
+  const inlineScreenW = 298;
+  const virtualW = 390;
+  const virtualH = 844;
+  const inlineScale = inlineScreenW / virtualW;
+  const inlineScreenH = Math.round(virtualH * inlineScale);
+
   return (
     <div className="relative w-full max-w-[1040px] overflow-hidden rounded-[1.8rem] border border-white/10">
       <PreviewBackdrop />
@@ -152,26 +158,35 @@ export function PhoneFrame({
             <div aria-hidden className="absolute -left-[3px] top-[110px] h-14 w-[3px] rounded-l bg-[#2e2a26]" />
             <div aria-hidden className="absolute -left-[3px] top-[180px] h-14 w-[3px] rounded-l bg-[#2e2a26]" />
             <div aria-hidden className="absolute -right-[3px] top-[140px] h-20 w-[3px] rounded-r bg-[#2e2a26]" />
-            {/* Screen */}
-            <div className="relative overflow-hidden rounded-[2.2rem] bg-black" style={{ aspectRatio: "9 / 19.5" }}>
+            {/* Screen — renders a genuine 390x844 mobile viewport scaled to fit */}
+            <div
+              className="relative overflow-hidden rounded-[2.2rem] bg-white"
+              style={{ width: `${inlineScreenW}px`, height: `${inlineScreenH}px` }}
+            >
               {/* Dynamic Island */}
               <div
                 aria-hidden
-                className="absolute left-1/2 top-[9px] z-20 h-[26px] w-[96px] -translate-x-1/2 rounded-full bg-black shadow-[inset_0_0_2px_rgba(255,255,255,.15)]"
+                className="pointer-events-none absolute left-1/2 top-[9px] z-20 h-[26px] w-[96px] -translate-x-1/2 rounded-full bg-black shadow-[inset_0_0_2px_rgba(255,255,255,.15)]"
               >
                 <div className="absolute right-[10px] top-1/2 h-[9px] w-[9px] -translate-y-1/2 rounded-full bg-[#0d1a24] ring-1 ring-[#1a2e3a]" />
               </div>
               {/* Home indicator */}
               <div
                 aria-hidden
-                className="absolute bottom-[6px] left-1/2 z-20 h-[4px] w-[110px] -translate-x-1/2 rounded-full bg-black/35"
+                className="pointer-events-none absolute bottom-[6px] left-1/2 z-20 h-[4px] w-[110px] -translate-x-1/2 rounded-full bg-black/35"
               />
               <iframe
                 key={iframeKey}
                 ref={iframeRef}
                 src={src}
                 title="Invitation iPhone preview"
-                className="h-full w-full border-0 bg-white"
+                className="border-0 bg-white block"
+                style={{
+                  width: `${virtualW}px`,
+                  height: `${virtualH}px`,
+                  transform: `scale(${inlineScale})`,
+                  transformOrigin: "top left",
+                }}
               />
             </div>
           </div>

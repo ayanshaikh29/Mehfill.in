@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Canonical-host enforcement: a single canonical origin for SEO.
   // www.mehfill.in -> https://mehfill.in (301, path + query preserved).
   // http -> https is forced by the platform (HSTS); this also upgrades any

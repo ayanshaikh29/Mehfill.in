@@ -42,11 +42,11 @@ const DEMO_WEEKDAYS = ["Monday", "Friday", "پیر", "جمعرات"];
 
 const content = {
   brideName: "Priya",
-  groomName: "Kabir",
+  groomName: "Rohan",
   weddingDate: "2027-03-07",
   startTime: "18:30",
   venueName: "Sunrise Palace",
-  venueAddress: "Malviya Nagar, Jaipur",
+  venueAddress: "Malviya Nagar, Udaipur",
   mapsUrl: "",
   events: [],
   gallery: [],
@@ -107,7 +107,7 @@ async function main() {
     const problems = [];
 
     // 1. Customer data present.
-    for (const need of ["Priya", "Kabir", "Sunrise Palace"]) {
+    for (const need of ["Priya", "Rohan", "Sunrise Palace"]) {
       if (!html.includes(need)) problems.push(`missing customer value: ${need}`);
     }
     if (!/7 March 2027/.test(html) && !/7 March 2027/.test(html)) {
@@ -217,7 +217,7 @@ async function main() {
     } else if (!s8.html.includes("9876543210")) {
       console.log("FAIL site-8: customer RSVP phone missing");
       failures++;
-    } else if (!s8.html.includes("Priya & Kabir")) {
+    } else if (!s8.html.includes("Priya & Rohan")) {
       console.log("FAIL site-8: WEDDING.displayName not patched");
       failures++;
     } else {

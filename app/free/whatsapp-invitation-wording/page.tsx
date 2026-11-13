@@ -10,9 +10,9 @@ import { ArrowRight } from "lucide-react";
 const PAGE_URL = canonical("/free/whatsapp-invitation-wording");
 
 export const metadata: Metadata = {
-  title: "WhatsApp Invitation Wording Generator — Free (EN · HI · UR)",
+  title: "WhatsApp Invitation Wording Generator — Free",
   description:
-    "Free tool: generate ready-to-send wedding, Nikah, Haldi, Mehndi and Sangeet invitation messages for WhatsApp in English, Hindi and Urdu. Copy instantly or open in WhatsApp.",
+    "Free tool: generate ready-to-send wedding, Nikah, Haldi and Sangeet invitation messages for WhatsApp in English, Hindi and Urdu. Copy or send instantly.",
   alternates: { canonical: PAGE_URL },
   openGraph: {
     title: "WhatsApp Invitation Wording Generator | Mehfill.in",

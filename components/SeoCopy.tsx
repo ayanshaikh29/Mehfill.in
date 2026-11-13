@@ -52,6 +52,10 @@ export default function SeoCopy() {
           and{" "}
           <Link href="/event-invitations" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">
             events
+          </Link>
+          ,{" "}
+          <Link href="/baby-shower-invitations" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">
+            baby showers
           </Link>{" "}
           — every digital invitation card is custom-made, delivered in 1–3 days, and ready
           to open on any phone with no app needed.{" "}

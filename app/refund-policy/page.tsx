@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Refund & Cancellation Policy",
   description: "When Mehfill.in orders are confirmed, cancelled or refunded.",
   alternates: { canonical: canonical("/refund-policy") },
+  robots: { index: false, follow: true },
 };
 
 export default function RefundPolicyPage() {

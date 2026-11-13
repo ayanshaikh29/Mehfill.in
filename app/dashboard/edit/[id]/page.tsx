@@ -44,6 +44,8 @@ import {
   Tag,
   X,
   AlertTriangle,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getCatalogTemplate } from "@/lib/catalog";
@@ -54,6 +56,8 @@ import {
   newMilestone,
   formatDateLong,
   formatTime12,
+  isSafeHttpUrl,
+  type GalleryItem,
   type InvitationContent,
   type InvitationEvent,
   type InvitationRecord,
@@ -92,16 +96,18 @@ type FieldKey =
 /** Fields that must be filled before the invitation can be published.
  *  All 8 templates display the start time and the full address, so both are
  *  mandatory — never silently dropped. */
-function validatePublishContent(content: InvitationContent): Partial<Record<FieldKey, string>> {
+function validatePublishContent(content: InvitationContent, isSite9?: boolean): Partial<Record<FieldKey, string>> {
   const e: Partial<Record<FieldKey, string>> = {};
   if (!content.brideName.trim()) e.brideName = "Bride's name is required.";
   if (!content.groomName.trim()) e.groomName = "Groom's name is required.";
   if (!isValidCalendarDate(content.weddingDate)) e.weddingDate = "Pick a valid wedding date.";
-  if (!content.startTime || !/^\d{1,2}:\d{2}$/.test(content.startTime)) {
-    e.startTime = "Start time is required — every template shows it.";
+  if (!isSite9) {
+    if (!content.startTime || !/^\d{1,2}:\d{2}$/.test(content.startTime)) {
+      e.startTime = "Start time is required — every template shows it.";
+    }
+    if (!content.venueName.trim()) e.venueName = "Venue name is required.";
+    if (!content.venueAddress.trim()) e.venueAddress = "Full address is required — every template shows it.";
   }
-  if (!content.venueName.trim()) e.venueName = "Venue name is required.";
-  if (!content.venueAddress.trim()) e.venueAddress = "Full address is required — every template shows it.";
   return e;
 }
 
@@ -182,6 +188,8 @@ export default function EditInvitationPage() {
     () => getCatalogTemplate(invitation?.template_slug || ""),
     [invitation]
   );
+  const isSite9 = invitation?.template_slug === "royal-floral-garden";
+  const [uploadingSide, setUploadingSide] = useState<"bridePhoto" | "groomPhoto" | null>(null);
 
   const load = useCallback(async () => {
     const supabase = createClient();
@@ -202,7 +210,18 @@ export default function EditInvitationPage() {
     setInvitation(data.invitation as InvitationRecord);
     const initialSlug = (data.invitation?.slug || "").startsWith("invite-") ? "" : (data.invitation?.slug || "");
     setCustomSlug(initialSlug);
-    const loaded = { ...defaultContent(), ...((data.invitation?.content as Partial<InvitationContent>) || {}) };
+    const loaded = {
+      ...defaultContent(data.invitation?.template_slug),
+      ...((data.invitation?.content as Partial<InvitationContent>) || {}),
+    };
+    if ((!loaded.galleryItems || loaded.galleryItems.length === 0) && Array.isArray(loaded.gallery) && loaded.gallery.length > 0) {
+      loaded.galleryItems = loaded.gallery.map((url, idx) => ({
+        id: `legacy-${idx}-${url.slice(-12)}`,
+        url,
+        caption: "",
+        category: "all",
+      }));
+    }
     setContent(loaded);
     setMusicRightsOk(Boolean(loaded.musicUrl));
     if (data.invitation?.status === "published" && data.invitation?.slug && data.invitation?.isPaid) {
@@ -278,12 +297,13 @@ export default function EditInvitationPage() {
           ? undefined
           : "Pick a valid wedding date.",
         startTime:
-          content.startTime && /^\d{1,2}:\d{2}$/.test(content.startTime)
+          isSite9 || (content.startTime && /^\d{1,2}:\d{2}$/.test(content.startTime))
             ? undefined
             : "Start time is required — every template shows it.",
       });
     }
     if (s === "venue") {
+      if (isSite9) return {};
       return pruneErrors({
         venueName: content.venueName.trim() ? undefined : "Venue name is required.",
         venueAddress: content.venueAddress.trim()
@@ -292,7 +312,7 @@ export default function EditInvitationPage() {
       });
     }
     if (s === "publish") {
-      const e = validatePublishContent(content);
+      const e = validatePublishContent(content, isSite9);
       const clean = cleanSlugValue(customSlug);
       if (clean.length < 3) e.slug = "Add your invitation link (min 3 characters).";
       else if (slugAvailable === false) e.slug = slugError || "This link is already taken — pick another.";
@@ -428,12 +448,12 @@ export default function EditInvitationPage() {
     if (!loading && invitation) autoSaveReady.current = true;
   }, [loading, invitation]);
 
-  // Live preview refresh — remount the /i/ iframe ~1.5s after edits settle
+  // Live preview refresh — remount the /i/ iframe ~400ms after edits settle
   // (autosave has persisted by then). Never reloads mid-typing.
   useEffect(() => {
     if (loading || !invitation) return;
     if (saveState !== "saved") return;
-    const t = setTimeout(() => setPreviewRev((r) => r + 1), 1500);
+    const t = setTimeout(() => setPreviewRev((r) => r + 1), 400);
     return () => clearTimeout(t);
   }, [loading, invitation, saveState, content, customSlug, slugAvailable]);
 
@@ -651,17 +671,54 @@ export default function EditInvitationPage() {
     }
   };
 
+  const validateAndUploadImage = async (file: File): Promise<string> => {
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      throw new Error("Only JPG, PNG or WebP images are allowed.");
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      throw new Error("Image must be under 4MB. Please compress and retry.");
+    }
+    const fd = new FormData();
+    fd.set("file", file);
+    fd.set("kind", "photo");
+    const res = await fetch("/api/invitations/upload", { method: "POST", body: fd });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || "Upload failed.");
+    return data.url as string;
+  };
+
+  const uploadCouplePhoto = async (side: "bridePhoto" | "groomPhoto", file: File) => {
+    setUploadingSide(side);
+    setErr("");
+    try {
+      const url = await validateAndUploadImage(file);
+      set(side, url);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Upload failed.");
+    } finally {
+      setUploadingSide(null);
+    }
+  };
+
   const uploadPhoto = async (file: File) => {
     setUploading(true);
     setErr("");
     try {
-      const fd = new FormData();
-      fd.set("file", file);
-      fd.set("kind", "photo");
-      const res = await fetch("/api/invitations/upload", { method: "POST", body: fd });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "Upload failed.");
-      set("gallery", [...content.gallery, data.url].slice(0, 20));
+      const url = await validateAndUploadImage(file);
+      setContent((p) => {
+        const currentItems: GalleryItem[] =
+          p.galleryItems && p.galleryItems.length > 0
+            ? p.galleryItems
+            : p.gallery.map((u, idx) => ({ id: `legacy-${idx}`, url: u, caption: "", category: "all" }));
+        if (currentItems.length >= 20) return p;
+        const nextItems = [...currentItems, { id: crypto.randomUUID(), url, caption: "", category: "all" }];
+        return {
+          ...p,
+          galleryItems: nextItems,
+          gallery: nextItems.map((item) => item.url),
+        };
+      });
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Upload failed.");
     } finally {
@@ -1016,6 +1073,239 @@ export default function EditInvitationPage() {
               </div>
             </div>
 
+            {isSite9 ? (
+              <div className="space-y-6">
+                <div className="grid sm:grid-cols-2 gap-5">
+                  {/* Bride Card */}
+                  <div className="rounded-2xl border border-[#DECFC0] bg-[#FFFDF9] p-5 shadow-xs space-y-4">
+                    <div className="flex items-center justify-between border-b border-[#EBE0D3] pb-2.5">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#8B4828]">The Bride</span>
+                      <span className="text-[11px] text-[#7A6353]">Royal Couple Card</span>
+                    </div>
+
+                    <Field label="Bride's name" required error={errors.brideName}>
+                      <input
+                        id="f-brideName"
+                        value={content.brideName}
+                        onChange={(e) => set("brideName", e.target.value)}
+                        className={inputCls + inputErrCls(errors.brideName)}
+                        placeholder="e.g. Aisha"
+                      />
+                    </Field>
+
+                    <div>
+                      <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-[#7A6353]">
+                        Bride Photograph (Optional)
+                      </span>
+                      {content.bridePhoto ? (
+                        <div className="flex items-center gap-3">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={content.bridePhoto}
+                            alt="Bride preview"
+                            className="h-20 w-16 rounded-xl object-cover border border-[#DECFC0]"
+                          />
+                          <div className="flex flex-col gap-1.5">
+                            <label className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg border border-[#DECFC0] bg-white px-3 py-1.5 text-xs font-bold text-[#8B4828] hover:bg-[#FAF6EE]">
+                              <Upload className="h-3.5 w-3.5" />
+                              {uploadingSide === "bridePhoto" ? "Uploading…" : "Replace"}
+                              <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                className="hidden"
+                                disabled={uploadingSide === "bridePhoto"}
+                                onChange={(e) => {
+                                  const f = e.target.files?.[0];
+                                  if (f) uploadCouplePhoto("bridePhoto", f);
+                                  e.target.value = "";
+                                }}
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => set("bridePhoto", "")}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-[#DECFC0] bg-white px-3 py-1.5 text-xs font-semibold text-[#A63C26] hover:bg-[#FDF4F2]"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" /> Remove
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-[#DECFC0] bg-white py-3 px-4 text-xs font-semibold text-[#8B4828] hover:bg-[#FAF6EE]">
+                          {uploadingSide === "bridePhoto" ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Upload className="h-4 w-4" />
+                          )}
+                          <span>{uploadingSide === "bridePhoto" ? "Uploading…" : "Upload Bride Photo (JPG/PNG/WebP · max 4MB)"}</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            className="hidden"
+                            disabled={uploadingSide === "bridePhoto"}
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              if (f) uploadCouplePhoto("bridePhoto", f);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+
+                    <Field label="Bride's parents' names (Optional)">
+                      <input
+                        value={content.brideParents || ""}
+                        onChange={(e) => set("brideParents", e.target.value)}
+                        className={inputCls}
+                        placeholder="e.g. Daughter of Mr. & Mrs. Sharma"
+                        maxLength={160}
+                      />
+                    </Field>
+
+                    <Field label="Short bride description (Optional)">
+                      <textarea
+                        value={content.brideBio || ""}
+                        onChange={(e) => set("brideBio", e.target.value)}
+                        rows={2}
+                        className={inputCls + " resize-none"}
+                        placeholder="A short note about the bride…"
+                        maxLength={300}
+                      />
+                    </Field>
+                  </div>
+
+                  {/* Groom Card */}
+                  <div className="rounded-2xl border border-[#DECFC0] bg-[#FFFDF9] p-5 shadow-xs space-y-4">
+                    <div className="flex items-center justify-between border-b border-[#EBE0D3] pb-2.5">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#8B4828]">The Groom</span>
+                      <span className="text-[11px] text-[#7A6353]">Royal Couple Card</span>
+                    </div>
+
+                    <Field label="Groom's name" required error={errors.groomName}>
+                      <input
+                        id="f-groomName"
+                        value={content.groomName}
+                        onChange={(e) => set("groomName", e.target.value)}
+                        className={inputCls + inputErrCls(errors.groomName)}
+                        placeholder="e.g. Hamza"
+                      />
+                    </Field>
+
+                    <div>
+                      <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-[#7A6353]">
+                        Groom Photograph (Optional)
+                      </span>
+                      {content.groomPhoto ? (
+                        <div className="flex items-center gap-3">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={content.groomPhoto}
+                            alt="Groom preview"
+                            className="h-20 w-16 rounded-xl object-cover border border-[#DECFC0]"
+                          />
+                          <div className="flex flex-col gap-1.5">
+                            <label className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg border border-[#DECFC0] bg-white px-3 py-1.5 text-xs font-bold text-[#8B4828] hover:bg-[#FAF6EE]">
+                              <Upload className="h-3.5 w-3.5" />
+                              {uploadingSide === "groomPhoto" ? "Uploading…" : "Replace"}
+                              <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                className="hidden"
+                                disabled={uploadingSide === "groomPhoto"}
+                                onChange={(e) => {
+                                  const f = e.target.files?.[0];
+                                  if (f) uploadCouplePhoto("groomPhoto", f);
+                                  e.target.value = "";
+                                }}
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => set("groomPhoto", "")}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-[#DECFC0] bg-white px-3 py-1.5 text-xs font-semibold text-[#A63C26] hover:bg-[#FDF4F2]"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" /> Remove
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-[#DECFC0] bg-white py-3 px-4 text-xs font-semibold text-[#8B4828] hover:bg-[#FAF6EE]">
+                          {uploadingSide === "groomPhoto" ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Upload className="h-4 w-4" />
+                          )}
+                          <span>{uploadingSide === "groomPhoto" ? "Uploading…" : "Upload Groom Photo (JPG/PNG/WebP · max 4MB)"}</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            className="hidden"
+                            disabled={uploadingSide === "groomPhoto"}
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              if (f) uploadCouplePhoto("groomPhoto", f);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+
+                    <Field label="Groom's parents' names (Optional)">
+                      <input
+                        value={content.groomParents || ""}
+                        onChange={(e) => set("groomParents", e.target.value)}
+                        className={inputCls}
+                        placeholder="e.g. Son of Mr. & Mrs. Verma"
+                        maxLength={160}
+                      />
+                    </Field>
+
+                    <Field label="Short groom description (Optional)">
+                      <textarea
+                        value={content.groomBio || ""}
+                        onChange={(e) => set("groomBio", e.target.value)}
+                        rows={2}
+                        className={inputCls + " resize-none"}
+                        placeholder="A short note about the groom…"
+                        maxLength={300}
+                      />
+                    </Field>
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="Couple initials (Auto-derived from names)">
+                    <div className="relative">
+                      <input
+                        value={deriveInitials(content.brideName, content.groomName).combined || content.initials || ""}
+                        onChange={(e) => set("initials", e.target.value)}
+                        className={inputCls}
+                        placeholder="e.g. H & A"
+                        maxLength={20}
+                      />
+                      {deriveInitials(content.brideName, content.groomName).combined && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-[#EDF5E9] border border-[#C5E1BB] px-2.5 py-0.5 text-[10px] font-bold text-[#2F6824]">
+                          {deriveInitials(content.brideName, content.groomName).combined}
+                        </span>
+                      )}
+                    </div>
+                  </Field>
+                  <Field label="Footer family gratitude (Optional)">
+                    <input
+                      value={content.familyNames || ""}
+                      onChange={(e) => set("familyNames", e.target.value)}
+                      className={inputCls}
+                      placeholder="e.g. The Sharma & Verma Families"
+                    />
+                  </Field>
+                  <Field label="Main invitation message" wide>
+                    <textarea value={content.message || ""} onChange={(e) => set("message", e.target.value)} rows={3} className={inputCls + " resize-none"} maxLength={600} />
+                  </Field>
+                </div>
+              </div>
+            ) : (
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="Bride's name" required error={errors.brideName}>
                 <input
@@ -1061,6 +1351,7 @@ export default function EditInvitationPage() {
                 <textarea value={content.intro || ""} onChange={(e) => set("intro", e.target.value)} rows={2} className={inputCls + " resize-none"} placeholder="A line about your love story…" maxLength={800} />
               </Field>
             </div>
+            )}
             <NavButtons onNext={() => save("date")} saving={saving} />
           </Section>
         )}
@@ -1082,7 +1373,7 @@ export default function EditInvitationPage() {
                   />
                 </div>
               </Field>
-              <Field label="Start time" required error={errors.startTime}>
+              <Field label={isSite9 ? "Start time (Optional)" : "Start time"} required={!isSite9} error={errors.startTime}>
                 <div id="f-startTime" className={errors.startTime ? "rounded-xl ring-2 ring-[#A63C26]/40" : ""}>
                   <MehfillTimePicker
                     value={content.startTime || ""}
@@ -1117,7 +1408,7 @@ export default function EditInvitationPage() {
             floral="garland"
           >
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Venue name" required error={errors.venueName}>
+              <Field label={isSite9 ? "Venue name (Optional)" : "Venue name"} required={!isSite9} error={errors.venueName}>
                 <input
                   id="f-venueName"
                   value={content.venueName}
@@ -1126,10 +1417,10 @@ export default function EditInvitationPage() {
                   placeholder="e.g. The Grand Orchid Palace"
                 />
               </Field>
-              <Field label="Google Maps link">
+              <Field label="Google Maps link (Optional)">
                 <input value={content.mapsUrl || ""} onChange={(e) => set("mapsUrl", e.target.value)} className={inputCls} placeholder="https://maps.google.com/…" />
               </Field>
-              <Field label="Full address &amp; directions" wide required error={errors.venueAddress}>
+              <Field label={isSite9 ? "Full address & directions (Optional)" : "Full address & directions"} wide required={!isSite9} error={errors.venueAddress}>
                 <textarea
                   id="f-venueAddress"
                   value={content.venueAddress}
@@ -1195,6 +1486,12 @@ export default function EditInvitationPage() {
                 </div>
               </div>
 
+              {content.events.length === 0 && (
+                <div className="rounded-2xl border border-dashed border-[#DECFC0] bg-[#FFFDF9] p-6 text-center text-xs text-[#7A6353]">
+                  No ceremonies added yet. Only ceremonies you add will appear on your invitation.
+                </div>
+              )}
+
               {content.events.map((ev, i) => (
                 <EventCard
                   key={ev.id}
@@ -1203,7 +1500,17 @@ export default function EditInvitationPage() {
                     set("events", content.events.map((e) => (e.id === ev.id ? { ...e, ...patch } : e)))
                   }
                   onRemove={() => set("events", content.events.filter((e) => e.id !== ev.id))}
-                  canRemove={content.events.length > 1}
+                  onMoveUp={i > 0 ? () => {
+                    const next = [...content.events];
+                    [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                    set("events", next);
+                  } : undefined}
+                  onMoveDown={i < content.events.length - 1 ? () => {
+                    const next = [...content.events];
+                    [next[i], next[i + 1]] = [next[i + 1], next[i]];
+                    set("events", next);
+                  } : undefined}
+                  canRemove={isSite9 || content.events.length > 1}
                   index={i}
                 />
               ))}
@@ -1226,7 +1533,8 @@ export default function EditInvitationPage() {
             sub="Upload up to 20 photos (JPG, PNG or WebP · max 4MB each)."
             floral="wreath"
           >
-            {/* Choice: Use original template images or customer photos only */}
+            {/* Choice: Use original template images or customer photos only (not shown for Site-9, which never uses demo photos) */}
+            {!isSite9 && (
             <div className="rounded-2xl border border-[#DECFC0] bg-[#FFFDF9] p-5 shadow-xs mb-6">
               <span className="block text-xs font-bold uppercase tracking-wider text-[#9E6D4B] mb-1.5">
                 Template Demo Images Choice
@@ -1281,6 +1589,7 @@ export default function EditInvitationPage() {
                 </button>
               </div>
             </div>
+            )}
 
             <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#DECFC0] bg-white/75 py-12 hover:bg-white transition-all shadow-xs">
               {uploading ? (
@@ -1304,23 +1613,98 @@ export default function EditInvitationPage() {
                 }}
               />
             </label>
-            {content.gallery.length > 0 && (
-              <div className="mt-6 grid grid-cols-3 sm:grid-cols-4 gap-3">
-                {content.gallery.map((src, i) => (
-                  <div key={i} className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-[#DECFC0] shadow-sm group">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt={`Upload ${i + 1}`} className="h-full w-full object-cover" />
-                    <button
-                      onClick={() => set("gallery", content.gallery.filter((_, j) => j !== i))}
-                      className="absolute top-2 right-2 rounded-full bg-black/60 p-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                      aria-label="Remove photo"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            {(() => {
+              const items: GalleryItem[] =
+                content.galleryItems && content.galleryItems.length > 0
+                  ? content.galleryItems
+                  : content.gallery.map((url, idx) => ({ id: `legacy-${idx}`, url, caption: "", category: "all" }));
+              if (items.length === 0) return null;
+              const updateItems = (next: GalleryItem[]) => {
+                setContent((p) => ({
+                  ...p,
+                  galleryItems: next,
+                  gallery: next.map((x) => x.url),
+                }));
+              };
+              return (
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {items.map((item, i) => (
+                    <div key={item.id} className="rounded-2xl overflow-hidden border border-[#DECFC0] bg-white shadow-xs flex flex-col">
+                      <div className="relative aspect-[4/3] bg-[#FAF6EE]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={item.url} alt={item.caption || `Upload ${i + 1}`} className="h-full w-full object-cover" />
+                        <div className="absolute top-2 right-2 flex items-center gap-1">
+                          {i > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = [...items];
+                                [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                                updateItems(next);
+                              }}
+                              className="rounded-full bg-black/65 p-1.5 text-white hover:bg-black/80"
+                              aria-label="Move photo earlier"
+                              title="Move earlier"
+                            >
+                              <ChevronUp className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          {i < items.length - 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = [...items];
+                                [next[i], next[i + 1]] = [next[i + 1], next[i]];
+                                updateItems(next);
+                              }}
+                              className="rounded-full bg-black/65 p-1.5 text-white hover:bg-black/80"
+                              aria-label="Move photo later"
+                              title="Move later"
+                            >
+                              <ChevronDown className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => updateItems(items.filter((_, j) => j !== i))}
+                            className="rounded-full bg-[#A63C26]/90 p-1.5 text-white hover:bg-[#A63C26]"
+                            aria-label="Remove photo"
+                            title="Delete photo"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="p-3 space-y-2">
+                        <input
+                          value={item.caption || ""}
+                          onChange={(e) =>
+                            updateItems(items.map((x, j) => (j === i ? { ...x, caption: e.target.value } : x)))
+                          }
+                          placeholder="Photo caption (optional)"
+                          maxLength={160}
+                          className={inputCls + " !py-1.5 !text-xs"}
+                        />
+                        {isSite9 && (
+                          <select
+                            value={item.category || "all"}
+                            onChange={(e) =>
+                              updateItems(items.map((x, j) => (j === i ? { ...x, category: e.target.value } : x)))
+                            }
+                            className={inputCls + " !py-1.5 !text-xs"}
+                          >
+                            <option value="all">Category: All Moments</option>
+                            <option value="couple">The Couple</option>
+                            <option value="ceremonies">Ceremonies</option>
+                            <option value="palace">Palace &amp; Decor</option>
+                          </select>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
             <NavButtons onBack={() => setStep("events")} onNext={() => save("loveStory")} saving={saving} />
           </Section>
         )}
@@ -1764,7 +2148,12 @@ function LiveTemplatePreview({
   rev: number;
 }) {
   if (!slug) return null;
-  const src = `/i/${slug}?preview=1&rev=${rev}`;
+  const src = `/i/${slug}?preview=1&embed=1&rev=${rev}`;
+  const virtualW = 390;
+  const virtualH = 844;
+  const screenW = 254;
+  const scale = screenW / virtualW;
+  const screenH = Math.round(virtualH * scale);
   return (
     <div className="rounded-[1.6rem] border border-[#DECFC0] bg-white/85 backdrop-blur-xl p-4 shadow-[0_14px_44px_rgba(110,75,45,0.12)]">
       <div className="flex items-center justify-between gap-2 px-1 pb-3">
@@ -1777,18 +2166,28 @@ function LiveTemplatePreview({
       </div>
       <div className="relative mx-auto w-[272px] rounded-[2.2rem] bg-gradient-to-b from-[#3a3632] via-[#1f1c19] to-[#2a2622] p-[9px] shadow-[0_18px_44px_rgba(0,0,0,.35)]">
         <div
-          className="relative overflow-hidden rounded-[1.8rem] bg-black"
-          style={{ aspectRatio: "9 / 19.5" }}
+          className="relative overflow-hidden rounded-[1.8rem] bg-white"
+          style={{ width: `${screenW}px`, height: `${screenH}px` }}
         >
           <div
             aria-hidden
-            className="absolute left-1/2 top-[7px] z-10 h-[18px] w-[70px] -translate-x-1/2 rounded-full bg-black shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]"
+            className="pointer-events-none absolute left-1/2 top-[7px] z-10 h-[18px] w-[70px] -translate-x-1/2 rounded-full bg-black shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute bottom-[5px] left-1/2 z-10 h-[3.5px] w-[86px] -translate-x-1/2 rounded-full bg-black/30"
           />
           <iframe
             key={src}
             src={src}
             title={`${templateName} live preview`}
-            className="h-full w-full border-0 bg-white"
+            className="border-0 bg-white block"
+            style={{
+              width: `${virtualW}px`,
+              height: `${virtualH}px`,
+              transform: `scale(${scale})`,
+              transformOrigin: "top left",
+            }}
           />
         </div>
       </div>
@@ -1946,7 +2345,7 @@ function LoveStoryEditor({
         </div>
       ) : (
         <div className="space-y-4">
-          {milestones.map((m) => (
+          {milestones.map((m, idx) => (
             <div key={m.id} className="rounded-2xl border border-[#DECFC0]/60 bg-white p-4 shadow-xs">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-2">
@@ -1971,8 +2370,56 @@ function LoveStoryEditor({
                   />
                 </div>
                 <div className="flex flex-col items-center gap-2">
-                  <label className="cursor-pointer rounded-xl border border-[#DECFC0] p-2 text-xs font-bold text-[#8B4828] hover:bg-[#FAF6EE] text-center">
-                    Photo
+                  <div className="flex items-center gap-1">
+                    {idx > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = [...milestones];
+                          [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+                          onChange(next);
+                        }}
+                        className="rounded-lg border border-[#DECFC0] p-1.5 text-[#7A6353] hover:bg-[#FAF6EE]"
+                        aria-label="Move milestone up"
+                        title="Move up"
+                      >
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    {idx < milestones.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = [...milestones];
+                          [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+                          onChange(next);
+                        }}
+                        className="rounded-lg border border-[#DECFC0] p-1.5 text-[#7A6353] hover:bg-[#FAF6EE]"
+                        aria-label="Move milestone down"
+                        title="Move down"
+                      >
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    <button onClick={() => onRemove(m.id)} className="rounded-lg border border-[#DECFC0] p-1.5 text-[#A89484] hover:text-[#A63C26]" aria-label="Remove">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  {m.imageUrl ? (
+                    <div className="flex flex-col items-center gap-1">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={m.imageUrl} alt={m.title || "Milestone"} className="h-12 w-12 rounded-lg object-cover border border-[#DECFC0]" />
+                      <button
+                        type="button"
+                        onClick={() => onChange(milestones.map((x) => x.id === m.id ? { ...x, imageUrl: "" } : x))}
+                        className="text-[10px] font-semibold text-[#A63C26] hover:underline"
+                      >
+                        Remove photo
+                      </button>
+                    </div>
+                  ) : null}
+                  <label className="cursor-pointer rounded-xl border border-[#DECFC0] px-2.5 py-1.5 text-[11px] font-bold text-[#8B4828] hover:bg-[#FAF6EE] text-center">
+                    {m.imageUrl ? "Replace" : "Photo"}
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
@@ -1980,18 +2427,18 @@ function LoveStoryEditor({
                       onChange={async (e) => {
                         const f = e.target.files?.[0];
                         if (!f) return;
+                        setBusy(true);
                         try {
                           const url = await uploadPhoto(f);
                           onChange(milestones.map((x) => x.id === m.id ? { ...x, imageUrl: url } : x));
                         } catch (err) {
                           console.error(err);
+                        } finally {
+                          setBusy(false);
                         }
                       }}
                     />
                   </label>
-                  <button onClick={() => onRemove(m.id)} className="text-[#A89484] hover:text-[#A63C26]" aria-label="Remove">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
                 </div>
               </div>
             </div>
@@ -2006,38 +2453,69 @@ function EventCard({
   event,
   onChange,
   onRemove,
+  onMoveUp,
+  onMoveDown,
   canRemove,
   index,
 }: {
   event: InvitationEvent;
   onChange: (patch: Partial<InvitationEvent>) => void;
   onRemove: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
   canRemove: boolean;
   index: number;
 }) {
+  const mapUrlInvalid = Boolean(event.mapsUrl && event.mapsUrl.trim() && !isSafeHttpUrl(event.mapsUrl));
   return (
     <div className="rounded-2xl border border-[#DECFC0]/70 bg-white p-4 shadow-xs">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E6D4B]">EVENT {index + 1}</span>
-        {canRemove && (
-          <button onClick={onRemove} className="text-[#A89484] hover:text-[#A63C26]" aria-label="Remove event">
-            <Trash2 className="h-4 w-4" />
-          </button>
-        )}
+        <div className="flex items-center gap-1.5">
+          {onMoveUp && (
+            <button type="button" onClick={onMoveUp} className="rounded-lg border border-[#DECFC0] p-1 text-[#7A6353] hover:bg-[#FAF6EE]" aria-label="Move ceremony up" title="Move up">
+              <ChevronUp className="h-3.5 w-3.5" />
+            </button>
+          )}
+          {onMoveDown && (
+            <button type="button" onClick={onMoveDown} className="rounded-lg border border-[#DECFC0] p-1 text-[#7A6353] hover:bg-[#FAF6EE]" aria-label="Move ceremony down" title="Move down">
+              <ChevronDown className="h-3.5 w-3.5" />
+            </button>
+          )}
+          {canRemove && (
+            <button type="button" onClick={onRemove} className="rounded-lg border border-[#DECFC0] p-1 text-[#A89484] hover:text-[#A63C26]" aria-label="Remove event">
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
       <div className="grid sm:grid-cols-2 gap-3">
-        <input value={event.name} onChange={(e) => onChange({ name: e.target.value })} placeholder="Event name (e.g. Sangeet)" className={inputCls} />
+        <input value={event.name} onChange={(e) => onChange({ name: e.target.value })} placeholder="Ceremony name (e.g. Mehendi Ceremony)" className={inputCls} />
         <MehfillDatePicker
           value={event.date}
           onChange={(val) => onChange({ date: val })}
-          placeholder="Event date"
+          placeholder="Ceremony date (Optional)"
         />
         <MehfillTimePicker
           value={event.time}
           onChange={(val) => onChange({ time: val })}
-          placeholder="Event timing"
+          placeholder="Ceremony timing (Optional)"
         />
-        <input value={event.venue} onChange={(e) => onChange({ venue: e.target.value })} placeholder="Venue (Optional)" className={inputCls} />
+        <input value={event.venue} onChange={(e) => onChange({ venue: e.target.value })} placeholder="Venue name (Optional)" className={inputCls} />
+        <input value={event.address || ""} onChange={(e) => onChange({ address: e.target.value })} placeholder="Venue address (Optional)" className={inputCls} />
+        <div>
+          <input
+            value={event.mapsUrl || ""}
+            onChange={(e) => onChange({ mapsUrl: e.target.value })}
+            placeholder="Google Maps URL (Optional, https://...)"
+            className={inputCls + (mapUrlInvalid ? " !border-[#A63C26]" : "")}
+          />
+          {mapUrlInvalid && (
+            <span className="mt-1 block text-[11px] font-semibold text-[#A63C26]">
+              Enter a valid http:// or https:// URL.
+            </span>
+          )}
+        </div>
         <input value={event.description || ""} onChange={(e) => onChange({ description: e.target.value })} placeholder="Short description or attire guidelines (Optional)" className={inputCls + " sm:col-span-2"} />
       </div>
     </div>

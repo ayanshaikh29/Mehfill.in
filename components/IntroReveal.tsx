@@ -21,9 +21,19 @@ export default function IntroReveal() {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
       (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
     ) {
-      setSrc(null);
       const id = setTimeout(() => setVisible(false), 400);
       return () => clearTimeout(id);
+    }
+    // Play at most once per session — repeat visits skip the ~1.8MB film
+    // entirely (biggest single payload on the page).
+    try {
+      if (sessionStorage.getItem("mf_intro_seen") === "1") {
+        const id = setTimeout(() => setVisible(false), 400);
+        return () => clearTimeout(id);
+      }
+      sessionStorage.setItem("mf_intro_seen", "1");
+    } catch {
+      // sessionStorage unavailable — fall through and play.
     }
     const pick = () =>
       setSrc(window.innerWidth < 768 ? "/intro-mobile-opt.mp4" : "/intro-desktop-opt.mp4");

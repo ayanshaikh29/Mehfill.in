@@ -22,9 +22,9 @@ const CTA = dynamic(() => import("@/components/CTA"));
 const Footer = dynamic(() => import("@/components/Footer"));
 
 export const metadata: Metadata = {
-  title: "Mehfill.in | Digital Wedding & Event Invitations",
+  title: "Digital Wedding & Event Invitation Maker | Mehfill.in",
   description:
-    "Create beautiful digital wedding, Nikah, birthday and event invitations with Mehfill.in. Explore live demos and get a personalized invitation to share on WhatsApp.",
+    "Create digital wedding, Nikah, birthday and event invitations online. Explore live demos and get a personalized invitation to share on WhatsApp.",
   alternates: { canonical: canonical("/") },
   robots: {
     index: true,
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     type: "website",
     url: canonical("/"),
     siteName: "Mehfill.in",
-    title: "Mehfill.in | Digital Wedding & Event Invitations",
+    title: "Digital Wedding & Event Invitation Maker | Mehfill.in",
     description:
       "Explore beautiful digital wedding and event invitations. Choose a live demo and get your personalized invitation.",
   },

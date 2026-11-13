@@ -158,6 +158,7 @@
   function startCountdown(cfg) {
     if (countdownTimer) clearInterval(countdownTimer);
 
+    var countdownSec = document.getElementById("countdown");
     var daysEl = document.getElementById("cd-days");
     var hoursEl = document.getElementById("cd-hours");
     var minsEl = document.getElementById("cd-minutes");
@@ -167,9 +168,26 @@
 
     if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
 
-    var dateStr = (cfg.event && cfg.event.date) || "2026-12-18";
-    var timeStr = (cfg.event && cfg.event.time) || "17:30";
-    var targetDate = new Date(dateStr + "T" + timeStr + ":00+05:30");
+    var dateStr = (cfg.event && cfg.event.date ? String(cfg.event.date).trim() : "");
+    var dParts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr);
+    if (!dParts) {
+      if (countdownSec) countdownSec.style.display = "none";
+      return;
+    }
+    if (countdownSec) countdownSec.style.display = "";
+
+    var timeStr = (cfg.event && cfg.event.time ? String(cfg.event.time).trim() : "");
+    var tParts = /^(\d{1,2}):(\d{2})$/.exec(timeStr);
+    var hour = tParts ? parseInt(tParts[1], 10) : 0;
+    var minute = tParts ? parseInt(tParts[2], 10) : 0;
+    var targetDate = new Date(
+      parseInt(dParts[1], 10),
+      parseInt(dParts[2], 10) - 1,
+      parseInt(dParts[3], 10),
+      hour,
+      minute,
+      0
+    );
 
     function tick() {
       var now = new Date();
@@ -543,7 +561,8 @@
   /* ---------- 5. Filterable Compact Gallery & Lightbox ---------- */
   function initGallery(cfg) {
     var grid = document.getElementById("gallery-grid");
-    var tabs = document.querySelectorAll(".gal-tab");
+    var tabsWrap = document.querySelector(".gallery-filter-tabs");
+    var tabs = document.querySelectorAll(".tab-btn, .gal-tab");
     var modal = document.getElementById("gallery-lightbox");
     var imgEl = document.getElementById("lb-image");
     var capEl = document.getElementById("lb-caption");
@@ -553,8 +572,17 @@
     var closeBtn = document.getElementById("lb-close");
 
     if (!grid) return;
-    var allGallery = (cfg.media && cfg.media.gallery) || [];
+    var allGallery = ((cfg.media && cfg.media.gallery) || []).filter(function (g) {
+      return g && g.src;
+    });
     filteredGalleryList = allGallery.slice();
+
+    if (tabsWrap) {
+      var hasCategories = allGallery.some(function (g) {
+        return g.category && g.category !== "all";
+      });
+      tabsWrap.style.display = hasCategories ? "" : "none";
+    }
 
     function renderFilteredGrid(items) {
       grid.innerHTML = "";
@@ -565,13 +593,20 @@
 
         var img = document.createElement("img");
         img.src = item.src;
-        img.alt = item.alt || item.caption || "Royal Wedding Photo";
+        img.alt = item.alt || item.caption || "Wedding Photo";
         img.loading = "lazy";
         fig.appendChild(img);
 
         var cap = document.createElement("figcaption");
         cap.className = "gallery-cap";
-        cap.innerHTML = "<span class='gallery-cap-title'>" + (item.caption || "") + "</span><span class='gallery-zoom-icon'>✢</span>";
+        var capTitle = document.createElement("span");
+        capTitle.className = "gallery-cap-title";
+        capTitle.textContent = item.caption || "";
+        var zoomIcon = document.createElement("span");
+        zoomIcon.className = "gallery-zoom-icon";
+        zoomIcon.textContent = "✢";
+        cap.appendChild(capTitle);
+        cap.appendChild(zoomIcon);
         fig.appendChild(cap);
 
         grid.appendChild(fig);
@@ -583,26 +618,24 @@
     // Tab Filtering
     tabs.forEach(function (tab) {
       tab.addEventListener("click", function () {
-        tabs.forEach(function (t) { t.classList.remove("is-active"); });
-        tab.classList.add("is-active");
-        var filter = tab.dataset.filter;
+        tabs.forEach(function (t) {
+          t.classList.remove("active", "is-active");
+          t.setAttribute("aria-selected", "false");
+        });
+        tab.classList.add("active", "is-active");
+        tab.setAttribute("aria-selected", "true");
+        var filter = tab.dataset.filter || "all";
 
         if (filter === "all") {
           filteredGalleryList = allGallery.slice();
-        } else if (filter === "couple") {
+        } else {
           filteredGalleryList = allGallery.filter(function (g) {
+            if (g.category && g.category === filter) return true;
             var c = (g.caption || "").toLowerCase();
-            return c.includes("love") || c.includes("heritage") || c.includes("bride") || c.includes("groom");
-          });
-        } else if (filter === "rituals") {
-          filteredGalleryList = allGallery.filter(function (g) {
-            var c = (g.caption || "").toLowerCase();
-            return c.includes("haldi") || c.includes("mehendi");
-          });
-        } else if (filter === "celebrations") {
-          filteredGalleryList = allGallery.filter(function (g) {
-            var c = (g.caption || "").toLowerCase();
-            return c.includes("sangeet") || c.includes("courtyard") || c.includes("banquet");
+            if (filter === "couple") return c.includes("love") || c.includes("bride") || c.includes("groom") || c.includes("couple");
+            if (filter === "ceremonies" || filter === "rituals") return c.includes("haldi") || c.includes("mehendi") || c.includes("sangeet") || c.includes("ceremony");
+            if (filter === "palace" || filter === "celebrations") return c.includes("palace") || c.includes("courtyard") || c.includes("decor") || c.includes("banquet");
+            return false;
           });
         }
         if (!filteredGalleryList.length) filteredGalleryList = allGallery.slice();
@@ -752,25 +785,28 @@
 
       if (statusMsg) {
         statusMsg.className = "rsvp-feedback-msg success";
-        statusMsg.innerHTML = "<strong>Thank you, " + name + "!</strong> Your presence has been confirmed. We look forward to welcoming you in Jaipur.";
+        var venueSuffix = cfg.event && cfg.event.venueName ? " at " + cfg.event.venueName : "";
+        statusMsg.textContent = "Thank you, " + name + "! Your presence has been confirmed. We look forward to celebrating with you" + venueSuffix + ".";
       }
 
-      var waPhone = (cfg.rsvp && cfg.rsvp.whatsappPhone) || "+91 98765 43210";
+      var waPhone = (cfg.rsvp && cfg.rsvp.whatsappPhone) || "";
       var cleanPhone = waPhone.replace(/\D/g, "");
-      var coupleName = (cfg.couple && cfg.couple.displayName) || "Ananya & Kabir";
+      var coupleName = (cfg.couple && cfg.couple.displayName) || "our";
 
-      var textMsg = "🌸 *RSVP for " + coupleName + "'s Wedding Celebration* 🌸\n\n" +
-        "*Guest Name:* " + name + "\n" +
-        "*Attendance:* " + attendance + "\n" +
-        "*Number of Guests:* " + guests + "\n" +
-        "*Phone:* " + phone + "\n\n" +
-        "_Confirmed via Mehfill.in Digital Invitation_";
+      if (cleanPhone && !(window.__MEHFILL__ && window.__MEHFILL__.published)) {
+        var textMsg = "🌸 *RSVP for " + coupleName + "'s Wedding Celebration* 🌸\n\n" +
+          "*Guest Name:* " + name + "\n" +
+          "*Attendance:* " + attendance + "\n" +
+          "*Number of Guests:* " + guests + "\n" +
+          "*Phone:* " + phone + "\n\n" +
+          "_Confirmed via Mehfill.in Digital Invitation_";
 
-      var waUrl = "https://wa.me/" + cleanPhone + "?text=" + encodeURIComponent(textMsg);
+        var waUrl = "https://wa.me/" + cleanPhone + "?text=" + encodeURIComponent(textMsg);
 
-      setTimeout(function () {
-        window.open(waUrl, "_blank", "noopener");
-      }, 700);
+        setTimeout(function () {
+          window.open(waUrl, "_blank", "noopener");
+        }, 700);
+      }
     });
   }
 
@@ -803,10 +839,162 @@
     }
   };
 
+  function buildConfigFromMehfill(c) {
+    var bride = (c.brideName || "").trim();
+    var groom = (c.groomName || "").trim();
+    var displayName = [bride, groom].filter(Boolean).join(" & ");
+    var bi = bride ? bride.charAt(0).toUpperCase() : "";
+    var gi = groom ? groom.charAt(0).toUpperCase() : "";
+    var initials = bi && gi ? (bi + " · " + gi) : (c.initials || "");
+
+    var galleryItems = Array.isArray(c.galleryItems) && c.galleryItems.length
+      ? c.galleryItems.map(function (item) {
+          return {
+            src: item.url,
+            caption: item.caption || "",
+            category: item.category || "all",
+            alt: item.caption || "Wedding Photo"
+          };
+        })
+      : (Array.isArray(c.gallery) ? c.gallery.filter(Boolean).map(function (u) {
+          return { src: u, caption: "", category: "all", alt: "Wedding Photo" };
+        }) : []);
+
+    var events = Array.isArray(c.events)
+      ? c.events.filter(function (ev) { return ev && String(ev.name || "").trim(); }).map(function (ev) {
+          return {
+            id: ev.id,
+            title: ev.name,
+            name: ev.name,
+            date: ev.date || "",
+            time: ev.time || "",
+            venue: ev.venue || "",
+            address: ev.address || "",
+            mapsUrl: ev.mapsUrl || "",
+            description: ev.description || "",
+            image: ""
+          };
+        })
+      : [];
+
+    var milestones = Array.isArray(c.loveStory)
+      ? c.loveStory.filter(function (m) { return m && String(m.title || "").trim(); }).map(function (m) {
+          return {
+            id: m.id,
+            year: m.date || "",
+            date: m.date || "",
+            title: m.title,
+            description: m.description || "",
+            image: m.imageUrl || ""
+          };
+        })
+      : [];
+
+    var familyNames = (c.familyNames || "").trim();
+
+    return {
+      _isCustomInvitation: true,
+      couple: {
+        brideName: bride,
+        groomName: groom,
+        displayName: displayName,
+        initials: initials,
+        brideParents: (c.brideParents || "").trim(),
+        groomParents: (c.groomParents || "").trim(),
+        brideBio: (c.brideBio || "").trim(),
+        groomBio: (c.groomBio || "").trim(),
+        introduction: (c.intro || "").trim() || "Together With Their Families",
+        invitationHeading: "You're Invited",
+        welcomeMessage: (c.message || "").trim(),
+        familyInvitation: familyNames,
+        closingMessage: (c.message || "").trim(),
+        footerMessage: familyNames ? ("With heartfelt gratitude from " + familyNames) : ""
+      },
+      hero: {
+        eyebrow: "Royal Vivah Celebration",
+        subtitle: "Invite You To Celebrate Their Wedding",
+        tagline: "",
+        badgeText: "Shubh Vivah",
+        mandapImage: "assets/images/jaipur-mandap.jpg",
+        mandapLandscape: "assets/images/jaipur-mandap-landscape.jpg",
+        floralArch: "assets/images/floral-arch.jpg",
+        lanternImage: "assets/images/golden-lantern.jpg",
+        watchVideoLabel: "Watch Wedding Video",
+        rsvpButtonLabel: "Confirm RSVP"
+      },
+      video: {
+        enabled: true,
+        src: "lv_0_20261018234041.mp4",
+        poster: "assets/images/video-poster.jpg",
+        heading: "A Royal Celebration of Love",
+        introHeading: "YOU'RE INVITED",
+        introSubheading: "The Wedding Celebration Of",
+        openButtonLabel: "Play Invitation",
+        skipLabel: "Skip"
+      },
+      event: {
+        title: "The Wedding Celebration",
+        date: (c.weddingDate || "").trim(),
+        time: (c.startTime || "").trim(),
+        endTime: (c.endTime || "").trim(),
+        venueName: (c.venueName || "").trim(),
+        address: (c.venueAddress || "").trim(),
+        mapsUrl: (c.mapsUrl || "").trim(),
+        dressCode: "",
+        notes: "",
+        events: events
+      },
+      story: {
+        heading: "Our Love Story",
+        description: "",
+        milestones: milestones
+      },
+      media: {
+        bridePhoto: (c.bridePhoto || "").trim(),
+        groomPhoto: (c.groomPhoto || "").trim(),
+        couplePortrait: "",
+        venuePhoto: "",
+        gallery: galleryItems
+      },
+      countdown: {
+        heading: "Counting Down To Our Wedding",
+        subheading: "Every heartbeat brings us closer to our sacred vows",
+        passedMessage: "The celebrations have commenced! Thank you for showering your heartfelt love and blessings upon us."
+      },
+      scratchCard: {
+        title: "A Special Keepsake For You",
+        subtitle: "Scratch to reveal our special wedding date!",
+        hiddenHeading: "Save The Date",
+        hiddenSub: "Save The Date",
+        hiddenMessage: (c.message || "").trim() || "Join us as we celebrate the beginning of our forever."
+      },
+      rsvp: {
+        heading: "Will You Join Us?",
+        subheading: (c.rsvp && c.rsvp.message) || "Kindly confirm your presence.",
+        submitLabel: "Submit RSVP",
+        whatsappPhone: (c.rsvp && c.rsvp.contactPhone) || ""
+      },
+      music: {
+        enabled: Boolean(c.musicUrl),
+        src: c.musicUrl || "assets/audio/music.mp3"
+      },
+      sections: {
+        visible: {
+          rsvp: !(c.rsvp && c.rsvp.enabled === false)
+        }
+      },
+      theme: {}
+    };
+  }
+
   /* ---------- Boot Page ---------- */
   function boot() {
-    var draft = Data.loadDraft();
-    currentConfig = draft || Data.clone(Data.DEFAULT_INVITATION);
+    if (window.__MEHFILL__ && window.__MEHFILL__.content) {
+      currentConfig = buildConfigFromMehfill(window.__MEHFILL__.content);
+    } else {
+      var draft = Data.loadDraft();
+      currentConfig = draft || Data.clone(Data.DEFAULT_INVITATION);
+    }
 
     R.renderContent(currentConfig);
     initOpeningExperience(currentConfig);

@@ -10,7 +10,7 @@ const PAGE_URL = canonical("/free");
 export const metadata: Metadata = {
   title: "Free Wedding Tools — Invitation Wording & More",
   description:
-    "Free tools from Mehfill.in: WhatsApp invitation wording generator in English, Hindi and Urdu, plus more celebration helpers coming soon.",
+    "Free tools from Mehfill.in: WhatsApp invitation wording generator in English, Hindi and Urdu, plus more celebration helpers to plan your event.",
   alternates: { canonical: PAGE_URL },
   openGraph: {
     title: "Free Wedding Tools | Mehfill.in",

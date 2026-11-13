@@ -78,7 +78,7 @@ export async function POST(request: Request, ctx: Ctx) {
   // Names, date, start time, venue name and full address are ALL required —
   // every template displays them, and a missing one would leak demo data.
   const c = invitation.content;
-  const problems = validateForPublish(c);
+  const problems = validateForPublish(c, invitation.template_slug);
   if (problems.length) {
     return err(`Please add: ${problems.join(", ")}.`, 400);
   }

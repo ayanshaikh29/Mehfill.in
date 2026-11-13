@@ -141,7 +141,7 @@ export async function POST(request: Request) {
           package: order.package || "basic",
           slug: seed, // provisional unique slug; customer can keep it
           status: "draft",
-          content: defaultContent(),
+          content: defaultContent(order.template_slug || "royal-marigold"),
           theme: {},
         })
         .select("id, slug")

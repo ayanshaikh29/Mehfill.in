@@ -126,7 +126,7 @@ export async function POST(request: Request) {
           package: plan.id,
           slug,
           status: "draft",
-          content: defaultContent(),
+          content: defaultContent(template.slug),
           theme: {},
         })
         .select("id, slug")

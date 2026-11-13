@@ -29,7 +29,7 @@ export function generateMetadata(): Metadata {
   const url = canonical(`/${SLUG}`);
   const title = "How It Works — Create Your Digital Invitation";
   const description =
-    "How Mehfill.in works: choose your template, add your details, publish and share your digital invitation with a unique link.";
+    "How Mehfill.in works: choose your template, add your details, publish and share your digital invitation with a unique link that guests open on any phone.";
   return {
     title,
     description,

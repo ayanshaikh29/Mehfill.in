@@ -29,13 +29,36 @@
 
   function fmtTime12(t) {
     if (!t) return "";
-    var parts = String(t).split(":");
+    var s = String(t).trim();
+    if (/am|pm/i.test(s)) return s;
+    var parts = s.split(":");
     var h = Number(parts[0]);
     var m = parts[1] || "00";
-    if (Number.isNaN(h)) return String(t);
+    if (Number.isNaN(h)) return s;
     var suffix = h >= 12 ? "PM" : "AM";
     h = h % 12 || 12;
     return h + ":" + m + " " + suffix;
+  }
+
+  function isSafeHttpUrl(url) {
+    if (!url || typeof url !== "string") return false;
+    var trimmed = url.trim();
+    if (!trimmed) return false;
+    try {
+      var parsed = new URL(trimmed, global.location ? global.location.origin : "https://mehfill.in");
+      return parsed.protocol === "https:" || parsed.protocol === "http:";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function formatDisplayDate(val) {
+    if (!val) return "";
+    var s = String(val).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      return fmtDateLong(s);
+    }
+    return s;
   }
 
   function applyThemeVariables(cfg) {
@@ -60,30 +83,31 @@
     applyThemeVariables(cfg);
 
     // Update Page Title
-    var title = cfg.couple.displayName + " — Royal Wedding Invitation | Mehfill.in";
+    var displayName = cfg.couple.displayName || [cfg.couple.brideName, cfg.couple.groomName].filter(Boolean).join(" & ");
+    var title = (displayName ? displayName + " — " : "") + "Royal Wedding Invitation | Mehfill.in";
     document.title = title;
 
     // Couple & Names everywhere
-    setTextAll("[data-bind='couple.displayName']", cfg.couple.displayName || (cfg.couple.brideName + " & " + cfg.couple.groomName));
+    setTextAll("[data-bind='couple.displayName']", displayName);
     setTextAll("[data-bind='couple.brideName']", cfg.couple.brideName);
     setTextAll("[data-bind='couple.groomName']", cfg.couple.groomName);
     setTextAll("[data-bind='couple.initials']", cfg.couple.initials);
-    setTextAll("[data-bind='couple.introduction']", cfg.couple.introduction);
+    setOptionalTextAll("[data-bind='couple.introduction']", cfg.couple.introduction);
     setTextAll("[data-bind='couple.invitationHeading']", cfg.couple.invitationHeading);
-    setTextAll("[data-bind='couple.welcomeMessage']", cfg.couple.welcomeMessage);
-    setTextAll("[data-bind='couple.familyInvitation']", cfg.couple.familyInvitation);
-    setTextAll("[data-bind='couple.closingMessage']", cfg.couple.closingMessage);
-    setTextAll("[data-bind='couple.footerMessage']", cfg.couple.footerMessage);
+    setOptionalTextAll("[data-bind='couple.welcomeMessage']", cfg.couple.welcomeMessage);
+    setOptionalTextAll("[data-bind='couple.familyInvitation']", cfg.couple.familyInvitation);
+    setOptionalTextAll("[data-bind='couple.closingMessage']", cfg.couple.closingMessage);
+    setOptionalTextAll("[data-bind='couple.footerMessage']", cfg.couple.footerMessage);
 
-    // Bride & Groom specifics
-    setTextAll("[data-bind='couple.brideParents']", cfg.couple.brideParents);
-    setTextAll("[data-bind='couple.groomParents']", cfg.couple.groomParents);
-    setTextAll("[data-bind='couple.brideBio']", cfg.couple.brideBio);
-    setTextAll("[data-bind='couple.groomBio']", cfg.couple.groomBio);
+    // Bride & Groom specifics (hide missing optional parents, bios & photos cleanly)
+    setOptionalTextAll("[data-bind='couple.brideParents']", cfg.couple.brideParents);
+    setOptionalTextAll("[data-bind='couple.groomParents']", cfg.couple.groomParents);
+    setOptionalTextAll("[data-bind='couple.brideBio']", cfg.couple.brideBio);
+    setOptionalTextAll("[data-bind='couple.groomBio']", cfg.couple.groomBio);
 
-    setImageAll("[data-bind-img='media.bridePhoto']", cfg.media.bridePhoto, cfg.couple.brideName);
-    setImageAll("[data-bind-img='media.groomPhoto']", cfg.media.groomPhoto, cfg.couple.groomName);
-    setImageAll("[data-bind-img='media.couplePortrait']", cfg.media.couplePortrait, cfg.couple.displayName);
+    setCouplePhoto("[data-bind-img='media.bridePhoto']", cfg.media && cfg.media.bridePhoto, cfg.couple.brideName);
+    setCouplePhoto("[data-bind-img='media.groomPhoto']", cfg.media && cfg.media.groomPhoto, cfg.couple.groomName);
+    setImageAll("[data-bind-img='media.couplePortrait']", cfg.media && cfg.media.couplePortrait, displayName);
 
     // Hero Section
     setTextAll("[data-bind='hero.eyebrow']", cfg.hero.eyebrow);
@@ -101,18 +125,70 @@
     setImageAll("[data-bind-img='hero.lanternImage']", cfg.hero.lanternImage, "Antique Hanging Golden Lantern");
 
     // Event & Venue
+    var hasDate = Boolean(cfg.event && cfg.event.date && parseISODate(cfg.event.date));
+    var dateFormatted = hasDate ? fmtDateLong(cfg.event.date) : "";
+    var timeFormatted = cfg.event && cfg.event.time
+      ? fmtTime12(cfg.event.time) + (cfg.event.endTime ? " – " + fmtTime12(cfg.event.endTime) : " onwards")
+      : "";
+
     setTextAll("[data-bind='event.title']", cfg.event.title);
-    setTextAll("[data-bind='event.dateFormatted']", fmtDateLong(cfg.event.date));
-    setTextAll("[data-bind='event.timeFormatted']", fmtTime12(cfg.event.time) + (cfg.event.endTime ? " – " + fmtTime12(cfg.event.endTime) : " onwards"));
-    setTextAll("[data-bind='event.venueName']", cfg.event.venueName);
-    setTextAll("[data-bind='event.address']", cfg.event.address);
-    setTextAll("[data-bind='event.dressCode']", cfg.event.dressCode);
-    setTextAll("[data-bind='event.notes']", cfg.event.notes);
-    setImageAll("[data-bind-img='media.venuePhoto']", cfg.media.venuePhoto, cfg.event.venueName);
+    setOptionalTextAll("[data-bind='event.dateFormatted']", dateFormatted);
+    setOptionalTextAll("[data-bind='event.timeFormatted']", timeFormatted);
+    setOptionalTextAll("[data-bind='event.venueName']", cfg.event.venueName);
+    setOptionalTextAll("[data-bind='event.address']", cfg.event.address);
+    setOptionalTextAll("[data-bind='event.dressCode']", cfg.event.dressCode);
+    setOptionalTextAll("[data-bind='event.notes']", cfg.event.notes);
+    setImageAll("[data-bind-img='media.venuePhoto']", cfg.media && cfg.media.venuePhoto, cfg.event.venueName);
+    var venueImgWrap = document.querySelector(".venue-image-wrap");
+    var venueCard = document.querySelector(".venue-showcase-card");
+    var hasVenuePhoto = Boolean(cfg.media && cfg.media.venuePhoto);
+    if (venueImgWrap) venueImgWrap.style.display = hasVenuePhoto ? "" : "none";
+    if (venueCard) venueCard.classList.toggle("is-no-venue-photo", !hasVenuePhoto);
+
+    var venueSec = document.querySelector("[data-section='venue']");
+    if (venueSec) {
+      var hasVenueInfo = Boolean((cfg.event.venueName && cfg.event.venueName.trim()) || (cfg.event.address && cfg.event.address.trim()));
+      venueSec.style.display = hasVenueInfo ? "" : "none";
+      if (cfg._isCustomInvitation) {
+        var venueSub = venueSec.querySelector(".section-subtitle");
+        var venueTag = venueSec.querySelector(".venue-tag");
+        var venuePills = venueSec.querySelector(".venue-meta-pills");
+        if (venueSub) venueSub.style.display = "none";
+        if (venueTag) venueTag.style.display = "none";
+        if (venuePills) venuePills.style.display = "none";
+      }
+    }
 
     var mapsLink = document.querySelector("[data-bind-href='event.mapsUrl']");
     if (mapsLink) {
-      mapsLink.href = cfg.event.mapsUrl || ("https://maps.google.com/?q=" + encodeURIComponent(cfg.event.venueName + " " + cfg.event.address));
+      var customMaps = isSafeHttpUrl(cfg.event.mapsUrl) ? cfg.event.mapsUrl.trim() : "";
+      var fallbackQuery = [cfg.event.venueName, cfg.event.address].filter(Boolean).join(" ").trim();
+      var resolvedMap = customMaps || (fallbackQuery ? "https://maps.google.com/?q=" + encodeURIComponent(fallbackQuery) : "");
+      if (resolvedMap) {
+        mapsLink.href = resolvedMap;
+        mapsLink.style.display = "";
+      } else {
+        mapsLink.removeAttribute("href");
+        mapsLink.style.display = "none";
+      }
+    }
+
+    // Surprise blessing line on scratch card
+    var blessingEl = document.querySelector(".surprise-blessing");
+    if (blessingEl) {
+      var cityShort = cfg.event.address ? String(cfg.event.address).split(",")[0].trim() : "";
+      var blessingParts = [displayName, cityShort].filter(Boolean);
+      blessingEl.textContent = blessingParts.length ? "✨ " + blessingParts.join(" · ") + " ✨" : "";
+    }
+
+    // Hide countdown & scratch card when wedding date is missing
+    var countdownSec = document.querySelector("[data-section='countdown']");
+    if (countdownSec) {
+      countdownSec.style.display = hasDate ? "" : "none";
+    }
+    var scratchSec = document.querySelector("[data-section='scratchCard']");
+    if (scratchSec) {
+      scratchSec.style.display = hasDate ? "" : "none";
     }
 
     // Video Gate & Theater
@@ -173,6 +249,38 @@
     }
   }
 
+  function setOptionalTextAll(selector, text) {
+    var nodes = document.querySelectorAll(selector);
+    var val = text != null ? String(text).trim() : "";
+    for (var i = 0; i < nodes.length; i++) {
+      if (val) {
+        nodes[i].textContent = val;
+        nodes[i].style.display = "";
+      } else {
+        nodes[i].textContent = "";
+        nodes[i].style.display = "none";
+      }
+    }
+  }
+
+  function setCouplePhoto(selector, src, alt) {
+    var nodes = document.querySelectorAll(selector);
+    var cleanSrc = src ? String(src).trim() : "";
+    for (var i = 0; i < nodes.length; i++) {
+      var wrap = nodes[i].closest(".couple-img-wrap");
+      if (cleanSrc) {
+        nodes[i].src = cleanSrc;
+        nodes[i].style.display = "";
+        if (wrap) wrap.classList.remove("is-no-photo");
+      } else {
+        nodes[i].removeAttribute("src");
+        nodes[i].style.display = "none";
+        if (wrap) wrap.classList.add("is-no-photo");
+      }
+      if (alt) nodes[i].alt = alt;
+    }
+  }
+
   function setImageAll(selector, src, alt) {
     var nodes = document.querySelectorAll(selector);
     for (var i = 0; i < nodes.length; i++) {
@@ -180,6 +288,7 @@
         nodes[i].src = src;
         nodes[i].style.display = "";
       } else {
+        nodes[i].removeAttribute("src");
         nodes[i].style.display = "none";
       }
       if (alt) nodes[i].alt = alt;
@@ -188,17 +297,24 @@
 
   function renderMilestones(milestones) {
     var host = document.getElementById("story-timeline");
+    var sec = document.querySelector("[data-section='story']");
+    var valid = (milestones || []).filter(function (m) {
+      return m && String(m.title || "").trim().length > 0;
+    });
+    if (sec) {
+      sec.style.display = valid.length ? "" : "none";
+    }
     if (!host) return;
     host.innerHTML = "";
+    if (!valid.length) return;
 
-    (milestones || []).forEach(function (m, idx) {
+    valid.forEach(function (m, idx) {
       var item = document.createElement("div");
       item.className = "story-item " + (idx % 2 === 0 ? "story-left" : "story-right") + " reveal";
 
       var content = document.createElement("div");
       content.className = "story-card";
 
-      // Subtle floral corner ornament on story card
       var cornerImg = document.createElement("img");
       cornerImg.src = "assets/images/floral-corner-tr.png";
       cornerImg.alt = "";
@@ -217,20 +333,25 @@
         content.appendChild(imgWrap);
       }
 
-      var dateTag = document.createElement("span");
-      dateTag.className = "story-date";
-      dateTag.textContent = m.year || "";
-      content.appendChild(dateTag);
+      var dateText = formatDisplayDate(m.year || m.date);
+      if (dateText) {
+        var dateTag = document.createElement("span");
+        dateTag.className = "story-date";
+        dateTag.textContent = dateText;
+        content.appendChild(dateTag);
+      }
 
       var title = document.createElement("h3");
       title.className = "story-title";
       title.textContent = m.title || "";
       content.appendChild(title);
 
-      var desc = document.createElement("p");
-      desc.className = "story-desc";
-      desc.textContent = m.description || "";
-      content.appendChild(desc);
+      if (m.description && String(m.description).trim()) {
+        var desc = document.createElement("p");
+        desc.className = "story-desc";
+        desc.textContent = m.description;
+        content.appendChild(desc);
+      }
 
       var node = document.createElement("div");
       node.className = "story-node";
@@ -244,49 +365,129 @@
 
   function renderEvents(events) {
     var host = document.getElementById("events-grid");
+    var sec = document.querySelector("[data-section='events']");
+    var valid = (events || []).filter(function (ev) {
+      return ev && String(ev.title || ev.name || "").trim().length > 0;
+    });
+    if (sec) {
+      sec.style.display = valid.length ? "" : "none";
+    }
     if (!host) return;
     host.innerHTML = "";
+    if (!valid.length) return;
 
-    (events || []).forEach(function (ev) {
+    valid.forEach(function (ev) {
       var card = document.createElement("article");
       card.className = "event-card reveal";
 
-      var bannerHtml = "";
+      var evTitle = String(ev.title || ev.name || "").trim();
+      var evDate = formatDisplayDate(ev.date);
+      var evTime = ev.time ? fmtTime12(ev.time) : "";
+      var evDesc = ev.description ? String(ev.description).trim() : "";
+      var evVenue = ev.venue ? String(ev.venue).trim() : "";
+      var evAddress = ev.address ? String(ev.address).trim() : "";
+      var evMap = isSafeHttpUrl(ev.mapsUrl) ? ev.mapsUrl.trim() : "";
+
       if (ev.image) {
-        bannerHtml = "<div class='event-banner'><img src='" + ev.image + "' alt='" + (ev.title || "Wedding Function") + "' loading='lazy' /><img src='assets/images/floral-corner-tr.png' alt='' class='event-card-corner' aria-hidden='true' /></div>";
+        var banner = document.createElement("div");
+        banner.className = "event-banner";
+        var bImg = document.createElement("img");
+        bImg.src = ev.image;
+        bImg.alt = evTitle || "Wedding Function";
+        bImg.loading = "lazy";
+        var cImg = document.createElement("img");
+        cImg.src = "assets/images/floral-corner-tr.png";
+        cImg.alt = "";
+        cImg.className = "event-card-corner";
+        cImg.setAttribute("aria-hidden", "true");
+        banner.appendChild(bImg);
+        banner.appendChild(cImg);
+        card.appendChild(banner);
       }
 
-      var mapsBtnHtml = "";
-      if (ev.venue) {
-        var query = encodeURIComponent(ev.venue + " " + (ev.date || ""));
-        mapsBtnHtml = "<a href='https://maps.google.com/?q=" + query + "' target='_blank' rel='noopener' class='event-link'><span>Map Location</span><svg viewBox='0 0 24 24' width='14' height='14'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z' fill='currentColor'/></svg></a>";
+      var body = document.createElement("div");
+      body.className = "event-body";
+
+      if (evDate || evTime) {
+        var meta = document.createElement("div");
+        meta.className = "event-meta";
+        if (evDate) {
+          var dc = document.createElement("span");
+          dc.className = "event-date-chip";
+          dc.textContent = evDate;
+          meta.appendChild(dc);
+        }
+        if (evTime) {
+          var tc = document.createElement("span");
+          tc.className = "event-time-chip";
+          tc.textContent = evTime;
+          meta.appendChild(tc);
+        }
+        body.appendChild(meta);
       }
 
-      card.innerHTML = bannerHtml +
-        "<div class='event-body'>" +
-          "<div class='event-meta'>" +
-            "<span class='event-date-chip'>" + (ev.date || "") + "</span>" +
-            "<span class='event-time-chip'>" + (ev.time || "") + "</span>" +
-          "</div>" +
-          "<h3 class='event-title'>" + (ev.title || "") + "</h3>" +
-          "<p class='event-desc'>" + (ev.description || "") + "</p>" +
-          "<div class='event-venue-box'>" +
-            "<svg viewBox='0 0 24 24' width='16' height='16' class='event-icon'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z' fill='currentColor'/></svg>" +
-            "<span class='event-venue-name'>" + (ev.venue || "") + "</span>" +
-          "</div>" +
-          mapsBtnHtml +
-        "</div>";
+      var h3 = document.createElement("h3");
+      h3.className = "event-title";
+      h3.textContent = evTitle;
+      body.appendChild(h3);
 
+      if (evDesc) {
+        var pDesc = document.createElement("p");
+        pDesc.className = "event-desc";
+        pDesc.textContent = evDesc;
+        body.appendChild(pDesc);
+      }
+
+      if (evVenue || evAddress) {
+        var vBox = document.createElement("div");
+        vBox.className = "event-venue-box";
+        vBox.innerHTML = "<svg viewBox='0 0 24 24' width='16' height='16' class='event-icon'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z' fill='currentColor'/></svg>";
+        var vWrap = document.createElement("div");
+        if (evVenue) {
+          var vSpan = document.createElement("span");
+          vSpan.className = "event-venue-name";
+          vSpan.textContent = evVenue;
+          vWrap.appendChild(vSpan);
+        }
+        if (evAddress) {
+          var aSpan = document.createElement("span");
+          aSpan.className = "event-address-text";
+          aSpan.textContent = evAddress;
+          vWrap.appendChild(aSpan);
+        }
+        vBox.appendChild(vWrap);
+        body.appendChild(vBox);
+      }
+
+      if (evMap) {
+        var aLink = document.createElement("a");
+        aLink.href = evMap;
+        aLink.target = "_blank";
+        aLink.rel = "noopener noreferrer";
+        aLink.className = "event-link";
+        aLink.innerHTML = "<span>Map Location</span><svg viewBox='0 0 24 24' width='14' height='14'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z' fill='currentColor'/></svg>";
+        body.appendChild(aLink);
+      }
+
+      card.appendChild(body);
       host.appendChild(card);
     });
   }
 
   function renderGallery(gallery) {
     var host = document.getElementById("gallery-grid");
+    var sec = document.querySelector("[data-section='gallery']");
+    var valid = (gallery || []).filter(function (item) {
+      return item && item.src && String(item.src).trim().length > 0;
+    });
+    if (sec) {
+      sec.style.display = valid.length ? "" : "none";
+    }
     if (!host) return;
     host.innerHTML = "";
+    if (!valid.length) return;
 
-    (gallery || []).forEach(function (item, idx) {
+    valid.forEach(function (item, idx) {
       var fig = document.createElement("figure");
       fig.className = "gallery-item reveal";
       fig.setAttribute("data-gallery-index", idx);
@@ -296,13 +497,20 @@
 
       var img = document.createElement("img");
       img.src = item.src;
-      img.alt = item.alt || item.caption || "Royal Wedding Photo";
+      img.alt = item.alt || item.caption || "Wedding Photo";
       img.loading = "lazy";
       fig.appendChild(img);
 
       var caption = document.createElement("figcaption");
       caption.className = "gallery-cap";
-      caption.innerHTML = "<span class='gallery-cap-title'>" + (item.caption || "") + "</span><span class='gallery-zoom-icon'>✢</span>";
+      var capTitle = document.createElement("span");
+      capTitle.className = "gallery-cap-title";
+      capTitle.textContent = item.caption || "";
+      var zoomIcon = document.createElement("span");
+      zoomIcon.className = "gallery-zoom-icon";
+      zoomIcon.textContent = "✢";
+      caption.appendChild(capTitle);
+      caption.appendChild(zoomIcon);
       fig.appendChild(caption);
 
       host.appendChild(fig);

@@ -11,11 +11,11 @@ const SLUG = "about";
 
 export function generateMetadata(): Metadata {
   const url = canonical(`/${SLUG}`);
-  const title = "About Mehfill.in — Digital Wedding & Event Invitation Platform";
+  const title = "About Mehfill.in — Digital Wedding Invitation Platform";
   const description =
-    "Mehfill.in is a digital invitation platform for weddings, events and celebrations in India. Learn what we do, how ordering works, and how to contact us.";
+    "Mehfill.in is a digital invitation platform for weddings and events in India. Learn what we do, how ordering works, and how to contact us for support.";
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: { canonical: url },
     openGraph: {

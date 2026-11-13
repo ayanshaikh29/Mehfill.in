@@ -75,6 +75,7 @@ export default function Footer() {
             <Link href="/haldi-invitations" className="hover:text-terracotta">{t("footer.cHaldi")}</Link>
             <Link href="/mehndi-invitations" className="hover:text-terracotta">{t("footer.cMehndi")}</Link>
             <Link href="/event-invitations" className="hover:text-terracotta">{t("footer.cEvent")}</Link>
+            <Link href="/baby-shower-invitations" className="hover:text-terracotta">Baby Shower</Link>
             <Link href="/digital-invitations" className="hover:text-terracotta">{t("footer.cAll")}</Link>
           </nav>
         </div>
@@ -87,6 +88,7 @@ export default function Footer() {
             <Link href="/about" className="hover:text-terracotta">{t("footer.fAbout")}</Link>
             <Link href="/contact" className="hover:text-terracotta">{t("footer.fContact")}</Link>
             <Link href="/reviews" className="hover:text-terracotta">{t("footer.fReviews")}</Link>
+            <Link href="/blog" className="hover:text-terracotta">Blog</Link>
             <Link href="/#pricing" className="hover:text-terracotta">{t("footer.fPricing")}</Link>
             <Link href="/#faq" className="hover:text-terracotta">{t("footer.fFaq")}</Link>
             <Link href="/login" className="hover:text-terracotta">{t("footer.fAccount")}</Link>

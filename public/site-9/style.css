@@ -40,6 +40,7 @@ html {
   scroll-behavior: smooth;
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 body {
@@ -350,8 +351,8 @@ body.mf-locked {
    ============================================================ */
 .floating-controls {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  right: max(16px, env(safe-area-inset-right, 16px));
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -2155,7 +2156,112 @@ body.mf-locked {
   mix-blend-mode: screen;
 }
 
-/* 5. Couple Section: Monogram Rotating Mandala */
+/* 5. Couple Section: Monogram Rotating Mandala & Showcase Grid */
+.couple-showcase-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: stretch;
+  gap: 36px;
+  margin-bottom: 24px;
+}
+
+.couple-card-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.couple-img-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 4 / 5;
+  margin: 0 auto 20px;
+  border-radius: 140px 140px 14px 14px;
+  overflow: hidden;
+  border: 3px solid var(--color-gold);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.couple-img-wrap.is-no-photo {
+  aspect-ratio: auto;
+  max-width: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  margin: 0 auto 14px;
+}
+
+.couple-role-tag {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-emerald);
+  color: var(--color-gold-light);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 5px 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-gold);
+  white-space: nowrap;
+}
+
+.couple-img-wrap.is-no-photo .couple-role-tag {
+  position: static;
+  transform: none;
+  display: inline-block;
+}
+
+.couple-info {
+  text-align: center;
+  width: 100%;
+}
+
+.couple-person-name {
+  font-family: var(--font-names);
+  font-size: 1.85rem;
+  color: var(--color-emerald);
+  margin: 0 0 8px;
+}
+
+.couple-parents-text {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.couple-bio-quote {
+  font-size: 0.92rem;
+  color: var(--color-text-dark);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.venue-showcase-card.is-no-venue-photo {
+  grid-template-columns: 1fr;
+}
+
+.event-address-text {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .couple-showcase-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
 .monogram-ring-wrap {
   position: relative;
   display: flex;
@@ -2373,5 +2479,32 @@ body.mf-locked {
   }
   .closing-box {
     padding: 32px 18px 28px;
+  }
+}
+
+/* Word-wrapping & overflow safety for long user-entered names/venues */
+.mandap-couple-names,
+.couple-person-name,
+.event-title,
+.venue-palace-name,
+.venue-address,
+.closing-names {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .royal-swag-garland,
+  .monogram-mandala-spin,
+  .countdown-mandala-bg,
+  .story-rose-icon,
+  .closing-rose-badge,
+  .music-wave-ring {
+    animation: none !important;
+  }
+  .reveal {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

@@ -9,7 +9,7 @@ const OCCASIONS = [
   { name: "Engagements", sub: "Ring ceremonies & proposals", img: "/images/occasions/engagements.jpg", href: "/engagement-invitations", alt: "Couple rings — digital engagement invitation" },
   { name: "Haldi & Mehndi", sub: "Joyful pre-wedding festivities", img: "/images/occasions/haldi_mehndi.jpg", href: "/haldi-invitations", alt: "Haldi and Mehndi ceremony — digital Haldi invitation by Mehfill.in" },
   { name: "Anniversaries", sub: "Silver, golden & every year", img: "/images/occasions/anniversaries.jpg", href: "/anniversary-invitations", alt: "Celebrating couple — digital anniversary invitation" },
-  { name: "Baby Showers", sub: "Godh Bharai & welcoming ceremonies", img: "/images/occasions/baby_showers.jpg", href: "/event-invitations", alt: "Baby shower decorations — digital event invitation by Mehfill.in" },
+  { name: "Baby Showers", sub: "Godh Bharai & welcoming ceremonies", img: "/images/occasions/baby_showers.jpg", href: "/baby-shower-invitations", alt: "Baby shower decorations — digital baby shower invitation by Mehfill.in" },
   { name: "Parties", sub: "Festive nights & gatherings", img: "/images/occasions/parties.jpg", href: "/event-invitations", alt: "Festive party lights — digital event invitation by Mehfill.in" },
   { name: "Faith & Prayer", sub: "Puja, Dawat, Baptism, Akhand Path & more", img: "/images/occasions/faith_prayer.jpg", href: "/nikah-invitations", alt: "Prayer ceremony — faith digital invitation" },
   { name: "Corporate Events", sub: "Launches & celebrations at work", img: "/images/occasions/corporate.jpg", href: "/event-invitations", alt: "Corporate event — digital event invitation by Mehfill.in" },

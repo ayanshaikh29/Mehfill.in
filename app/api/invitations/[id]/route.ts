@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { err, rateLimit, clientIp, requireUser, sanitize } from "@/lib/api-helpers";
-import { isContentShaped, isProvisionalSlug, generateSlug, type InvitationContent, type LoveStoryMilestone } from "@/lib/invitation";
+import { isContentShaped, isProvisionalSlug, isSafeHttpUrl, generateSlug, type InvitationContent, type LoveStoryMilestone, type GalleryItem } from "@/lib/invitation";
 
 export const runtime = "nodejs";
 
@@ -99,20 +99,49 @@ export async function PATCH(request: Request, ctx: Ctx) {
     const musicOk =
       rawMusic === "" ||
       (rawMusic.length <= 500 && rawMusic.includes("/invitation-assets/"));
+    const rawGalleryItems = Array.isArray(body.content.galleryItems) ? body.content.galleryItems : null;
+    const sanitizedGalleryItems: GalleryItem[] | undefined = rawGalleryItems
+      ? rawGalleryItems
+          .slice(0, 20)
+          .filter((item) => item && typeof item.url === "string" && isSafeHttpUrl(item.url))
+          .map((item) => ({
+            id: sanitize(String(item.id || ""), 64) || crypto.randomUUID(),
+            url: item.url.trim(),
+            caption: sanitize(item.caption || "", 160),
+            category: ["all", "couple", "ceremonies", "palace"].includes(String(item.category || ""))
+              ? String(item.category)
+              : "all",
+          }))
+      : undefined;
+    const rawGallery = (body.content.gallery || []).slice(0, 20).filter((u) => typeof u === "string" && isSafeHttpUrl(u));
+    const gallery = sanitizedGalleryItems ? sanitizedGalleryItems.map((item) => item.url) : rawGallery;
+
+    const sanitizePhotoUrl = (u: unknown) =>
+      typeof u === "string" && isSafeHttpUrl(u) ? u.trim().slice(0, 500) : "";
+
     const content = {
       ...body.content,
       events: (body.content.events || []).slice(0, 15).map((e) => ({
-        id: String(e.id || ""),
+        id: sanitize(String(e.id || ""), 64) || crypto.randomUUID(),
         name: sanitize(e.name || "", 80),
         date: sanitize(e.date || "", 20),
         time: sanitize(e.time || "", 10),
         venue: sanitize(e.venue || "", 160),
+        address: sanitize(e.address || "", 300),
+        mapsUrl: isSafeHttpUrl(e.mapsUrl) ? e.mapsUrl!.trim().slice(0, 400) : "",
         description: sanitize(e.description || "", 400),
       })),
-      gallery: (body.content.gallery || []).slice(0, 20).filter((u) => typeof u === "string"),
+      gallery,
+      ...(sanitizedGalleryItems ? { galleryItems: sanitizedGalleryItems } : {}),
       musicUrl: musicOk ? rawMusic : "",
       brideName: sanitize(body.content.brideName || "", 80),
       groomName: sanitize(body.content.groomName || "", 80),
+      bridePhoto: sanitizePhotoUrl(body.content.bridePhoto),
+      groomPhoto: sanitizePhotoUrl(body.content.groomPhoto),
+      brideParents: sanitize(body.content.brideParents || "", 160),
+      groomParents: sanitize(body.content.groomParents || "", 160),
+      brideBio: sanitize(body.content.brideBio || "", 300),
+      groomBio: sanitize(body.content.groomBio || "", 300),
       initials: sanitize(body.content.initials || "", 20),
       familyNames: sanitize(body.content.familyNames || "", 240),
       message: sanitize(body.content.message || "", 600),
@@ -122,7 +151,7 @@ export async function PATCH(request: Request, ctx: Ctx) {
       endTime: sanitize(body.content.endTime || "", 10),
       venueName: sanitize(body.content.venueName || "", 160),
       venueAddress: sanitize(body.content.venueAddress || "", 400),
-      mapsUrl: sanitize(body.content.mapsUrl || "", 400),
+      mapsUrl: isSafeHttpUrl(body.content.mapsUrl) ? body.content.mapsUrl!.trim().slice(0, 400) : "",
       rsvp: {
         enabled: Boolean(body.content.rsvp?.enabled ?? true),
         contactName: sanitize(body.content.rsvp?.contactName || "", 80),

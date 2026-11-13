@@ -11,11 +11,11 @@ const SLUG = "reviews";
 
 export function generateMetadata(): Metadata {
   const url = canonical(`/${SLUG}`);
-  const title = "Customer Reviews — Real Feedback | Mehfill.in";
+  const title = "Customer Reviews — Real Feedback from Families";
   const description =
     "Verified customer reviews for Mehfill.in digital wedding and event invitations. Real feedback from delivered orders — published only after verification.";
   return {
-    title: "Customer Reviews — Real Feedback",
+    title,
     description,
     alternates: { canonical: url },
     openGraph: {

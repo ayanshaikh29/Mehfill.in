@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Cookie Policy",
   description: "What cookies and local storage Mehfill.in actually uses — and nothing more.",
   alternates: { canonical: canonical("/cookie-policy") },
+  robots: { index: false, follow: true },
 };
 
 export default function CookiePolicyPage() {

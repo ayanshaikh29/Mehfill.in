@@ -106,7 +106,7 @@ async function createInvitation(
   // Provisional slug only — publish regenerates from couple names.
   const slug = provisionalSlug(taken);
 
-  const content: InvitationContent = defaultContent();
+  const content: InvitationContent = defaultContent(finalTemplate);
 
   const { data, error } = await admin
     .from("invitations")

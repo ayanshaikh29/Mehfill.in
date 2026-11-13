@@ -7,7 +7,7 @@ import { canonical } from "@/lib/seo";
 const PAGE_URL = canonical("/templates");
 
 export const metadata: Metadata = {
-  title: "Invitation Designs",
+  title: "Invitation Designs & Templates for Every Event",
   description:
     "Browse ready-to-personalise digital wedding invitation designs. Choose a template, customise your details and publish your invitation link in minutes.",
   alternates: { canonical: PAGE_URL },

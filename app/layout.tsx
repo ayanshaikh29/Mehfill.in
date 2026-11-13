@@ -58,11 +58,11 @@ const nastaliq = Noto_Nastaliq_Urdu({
 export const metadata: Metadata = {
   metadataBase: new URL("https://mehfill.in"),
   title: {
-    default: "Mehfill.in | Digital Wedding & Event Invitations",
+    default: "Digital Wedding & Event Invitation Maker | Mehfill.in",
     template: "%s | Mehfill.in",
   },
   description:
-    "Create beautiful digital wedding and event invitations with Mehfill.in. Modern, elegant and shareable invitations for weddings, engagements, birthdays and special celebrations.",
+    "Create beautiful digital wedding and event invitations with Mehfill.in — elegant, shareable invites for weddings, engagements, birthdays and celebrations.",
   authors: [{ name: "Mehfill.in" }],
   creator: "Mehfill.in",
   publisher: "Mehfill.in",
@@ -80,9 +80,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Mehfill.in | Digital Wedding & Event Invitations",
+    title: "Digital Wedding & Event Invitation Maker | Mehfill.in",
     description:
-      "Create beautiful digital wedding and event invitations with Mehfill.in. Modern, elegant and shareable invitations for weddings, engagements, birthdays and special celebrations.",
+      "Create beautiful digital wedding and event invitations with Mehfill.in — elegant, shareable invites for weddings, engagements, birthdays and celebrations.",
     url: "https://mehfill.in/",
     siteName: "Mehfill.in",
     locale: "en_IN",
@@ -98,7 +98,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mehfill.in | Digital Wedding & Event Invitations",
+    title: "Digital Wedding & Event Invitation Maker | Mehfill.in",
     description:
       "Create beautiful digital wedding and event invitations with Mehfill.in — elegant, WhatsApp-ready links with RSVP, maps and photos.",
     images: ["/og-cover.png"],
@@ -172,8 +172,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const nonce = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : Math.random().toString(36).substring(2);
-
   return (
     <html
       lang="en"
@@ -237,6 +235,7 @@ export default function RootLayout({
           </CurrencyProvider>
         </I18nProvider>
         <Script
+          id="devtools-guard"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `

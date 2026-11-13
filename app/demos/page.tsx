@@ -10,9 +10,9 @@ import { waLink } from "@/lib/contact";
 import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Live Invitation Demos — Weddings, Birthdays & Engagements",
+  title: "Live Invitation Demos — Wedding & Birthday",
   description:
-    "Open live Mehfill invitation demos — cinematic wedding, Nikah-style, engagement and birthday designs with events, galleries and RSVP. Find the style for your celebration.",
+    "Open live Mehfill invitation demos — cinematic wedding, Nikah, engagement and birthday designs with events, galleries, maps and RSVP for guests.",
   alternates: { canonical: canonical("/demos") },
   openGraph: {
     title: "Live Invitation Demos | Mehfill.in",

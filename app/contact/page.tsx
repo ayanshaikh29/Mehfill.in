@@ -12,11 +12,11 @@ const SLUG = "contact";
 
 export function generateMetadata(): Metadata {
   const url = canonical(`/${SLUG}`);
-  const title = "Contact Mehfill.in — WhatsApp, Email & Support";
+  const title = "Contact Mehfill.in — WhatsApp, Email & Order Support";
   const description =
-    "Contact Mehfill.in for orders and support — chat on WhatsApp, send an email, or follow our Instagram. Every order is confirmed personally.";
+    "Contact Mehfill.in for orders and support — chat on WhatsApp, send an email, or follow our Instagram. Every order is confirmed personally by our team.";
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: { canonical: url },
     openGraph: {

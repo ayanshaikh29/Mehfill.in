@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 export const metadata = {
   title: "Wedding Invitations",
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function WeddingInvitationAlias() {
-  redirect("/digital-wedding-invitations");
+  permanentRedirect("/digital-wedding-invitations");
 }

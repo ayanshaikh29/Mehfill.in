@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Terms & Conditions",
   description: "The terms for using Mehfill.in and ordering custom digital invitations.",
   alternates: { canonical: canonical("/terms-and-conditions") },
+  robots: { index: false, follow: true },
 };
 
 export default function TermsPage() {

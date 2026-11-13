@@ -1,13 +1,15 @@
 import type { MetadataRoute } from "next";
 import { LANDING_PAGES } from "@/lib/landing-content";
+import { BLOG_POSTS } from "@/lib/blog-posts";
 
 const BASE = "https://mehfill.in";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date("2026-10-01");
+  // Reflects deploy time so crawlers see fresh lastmod after each release.
+  const lastModified = new Date();
   // Public, indexable pages only — private flows (login, dashboard,
-  // checkout, thank-you, admin, studio, auth) stay out so crawlers spend
-  // budget on pages that should rank.
+  // checkout, thank-you, admin, studio, auth) and policy pages (noindexed)
+  // stay out so crawlers spend budget on pages that should rank.
   const statics: { path: string; priority: number; freq: "weekly" | "monthly" | "yearly" }[] = [
     { path: "/", priority: 1, freq: "weekly" },
     { path: "/templates", priority: 0.9, freq: "weekly" },
@@ -16,10 +18,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/how-it-works", priority: 0.8, freq: "monthly" },
     { path: "/contact", priority: 0.5, freq: "yearly" },
     { path: "/reviews", priority: 0.5, freq: "weekly" },
-    { path: "/privacy-policy", priority: 0.3, freq: "yearly" },
-    { path: "/terms-and-conditions", priority: 0.3, freq: "yearly" },
-    { path: "/cookie-policy", priority: 0.3, freq: "yearly" },
-    { path: "/refund-policy", priority: 0.3, freq: "yearly" },
   ];
   return [
     ...statics.map((p) => ({
@@ -43,6 +41,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.8,
     },
+    // Blog — long-tail content engine.
+    { url: `${BASE}/blog`, lastModified, changeFrequency: "weekly" as const, priority: 0.7 },
+    ...BLOG_POSTS.map((p) => ({
+      url: `${BASE}/blog/${p.slug}`,
+      lastModified: new Date(p.date),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
     // Static HTML demo invitations (real designs guests open).
     ...["site-1", "site-2", "site-3", "site-4", "site-5", "site-6", "site-7", "site-8", "site-9"].map((s) => ({
       url: `${BASE}/${s}`,

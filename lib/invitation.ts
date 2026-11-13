@@ -9,7 +9,16 @@ export interface InvitationEvent {
   date: string; // YYYY-MM-DD
   time: string; // HH:MM (24h)
   venue: string;
+  address?: string;
+  mapsUrl?: string;
   description?: string;
+}
+
+export interface GalleryItem {
+  id: string;
+  url: string;
+  caption?: string;
+  category?: string;
 }
 
 export interface LoveStoryMilestone {
@@ -32,6 +41,12 @@ export interface InvitationRsvp {
 export interface InvitationContent {
   brideName: string;
   groomName: string;
+  bridePhoto?: string;
+  groomPhoto?: string;
+  brideParents?: string;
+  groomParents?: string;
+  brideBio?: string;
+  groomBio?: string;
   initials?: string;
   familyNames?: string;
   message?: string;
@@ -44,6 +59,7 @@ export interface InvitationContent {
   mapsUrl?: string;
   events: InvitationEvent[];
   gallery: string[];
+  galleryItems?: GalleryItem[];
   /** Customer-selected/uploaded background music (storage URL). Empty = template default. */
   musicUrl?: string;
   rsvp: InvitationRsvp;
@@ -75,10 +91,30 @@ export interface InvitationRecord {
   isPaid?: boolean;
 }
 
-export function defaultContent(): InvitationContent {
+/** Validate that a user-supplied URL uses http: or https: only (blocks javascript:, data:, etc.). */
+export function isSafeHttpUrl(raw?: string): boolean {
+  if (!raw || typeof raw !== "string") return false;
+  const trimmed = raw.trim();
+  if (!trimmed) return false;
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+export function defaultContent(templateSlug?: string): InvitationContent {
+  const isSite9 = templateSlug === "royal-floral-garden";
   return {
     brideName: "",
     groomName: "",
+    bridePhoto: "",
+    groomPhoto: "",
+    brideParents: "",
+    groomParents: "",
+    brideBio: "",
+    groomBio: "",
     initials: "",
     familyNames: "",
     message:
@@ -90,16 +126,19 @@ export function defaultContent(): InvitationContent {
     venueName: "",
     venueAddress: "",
     mapsUrl: "",
-    events: [
-      {
-        id: crypto.randomUUID(),
-        name: "Wedding Ceremony",
-        date: "",
-        time: "",
-        venue: "",
-      },
-    ],
+    events: isSite9
+      ? []
+      : [
+          {
+            id: crypto.randomUUID(),
+            name: "Wedding Ceremony",
+            date: "",
+            time: "",
+            venue: "",
+          },
+        ],
     gallery: [],
+    galleryItems: [],
     musicUrl: "",
     rsvp: {
       enabled: true,
@@ -142,18 +181,21 @@ export function isValidContent(c: unknown): c is InvitationContent {
   return c.weddingDate.length > 0;
 }
 
-/** Every field a published invitation MUST have. All 8 templates display the
- *  start time and the full address, so both are mandatory — a missing value
- *  would leave demo data or an empty line on the live page. Returns the list
- *  of human-readable problems; empty array = publishable. */
-export function validateForPublish(c: InvitationContent): string[] {
+/** Every field a published invitation MUST have. Most templates display the
+ *  start time and the full address, so both are mandatory there.
+ *  royal-floral-garden (site-9) hides optional fields cleanly, so only couple
+ *  names and wedding date are required for publish. Returns the list of
+ *  human-readable problems; empty array = publishable. */
+export function validateForPublish(c: InvitationContent, templateSlug?: string): string[] {
   const problems: string[] = [];
   if (!c.brideName?.trim()) problems.push("bride name");
   if (!c.groomName?.trim()) problems.push("groom name");
   if (!isValidCalendarDate(c.weddingDate)) problems.push("wedding date");
-  if (!c.startTime || !/^\d{1,2}:\d{2}$/.test(c.startTime)) problems.push("start time");
-  if (!c.venueName?.trim()) problems.push("venue name");
-  if (!c.venueAddress?.trim()) problems.push("venue address");
+  if (templateSlug !== "royal-floral-garden") {
+    if (!c.startTime || !/^\d{1,2}:\d{2}$/.test(c.startTime)) problems.push("start time");
+    if (!c.venueName?.trim()) problems.push("venue name");
+    if (!c.venueAddress?.trim()) problems.push("venue address");
+  }
   return problems;
 }
 

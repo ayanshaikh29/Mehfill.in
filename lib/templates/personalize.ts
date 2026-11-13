@@ -711,13 +711,166 @@ function clearImgOnerror(html: string): string {
   return html.replace(/\s+onerror="this\.onerror=null;this\.src='[^']*'"/g, "");
 }
 
+/** Cleanly patch all Site-9 static HTML placeholders so zero demo content
+ *  (Ananya/Kabir, demo photos, Jaipur address, demo dates/ceremonies) ever
+ *  appears in the rendered HTML even before client JS runs. */
+function patchSite9StaticHtml(html: string, content: InvitationContent, coupleLabel: string): string {
+  let out = html;
+  const bride = (content.brideName || "").trim();
+  const groom = (content.groomName || "").trim();
+  const bridePhoto = (content.bridePhoto || "").trim();
+  const groomPhoto = (content.groomPhoto || "").trim();
+  const brideParents = (content.brideParents || "").trim();
+  const groomParents = (content.groomParents || "").trim();
+  const brideBio = (content.brideBio || "").trim();
+  const groomBio = (content.groomBio || "").trim();
+  const family = (content.familyNames || "").trim();
+  const weddingDate = (content.weddingDate || "").trim();
+  const venueName = (content.venueName || "").trim();
+  const venueAddress = (content.venueAddress || "").trim();
+
+  // Couple photos: never emit demo bride.jpg / groom.jpg
+  if (bridePhoto) {
+    out = out.replace(
+      /(<img[^>]*data-bind-img="media\.bridePhoto"[^>]*\bsrc=")[^"]*(")/i,
+      (_m, a: string, b: string) => `${a}${esc(bridePhoto)}${b}`
+    );
+  } else {
+    out = out.replace(/<img[^>]*data-bind-img="media\.bridePhoto"[^>]*>/i, (tag) =>
+      tag.replace(/\s+src="[^"]*"/i, "").replace(/class="([^"]*)"/i, 'class="$1" style="display:none"')
+    );
+    out = out.replace(
+      /(<article class="couple-card bride-card[^>]*>[\s\S]*?<div class="couple-img-wrap)(")/i,
+      '$1 is-no-photo$2'
+    );
+  }
+
+  if (groomPhoto) {
+    out = out.replace(
+      /(<img[^>]*data-bind-img="media\.groomPhoto"[^>]*\bsrc=")[^"]*(")/i,
+      (_m, a: string, b: string) => `${a}${esc(groomPhoto)}${b}`
+    );
+  } else {
+    out = out.replace(/<img[^>]*data-bind-img="media\.groomPhoto"[^>]*>/i, (tag) =>
+      tag.replace(/\s+src="[^"]*"/i, "").replace(/class="([^"]*)"/i, 'class="$1" style="display:none"')
+    );
+    out = out.replace(
+      /(<article class="couple-card groom-card[^>]*>[\s\S]*?<div class="couple-img-wrap)(")/i,
+      '$1 is-no-photo$2'
+    );
+  }
+
+  // Optional parents & bios
+  out = out.replace(
+    /(<p class="couple-parents-text"[^>]*data-bind="couple\.brideParents"[^>]*>)[\s\S]*?(<\/p>)/i,
+    (_m, a: string, b: string) => (brideParents ? `${a}${esc(brideParents)}${b}` : `${a.replace(/>$/, ' style="display:none">')}${b}`)
+  );
+  out = out.replace(
+    /(<p class="couple-parents-text"[^>]*data-bind="couple\.groomParents"[^>]*>)[\s\S]*?(<\/p>)/i,
+    (_m, a: string, b: string) => (groomParents ? `${a}${esc(groomParents)}${b}` : `${a.replace(/>$/, ' style="display:none">')}${b}`)
+  );
+  out = out.replace(
+    /(<div class="couple-bio-quote"[^>]*data-bind="couple\.brideBio"[^>]*>)[\s\S]*?(<\/div>)/i,
+    (_m, a: string, b: string) => (brideBio ? `${a}${esc(brideBio)}${b}` : `${a.replace(/>$/, ' style="display:none">')}${b}`)
+  );
+  out = out.replace(
+    /(<div class="couple-bio-quote"[^>]*data-bind="couple\.groomBio"[^>]*>)[\s\S]*?(<\/div>)/i,
+    (_m, a: string, b: string) => (groomBio ? `${a}${esc(groomBio)}${b}` : `${a.replace(/>$/, ' style="display:none">')}${b}`)
+  );
+
+  // Scratch card message & blessing
+  out = out.replace(
+    /(<p class="scratch-reveal-msg"[^>]*>)[\s\S]*?(<\/p>)/i,
+    (_m, a: string, b: string) => `${a}${esc((content.message || "").trim() || "Join us as we celebrate the beginning of our forever.")}${b}`
+  );
+  out = out.replace(
+    /(<div class="surprise-blessing">)[\s\S]*?(<\/div>)/i,
+    (_m, a: string, b: string) => `${a}${coupleLabel ? `✨ ${esc(coupleLabel)} ✨` : ""}${b}`
+  );
+
+  // Venue section static demo copy & address
+  out = out.replace(
+    /(<p class="venue-address"[^>]*data-bind="event\.address"[^>]*>)[\s\S]*?(<\/p>)/i,
+    (_m, a: string, b: string) => (venueAddress ? `${a}${esc(venueAddress)}${b}` : `${a.replace(/>$/, ' style="display:none">')}${b}`)
+  );
+  if (!venueName) {
+    out = out.replace(/The Grand Heritage Palace &amp; Royal Gardens/gi, "");
+    out = out.replace(/The Grand Heritage Palace & Royal Gardens/gi, "");
+    out = out.replace(/The Grand Heritage Palace, Jaipur/gi, "");
+    out = out.replace(/The Grand Heritage Palace/gi, "");
+    out = out.replace(
+      /(<h3 class="venue-palace-name"[^>]*data-bind="event\.venueName"[^>]*>)[\s\S]*?(<\/h3>)/i,
+      (_m, a: string, b: string) => `${a.replace(/>$/, ' style="display:none">')}${b}`
+    );
+    out = out.replace(
+      /(<p class="mandap-venue-text[^>]*data-bind="event\.venueName"[^>]*>)[\s\S]*?(<\/p>)/i,
+      (_m, a: string, b: string) => `${a.replace(/>$/, ' style="display:none">')}${b}`
+    );
+  }
+  if (!venueAddress) {
+    out = out.replace(/Palace Road, Civil Lines,?\s*/gi, "");
+  }
+  out = out.replace(/<div class="venue-tag">[\s\S]*?<\/div>/i, "");
+  out = out.replace(/<div class="venue-meta-pills">[\s\S]*?<\/div>/i, "");
+  out = out.replace(/<p class="venue-notes"[^>]*>[\s\S]*?<\/p>/i, "");
+  out = out.replace(/<div class="venue-image-wrap">[\s\S]*?<\/div>\s*(?=<div class="venue-details-body">)/i, "");
+  out = out.replace(/class="venue-showcase-card([^"]*)"/i, 'class="venue-showcase-card$1 is-no-venue-photo"');
+  out = out.replace(/Find your way to the grand palace celebration in the Pink City/gi, "");
+  out = out.replace(/Five sacred celebrations of music, colour and timeless vows/gi, "Sacred celebrations of love, music and timeless vows");
+  out = out.replace(
+    /(<meta property="og:image" content=")https:\/\/mehfill\.in\/site-9\/cover\.jpg(")/i,
+    (_m, a: string, b: string) => `${a}${esc(bridePhoto || groomPhoto || content.gallery?.[0] || "https://mehfill.in/og-cover.png")}${b}`
+  );
+
+  // Footer family gratitude
+  out = out.replace(
+    /(<p class="closing-footer-family"[^>]*data-bind="couple\.footerMessage"[^>]*>)[\s\S]*?(<\/p>)/i,
+    (_m, a: string, b: string) =>
+      family ? `${a}With heartfelt gratitude from ${esc(family)}${b}` : `${a.replace(/>$/, ' style="display:none">')}${b}`
+  );
+
+  // Section visibility when optional sections are empty
+  if (!weddingDate) {
+    out = out.replace(/18\s+December\s+2026/gi, "");
+    out = out.replace(/(<section[^>]*data-section="countdown"[^>]*)(>)/i, '$1 style="display:none"$2');
+    out = out.replace(/(<section[^>]*data-section="scratchCard"[^>]*)(>)/i, '$1 style="display:none"$2');
+    out = out.replace(/(<span class="intro-date-badge"[^>]*>)[\s\S]*?(<\/span>)/i, '<span class="intro-date-badge" data-bind="event.dateFormatted" style="display:none"></span>');
+    out = out.replace(/(<div class="mandap-date-badge[^>]*>)[\s\S]*?(<\/div>)/i, '<div class="mandap-date-badge reveal" data-bind="event.dateFormatted" style="display:none"></div>');
+  }
+  if (!content.events?.some((e) => e && String(e.name || "").trim())) {
+    out = out.replace(/(<section[^>]*data-section="events"[^>]*)(>)/i, '$1 style="display:none"$2');
+  }
+  if (!content.loveStory?.some((m) => m && String(m.title || "").trim())) {
+    out = out.replace(/(<section[^>]*data-section="story"[^>]*)(>)/i, '$1 style="display:none"$2');
+  }
+  if (!content.gallery?.length && !content.galleryItems?.length) {
+    out = out.replace(/(<section[^>]*data-section="gallery"[^>]*)(>)/i, '$1 style="display:none"$2');
+  }
+  if (!venueName && !venueAddress) {
+    out = out.replace(/(<section[^>]*data-section="venue"[^>]*)(>)/i, '$1 style="display:none"$2');
+  }
+
+  // Strip any leftover demo strings in static markup
+  if (bride || groom) {
+    out = out.replace(/Ananya Roy/gi, esc(bride));
+    out = out.replace(/Kabir Singhania/gi, esc(groom));
+    out = out.replace(/\bRoy\b/g, "");
+    out = out.replace(/\bSinghania\b/g, "");
+    out = out.replace(/Jaipur, Rajasthan 302006, India/gi, esc(venueAddress));
+    out = out.replace(/Jaipur's royal skies/gi, "our joyous celebration");
+    out = out.replace(/\bJaipur\b/gi, esc(venueAddress ? venueAddress.split(",")[0].trim() : ""));
+  }
+
+  return out;
+}
+
 // Build the tiny runtime override that finishes the content swap in-browser
 // (things too dynamic for pure string replacement: RSVP wiring, gallery image
 // sources when the customer uploaded photos, seal initials, love story images).
 function buildOverrideScript(
   content: InvitationContent,
   slug: string,
-  opts: { hasGallery: boolean; storyPhoto?: string; loveStory?: LoveStoryMilestone[]; nativeRsvp?: boolean }
+  opts: { hasGallery: boolean; storyPhoto?: string; loveStory?: LoveStoryMilestone[]; nativeRsvp?: boolean; isSite9?: boolean }
 ): string {
   const loveStory = opts.loveStory || [];
   const loveStoryJson = JSON.stringify(loveStory).replace(/</g, "\\u003c").replace(/>/g, "\\u003e");
@@ -732,8 +885,8 @@ function buildOverrideScript(
   return `<script>(function(){
 try{
 var __M={bride:${jsonForScript(bride)},groom:${jsonForScript(groom)},ini:${jsonForScript(ini)},gallery:${gallery},slug:${jsonForScript(slug)},story:${story}};
-window.__MEHFILL__=__M;
-${opts.hasGallery ? `
+window.__MEHFILL__=Object.assign(window.__MEHFILL__||{},__M);
+${opts.hasGallery && !opts.isSite9 ? `
 /* Swap gallery images the customer uploaded, preserving the template's own
    figure/masonry markup — we only change the <img src> of existing slots.
    Extra photos beyond the slot count are appended as new figures. */
@@ -755,11 +908,11 @@ if(__M.gallery && __M.gallery.length){
     }
   }
 }` : ""}
-${opts.storyPhoto ? `
+${opts.storyPhoto && !opts.isSite9 ? `
 /* Story / hero portrait — first customer photo replaces the demo portrait. */
 var st=document.querySelector('.img-frame img, .story-img img, #story img');
 if(st && __M.story){ st.src=__M.story; st.removeAttribute('onerror'); }` : ""}
-${loveStoryJson ? `
+${loveStoryJson && !opts.isSite9 ? `
 /* Love story milestone images — first image replaces the demo portrait, rest appended */
 var __L=${loveStoryJson};
 if(__L && __L.length){
@@ -893,24 +1046,31 @@ export async function renderPersonalizedInvitation(
     }
     // site-8 loads js/invitation-data.js, which still holds the demo couple
     // and the demo RSVP phone numbers — inline and patch it too.
+    // For site-9, we inject window.__MEHFILL__.content directly and stub
+    // MehfillData so zero demo data from DEFAULT_INVITATION is ever emitted.
     if (/src="js\/invitation-data\.js"/i.test(html)) {
-      try {
-        const dataSrc = await readTemplateFile(siteDir, "js/invitation-data.js");
-        const phone = (content.rsvp?.contactPhone || "").replace(/['"\\]/g, "");
-        let data = dataSrc;
-        if (phone) {
-          // The data module uses single OR double quotes depending on the key.
-          data = data.replace(/(contactPhone|whatsappPhone):\s*(['"])[^'"]*\2/g, (_m, key: string) => `${key}: '${phone}'`);
-        }
-        data = replaceDemoDateTokensInScript(data, binding, weddingIso);
-        data = replaceDemoTimeTokens(data, startTime);
-        html = html.replace(
-          /<script[^>]*src="js\/invitation-data\.js"[^>]*>\s*<\/script>/i,
-          () => `<script>\n${data}\n</script>`
-        );
+      if (siteDir === "site-9") {
+        html = html.replace(/<script[^>]*src="js\/invitation-data\.js"[^>]*>\s*<\/script>/i, "");
         html = html.replace(/<script[^>]*src="js\/invitation-data\.js"[^>]*><\/script>/i, "");
-      } catch {
-        // No data module — leave as-is.
+      } else {
+        try {
+          const dataSrc = await readTemplateFile(siteDir, "js/invitation-data.js");
+          const phone = (content.rsvp?.contactPhone || "").replace(/['"\\]/g, "");
+          let data = dataSrc;
+          if (phone) {
+            // The data module uses single OR double quotes depending on the key.
+            data = data.replace(/(contactPhone|whatsappPhone):\s*(['"])[^'"]*\2/g, (_m, key: string) => `${key}: '${phone}'`);
+          }
+          data = replaceDemoDateTokensInScript(data, binding, weddingIso);
+          data = replaceDemoTimeTokens(data, startTime);
+          html = html.replace(
+            /<script[^>]*src="js\/invitation-data\.js"[^>]*>\s*<\/script>/i,
+            () => `<script>\n${data}\n</script>`
+          );
+          html = html.replace(/<script[^>]*src="js\/invitation-data\.js"[^>]*><\/script>/i, "");
+        } catch {
+          // No data module — leave as-is.
+        }
       }
     }
   } else {
@@ -921,13 +1081,16 @@ export async function renderPersonalizedInvitation(
     }
   }
 
-  // 2b. site-8 reads window.__MEHFILL__ at boot to decide whether to load a
-  //     localStorage studio draft — define it BEFORE the template scripts run
-  //     so a published invitation always renders the saved data.
+  // 2b. site-8 & site-9 read window.__MEHFILL__ at boot to decide whether to
+  //     load a localStorage draft or the saved customer invitation.
   if (binding.externalScript) {
+    const mehfillBoot =
+      siteDir === "site-9"
+        ? `window.__MEHFILL__=window.__MEHFILL__||{slug:${jsonForScript(slug)},published:true,isSite9:true,content:${jsonForScript(content)}};window.MehfillData=window.MehfillData||{saveRsvp:function(){return{ok:true};}};`
+        : `window.__MEHFILL__=window.__MEHFILL__||{slug:${jsonForScript(slug)},published:true};`;
     html = html.replace(
       /<head([^>]*)>/i,
-      (m) => `${m}<script>window.__MEHFILL__=window.__MEHFILL__||{slug:${jsonForScript(slug)},published:true};</script>`
+      (m) => `${m}<script>${mehfillBoot}</script>`
     );
   }
 
@@ -1250,6 +1413,10 @@ export async function renderPersonalizedInvitation(
     html = html.replace(/(<section[^>]*data-section="rsvp"[^>]*class="[^"]*)/i, '$1 mf-hidden');
   }
 
+  if (siteDir === "site-9") {
+    html = patchSite9StaticHtml(html, content, coupleLabel);
+  }
+
   // 9. Title / meta — reflect the couple and date for sharing previews.
   if (coupleLabel) {
     html = html.replace(/<title>[^<]*<\/title>/i, () => `<title>${esc(coupleLabel)} — You're Invited | Mehfill.in</title>`);
@@ -1305,6 +1472,7 @@ export async function renderPersonalizedInvitation(
     // site-8 and site-9 already own their RSVP form UX (WhatsApp + success panel) — only
     // record the response, never open a second WhatsApp window.
     nativeRsvp: binding.siteDir === "site-8" || binding.siteDir === "site-9",
+    isSite9: binding.siteDir === "site-9",
   });
   if (html.includes("</body>")) {
     html = html.replace("</body>", `${override}\n</body>`);

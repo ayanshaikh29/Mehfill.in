@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "How Mehfill.in collects, uses, stores and protects your personal information.",
   alternates: { canonical: canonical("/privacy-policy") },
+  robots: { index: false, follow: true },
 };
 
 export default function PrivacyPolicyPage() {
