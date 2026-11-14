@@ -49,9 +49,28 @@ body {
   will-change: transform;
   animation: marquee 28s linear infinite;
 }
+.marquee-track-slow {
+  transform: translateZ(0);
+  will-change: transform;
+  animation: marquee 42s linear infinite;
+}
+.marquee-track-reverse {
+  transform: translateZ(0);
+  will-change: transform;
+  animation: marquee-reverse 42s linear infinite;
+}
 @keyframes marquee {
   from { transform: translate3d(0, 0, 0); }
   to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes marquee-reverse {
+  from { transform: translate3d(-50%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+.marquee-pause:hover .marquee-track,
+.marquee-pause:hover .marquee-track-slow,
+.marquee-pause:hover .marquee-track-reverse {
+  animation-play-state: paused;
 }
 
 /* Long below-fold sections skip off-screen rendering work on mobile.
