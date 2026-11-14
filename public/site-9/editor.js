@@ -395,14 +395,14 @@
         break;
 
       case "introVideo":
-        inspectorContent.appendChild(createHeader("Opening Video Experience", "Cinematic intro video with static poster, animated text reveal and Play Invitation button."));
+        inspectorContent.appendChild(createHeader("Opening Video Experience", "Cinematic intro video with static poster, animated text reveal and Open Invitation button."));
         inspectorContent.appendChild(createToggle("Enable Intro Video Experience", "sections.visible.videoIntro", "Show cinematic full-screen video before entering site."));
         inspectorContent.appendChild(createTextInput("Video File / URL", "video.src", "lv_0_20261018234041.mp4", "Path to video file or URL."));
-        inspectorContent.appendChild(createImagePicker("Cinematic Static Poster Image", "video.poster", "Poster shown on initial load before user clicks play."));
+        inspectorContent.appendChild(createImagePicker("Cinematic Static Poster Image", "video.poster", "Poster shown on initial load before user clicks open."));
         inspectorContent.appendChild(createTextInput("Initial Poster Tagline", "video.heading", "A Royal Celebration of Love"));
         inspectorContent.appendChild(createTextInput("Stage 1 Reveal Text (0:01-0:03)", "video.introHeading", "YOU'RE INVITED"));
         inspectorContent.appendChild(createTextInput("Stage 2 Reveal Subheading (0:03+)", "video.introSubheading", "The Wedding Celebration Of"));
-        inspectorContent.appendChild(createTextInput("Play Button Label", "video.openButtonLabel", "Play Invitation"));
+        inspectorContent.appendChild(createTextInput("Open Button Label", "video.openButtonLabel", "Open Invitation"));
         inspectorContent.appendChild(createTextInput("Skip Button Label", "video.skipLabel", "Skip Intro"));
         break;
 

@@ -51,7 +51,7 @@
       poster: "assets/images/video-poster.jpg",
       introHeading: "A Royal Celebration of Love",
       introSubheading: "YOU'RE INVITED",
-      openButtonLabel: "Play Invitation",
+      openButtonLabel: "Open Invitation",
       skipLabel: "Skip Intro",
       replayLabel: "Replay Video"
     },

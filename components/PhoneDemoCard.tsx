@@ -96,6 +96,33 @@ export default function PhoneDemoCard({ template, index, priority = false }: Pho
               </span>
             </div>
 
+            {/* Special Highlight Badge (Latest, Recommended, Trending, Popular) */}
+            {tpl.badge && (
+              <div className="absolute top-11 right-4 z-20">
+                {tpl.badge === "Latest" && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-950/80 backdrop-blur-md border border-emerald-400/60 px-2.5 py-1 text-[9px] font-bold tracking-[0.14em] uppercase text-emerald-200 shadow-md">
+                    <Sparkles className="h-2.5 w-2.5 text-champagne animate-pulse" />
+                    Latest
+                  </span>
+                )}
+                {tpl.badge === "Recommended" && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-950/80 backdrop-blur-md border border-amber-400/60 px-2.5 py-1 text-[9px] font-bold tracking-[0.14em] uppercase text-amber-200 shadow-md">
+                    ★ Recommended
+                  </span>
+                )}
+                {tpl.badge === "Trending" && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-rose-950/80 backdrop-blur-md border border-rose-400/60 px-2.5 py-1 text-[9px] font-bold tracking-[0.14em] uppercase text-rose-200 shadow-md">
+                    🔥 Trending
+                  </span>
+                )}
+                {tpl.badge === "Popular" && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-950/80 backdrop-blur-md border border-indigo-400/60 px-2.5 py-1 text-[9px] font-bold tracking-[0.14em] uppercase text-indigo-200 shadow-md">
+                    👑 Popular
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Bottom Title & Details Overlay inside Phone Screen */}
             <div className="absolute inset-x-0 bottom-0 z-20 p-4 text-white">
               <h3 className="font-serif text-xl sm:text-2xl leading-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">

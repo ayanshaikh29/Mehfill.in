@@ -65,7 +65,6 @@
     function showCoupleTypography() {
       if (invitedReveal) invitedReveal.classList.remove("revealed");
       if (coupleReveal) coupleReveal.classList.add("revealed");
-      if (enterBtn) enterBtn.style.display = "inline-flex";
     }
 
     function dismissGate() {
@@ -84,7 +83,7 @@
       }
     }
 
-    // STEP 2: USER CLICKS "PLAY INVITATION"
+    // STEP 2: USER CLICKS "OPEN INVITATION"
     function onPlayInvitationClick() {
       if (openBtn) openBtn.style.display = "none";
 
@@ -150,6 +149,7 @@
     if (openBtn) openBtn.addEventListener("click", onPlayInvitationClick);
     if (enterBtn) enterBtn.addEventListener("click", dismissGate);
     if (skipBtn) skipBtn.addEventListener("click", dismissGate);
+    if (coupleReveal) coupleReveal.addEventListener("click", dismissGate);
     if (heroWatchBtn) heroWatchBtn.addEventListener("click", replayIntroVideo);
     if (replayBtn) replayBtn.addEventListener("click", replayIntroVideo);
   }

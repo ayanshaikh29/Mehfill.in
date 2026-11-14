@@ -21,7 +21,7 @@ export default function TermsPage() {
         website or placing an order, you agree to these terms.
       </p>
       <p>
-        Operator: <code>[LEGAL BUSINESS NAME]</code> · Support:{" "}
+        Operator: <strong>Mehfill.in</strong> (Operated by Ayan Shaikh, Nashik, Maharashtra, India) · Support:{" "}
         <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
       </p>
 

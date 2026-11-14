@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import { ArrowRight, Sparkles, Volume2, ShieldCheck, Heart, Users } from "lucide-react";
+import { ArrowRight, Sparkles, Volume2, ShieldCheck, Heart } from "lucide-react";
 import MehfillAura from "./effects/MehfillAura";
 import { useEffect, useRef, useState } from "react";
 import { useT } from "./i18n/I18nProvider";
@@ -116,9 +116,9 @@ export default function Hero() {
           >
             <div className="inline-flex items-center gap-2 rounded-full bg-white/80 border hairline px-3.5 py-1.5 shadow-sm backdrop-blur">
               <div className="h-6 w-6 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta">
-                <Users className="h-3.5 w-3.5" />
+                <Sparkles className="h-3.5 w-3.5" />
               </div>
-              <span className="text-[12px] font-bold text-charcoal">50K+ Happy Couples</span>
+              <span className="text-[12px] font-bold text-charcoal">Handcrafted for Life&apos;s Celebrations</span>
             </div>
 
             <div className="inline-flex items-center gap-2 rounded-full bg-white/80 border hairline px-3.5 py-1.5 shadow-sm backdrop-blur">

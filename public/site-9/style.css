@@ -191,75 +191,102 @@ body.mf-locked {
 
 /* 2. Phase 1: Revelations at 0:01 - 0:03 */
 .intro-invited-reveal {
-  pointer-events: auto;
+  position: absolute;
+  top: 34%;
+  left: 50%;
+  transform: translate(-50%, -46%) scale(0.96);
   opacity: 0;
-  transform: scale(0.92) translateY(12px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  margin: auto 0;
+  visibility: hidden;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+  pointer-events: none;
+  width: calc(100% - 40px);
+  max-width: 580px;
+  text-align: center;
+  z-index: 12;
 }
 
 .intro-invited-reveal.revealed {
   opacity: 1;
-  transform: scale(1) translateY(0);
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .invited-accent-text {
-  font-family: var(--font-heading);
-  font-size: clamp(2.6rem, 7.5vw, 4.8rem);
-  font-weight: 700;
-  letter-spacing: 0.22em;
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 2.6vw, 1.3rem);
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
   color: #FFF7E9;
-  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.95), 0 0 35px rgba(222, 186, 110, 0.65);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.85);
 }
 
-/* 3. Phase 2: Revelations at 0:03 onwards */
+/* 3. Phase 2: Revelations at 0:03 onwards - Minimalist Royal Typography Centered in Sky */
 .intro-couple-reveal {
-  pointer-events: auto;
+  position: absolute;
+  top: 34%;
+  left: 50%;
+  transform: translate(-50%, -46%) scale(0.96);
   opacity: 0;
-  transform: translateY(28px) scale(0.92);
-  transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 18px 26px;
-  background: radial-gradient(circle at center, rgba(3, 31, 26, 0.72) 0%, rgba(3, 31, 26, 0.4) 70%, transparent 100%);
-  border-radius: 20px;
+  visibility: hidden;
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 1.2s;
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  width: calc(100% - 40px);
+  max-width: 580px;
+  text-align: center;
+  z-index: 15;
 }
 
 .intro-couple-reveal.revealed {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .intro-sub-text {
-  font-family: var(--font-heading);
-  font-size: clamp(1.1rem, 2.5vw, 1.45rem);
-  font-style: italic;
-  color: var(--color-blush-pink);
-  margin-bottom: 6px;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+  font-family: var(--font-body);
+  font-size: clamp(0.72rem, 1.8vw, 0.85rem);
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #F4E2B7;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
 }
 
 .intro-names-text {
-  font-family: var(--font-names);
-  font-size: clamp(2.8rem, 8vw, 4.8rem);
-  font-weight: 700;
-  color: var(--color-gold-light);
-  line-height: 1.1;
-  margin-bottom: 12px;
-  text-shadow: 0 0 25px rgba(222, 186, 110, 0.55), 0 4px 30px rgba(0, 0, 0, 0.95);
+  font-family: var(--font-heading);
+  font-size: clamp(2.4rem, 6.5vw, 4.2rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #FFFFFF;
+  line-height: 1.15;
+  margin-bottom: 14px;
+  text-shadow: 0 3px 20px rgba(0, 0, 0, 0.75), 0 1px 4px rgba(0, 0, 0, 0.85);
 }
 
 .intro-date-badge {
-  display: inline-block;
-  background-color: rgba(7, 94, 80, 0.9);
-  color: var(--color-gold-light);
-  border: 1px solid var(--color-gold);
-  border-radius: var(--radius-pill);
-  padding: 6px 22px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: clamp(0.72rem, 1.8vw, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
+  color: #FFF9EE;
+  background: rgba(3, 31, 26, 0.32);
+  border: 1px solid rgba(244, 226, 183, 0.5);
+  border-radius: var(--radius-pill);
+  padding: 5px 22px;
   backdrop-filter: blur(8px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
 }
 
 /* 3. Small compact Open Invitation button */
@@ -347,7 +374,7 @@ body.mf-locked {
 }
 
 /* ============================================================
-   FLOATING INTERACTION CONTROLS
+   FLOATING INTERACTION CONTROLS (ROYAL MUSIC CONTROLLER)
    ============================================================ */
 .floating-controls {
   position: fixed;
@@ -355,42 +382,104 @@ body.mf-locked {
   right: max(16px, env(safe-area-inset-right, 16px));
   z-index: 1000;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
 }
 
 .float-btn {
-  width: 50px;
-  height: 50px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: var(--color-emerald);
-  color: var(--color-gold-light);
-  border: 2px solid var(--color-gold);
-  box-shadow: var(--shadow-gold);
+  background: linear-gradient(135deg, rgba(7, 94, 80, 0.96), rgba(4, 53, 45, 0.98));
+  color: #F8D98C;
+  border: 1.5px solid var(--color-gold);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 14px rgba(196, 154, 72, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 3px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .float-btn:hover {
-  transform: scale(1.1);
-  background: var(--color-deep-green);
+  transform: scale(1.08);
+  border-color: #F4E2B7;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 20px rgba(196, 154, 72, 0.6);
 }
 
-.float-music.is-playing .icon-music {
-  animation: spinSlow 4s linear infinite;
-  color: var(--color-floral-pink);
+.music-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #F8D98C;
+  transform-origin: center center;
 }
 
-.float-music.is-playing .music-wave-ring {
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  border: 2px solid var(--color-floral-pink);
-  animation: rippleRing 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+.music-icon-wrap svg {
+  display: block;
+}
+
+/* Sound wave dancing equalizer bars */
+.music-sound-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  margin-left: 1px;
+}
+
+.sound-bar {
+  width: 2.5px;
+  background: #F8D98C;
+  border-radius: 2px;
+  transition: height 0.25s ease;
+}
+
+.bar-1 { height: 6px; }
+.bar-2 { height: 12px; }
+.bar-3 { height: 8px; }
+
+.float-music.is-playing .sound-bar {
+  animation: soundBarDance 1.2s ease-in-out infinite alternate;
+}
+
+.float-music.is-playing .bar-1 {
+  animation-delay: 0.1s;
+}
+
+.float-music.is-playing .bar-2 {
+  animation-delay: 0.35s;
+}
+
+.float-music.is-playing .bar-3 {
+  animation-delay: 0.2s;
+}
+
+@keyframes soundBarDance {
+  0% { height: 4px; }
+  50% { height: 13px; }
+  100% { height: 5px; }
+}
+
+/* Muted / Paused state */
+.float-music:not(.is-playing) {
+  opacity: 0.85;
+  background: rgba(3, 31, 26, 0.9);
+  border-color: rgba(196, 154, 72, 0.5);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.float-music:not(.is-playing) .sound-bar {
+  height: 2px !important;
+  opacity: 0.5;
+}
+
+.float-music:not(.is-playing) .music-icon-wrap {
+  opacity: 0.75;
 }
 
 /* ============================================================
@@ -455,162 +544,175 @@ body.mf-locked {
 .mandap-hero-content {
   position: relative;
   z-index: 10;
-  max-width: 680px;
+  max-width: 620px;
   width: calc(100% - 32px);
   margin: 0 auto;
-  padding: 44px 24px 40px;
+  padding: 34px 22px 28px;
   text-align: center;
   color: var(--color-soft-white);
   box-sizing: border-box;
-  background: radial-gradient(ellipse at center, rgba(8, 28, 22, 0.72) 0%, rgba(8, 28, 22, 0.46) 55%, rgba(8, 28, 22, 0.12) 80%, transparent 100%);
-  border-radius: 32px;
+  background: radial-gradient(ellipse at center, rgba(3, 31, 26, 0.44) 0%, rgba(3, 31, 26, 0.22) 60%, transparent 100%);
+  border-radius: 28px;
 }
 
 .mandap-badge {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, rgba(7, 94, 80, 0.95), rgba(4, 53, 45, 0.98));
-  color: #F8D98C;
-  border: 1.5px solid #C49A48;
+  gap: 8px;
+  background: rgba(3, 31, 26, 0.35);
+  color: #F4E2B7;
+  border: 1px solid rgba(244, 226, 183, 0.5);
   border-radius: var(--radius-pill);
-  padding: 8px 24px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
+  padding: 5px 20px;
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   backdrop-filter: blur(8px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .mandap-family-intro {
   font-family: var(--font-heading);
-  font-size: clamp(1.2rem, 3.2vw, 1.7rem);
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
   font-style: italic;
-  font-weight: 600;
-  color: #FFF2DA;
-  margin-bottom: 12px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 1), 0 4px 18px rgba(0, 0, 0, 0.8);
+  font-weight: 400;
+  color: #FFF6E5;
+  margin-bottom: 8px;
   letter-spacing: 0.04em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
 }
 
 .mandap-couple-names {
-  font-family: var(--font-names);
-  font-size: clamp(2.8rem, 8.5vw, 5.2rem);
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-size: clamp(2.3rem, 7.5vw, 4.2rem);
+  font-weight: 500;
   color: #FFFFFF;
-  line-height: 1.08;
-  margin-bottom: 12px;
+  line-height: 1.12;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0, 0, 0, 1), 0 8px 32px rgba(0, 0, 0, 0.85);
+  letter-spacing: 0.03em;
+  text-shadow: 0 3px 20px rgba(0, 0, 0, 0.8), 0 1px 4px rgba(0, 0, 0, 0.9);
 }
 
 .mandap-ampersand {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 0.55em;
+  font-family: var(--font-heading);
+  font-size: 0.6em;
   font-style: italic;
   font-weight: 400;
-  color: #F8D98C;
-  margin: -4px 0;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 1);
+  color: #F4E2B7;
+  margin: 1px 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .mandap-invitation-lead {
   font-family: var(--font-heading);
-  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  font-size: clamp(0.95rem, 2.2vw, 1.25rem);
   font-style: italic;
-  font-weight: 600;
+  font-weight: 400;
   color: #FFF2DA;
-  margin-bottom: 16px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 1);
+  margin-bottom: 14px;
+  letter-spacing: 0.03em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .mandap-date-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, rgba(7, 94, 80, 0.95), rgba(4, 53, 45, 0.98));
-  color: #F8D98C;
-  border: 1.5px solid #C49A48;
-  border-radius: var(--radius-pill);
-  padding: 9px 28px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: clamp(0.74rem, 1.8vw, 0.84rem);
+  font-weight: 500;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
+  color: #FFF9EE;
+  background: rgba(3, 31, 26, 0.35);
+  border: 1px solid rgba(244, 226, 183, 0.5);
+  border-radius: var(--radius-pill);
+  padding: 5px 22px;
   backdrop-filter: blur(8px);
-  margin-bottom: 12px;
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(8px);
+  margin-bottom: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .mandap-venue-text {
   font-family: var(--font-body);
-  font-size: 0.96rem;
-  font-weight: 600;
-  color: #FFFFFF;
-  letter-spacing: 0.08em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 3px rgba(0, 0, 0, 1);
-  margin-bottom: 26px;
+  font-size: clamp(0.78rem, 1.8vw, 0.88rem);
+  font-weight: 400;
+  color: #F4E2B7;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  margin-bottom: 22px;
 }
 
 .mandap-actions {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .btn-royal-primary {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, #075E50, #043F36);
+  gap: 8px;
+  background: rgba(3, 31, 26, 0.55);
   color: #FFF7E9;
   font-family: var(--font-body);
-  font-size: 0.92rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  padding: 13px 28px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 22px;
   border-radius: var(--radius-pill);
-  border: 1.5px solid #C49A48;
+  border: 1px solid rgba(244, 226, 183, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   text-decoration: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 16px rgba(196, 154, 72, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   cursor: pointer;
   transition: var(--transition);
 }
 
 .btn-royal-primary:hover {
-  background: linear-gradient(135deg, #097564, #075E50);
+  background: rgba(7, 94, 80, 0.8);
+  border-color: var(--color-gold);
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), 0 0 22px rgba(196, 154, 72, 0.5);
+  box-shadow: 0 6px 20px rgba(196, 154, 72, 0.4);
 }
 
 .btn-royal-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, #C49A48, #9A7228);
-  color: #0A221C;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--color-gold), #A67C2E);
+  color: #171206;
   font-family: var(--font-body);
-  font-size: 0.92rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  padding: 13px 28px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 11px 32px;
   border-radius: var(--radius-pill);
-  border: 1.5px solid #F3D89A;
+  border: 1px solid var(--color-gold-light);
   text-decoration: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 16px rgba(196, 154, 72, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 10px rgba(196, 154, 72, 0.3);
   cursor: pointer;
   transition: var(--transition);
 }
 
 .btn-royal-secondary:hover {
-  background: linear-gradient(135deg, #DEBA6E, #C49A48);
+  background: linear-gradient(135deg, #DEBA6E, var(--color-gold));
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), 0 0 24px rgba(222, 186, 110, 0.6);
+  box-shadow: 0 6px 22px rgba(196, 154, 72, 0.6);
 }
 
 /* ============================================================
@@ -668,6 +770,11 @@ body.mf-locked {
   background-color: #FAF4EB;
   border-top: 1px solid rgba(196, 154, 72, 0.25);
   border-bottom: 1px solid rgba(196, 154, 72, 0.25);
+}
+
+.scratch-card-section .section-container {
+  padding-top: 36px;
+  padding-bottom: 60px;
 }
 
 .scratch-card-wrapper {
@@ -767,7 +874,7 @@ body.mf-locked {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 22px 20px;
+  padding: 16px 20px;
   box-sizing: border-box;
   background: radial-gradient(circle at center, #FFFDF9 0%, #FAF0E0 100%);
   border: 2px dashed rgba(196, 154, 72, 0.65);
@@ -788,22 +895,22 @@ body.mf-locked {
 }
 
 .scratch-reveal-save-tag {
-  font-size: 0.8rem;
+  font-family: var(--font-body);
+  font-size: clamp(0.75rem, 2vw, 0.85rem);
   text-transform: uppercase;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.26em;
   color: var(--color-floral-pink);
-  font-weight: 700;
-  margin-bottom: 4px;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
 .scratch-reveal-date {
   font-family: var(--font-names);
-  font-size: clamp(2rem, 5.5vw, 2.7rem);
+  font-size: clamp(2.1rem, 6.5vw, 3rem);
   font-weight: 700;
   color: var(--color-emerald);
-  letter-spacing: 0.08em;
-  line-height: 1.05;
-  margin-bottom: 6px;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
   text-shadow: 0 2px 10px rgba(7, 94, 80, 0.15);
 }
 
@@ -908,7 +1015,11 @@ body.mf-locked {
    ============================================================ */
 .countdown-section {
   background: radial-gradient(circle at 50% 30%, #FFFDF9 0%, var(--color-ivory) 100%);
-  padding: 60px 16px;
+  padding: 10px 16px 20px;
+}
+
+.countdown-section .section-container {
+  padding: 12px 16px;
 }
 
 .countdown-row-wrapper {
@@ -2098,11 +2209,36 @@ body.mf-locked {
    ROYAL FLORAL & DECORATIVE AI ELEMENTS (SITE-9 ENHANCEMENTS)
    ============================================================ */
 
-/* 1. Dedicated Royal Garland Section Separator */
+/* 1. Crowning Royal Toran Garland for Keepsake Arch Card */
+.scratch-card-garland-wrap {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto -28px;
+  padding: 0 12px;
+  text-align: center;
+  position: relative;
+  z-index: 5;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.scratch-card-garland {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  filter: drop-shadow(0 6px 16px rgba(196, 154, 72, 0.3));
+  animation: floatSubtle 4s ease-in-out infinite alternate;
+  display: block;
+}
+
+/* 1b. Dedicated Royal Garland Section Separator */
 .royal-garland-divider-wrap {
   width: 100%;
-  max-width: 680px;
-  margin: 32px auto 20px;
+  max-width: 520px;
+  margin: 18px auto 10px;
   padding: 0 16px;
   text-align: center;
   pointer-events: none;
@@ -2114,10 +2250,11 @@ body.mf-locked {
 
 .royal-swag-garland {
   width: 100%;
-  max-width: 520px;
+  max-width: 480px;
   height: auto;
-  filter: drop-shadow(0 6px 16px rgba(196, 154, 72, 0.28));
+  filter: drop-shadow(0 6px 16px rgba(196, 154, 72, 0.3));
   animation: floatSubtle 4s ease-in-out infinite alternate;
+  display: block;
 }
 
 /* 2. Global Section Floral Divider (Non-overlapping, clear margin) */
@@ -2447,20 +2584,20 @@ body.mf-locked {
 /* Mobile responsive optimizations */
 @media (max-width: 680px) {
   .mandap-hero-content {
-    width: calc(100% - 24px);
-    padding: 32px 14px 28px;
-    border-radius: 24px;
+    width: calc(100% - 20px);
+    padding: 24px 12px 20px;
+    border-radius: 22px;
   }
   .mandap-couple-names {
-    font-size: clamp(2.4rem, 9.5vw, 3.8rem);
+    font-size: clamp(1.9rem, 7.5vw, 3.2rem);
   }
   .mandap-actions {
-    gap: 10px;
+    gap: 8px;
   }
   .btn-royal-primary,
   .btn-royal-secondary {
-    padding: 12px 22px;
-    font-size: 0.88rem;
+    padding: 9px 18px;
+    font-size: 0.78rem;
   }
   .floating-controls {
     bottom: 16px;
@@ -2470,6 +2607,13 @@ body.mf-locked {
   .float-btn {
     width: 44px;
     height: 44px;
+  }
+  .scratch-card-garland-wrap {
+    margin: 0 auto -24px;
+    padding: 0 8px;
+  }
+  .scratch-card-garland {
+    max-width: 94vw;
   }
   .royal-garland-divider-wrap {
     margin: 24px auto 14px;

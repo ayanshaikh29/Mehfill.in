@@ -76,17 +76,11 @@
         <span class="intro-date-badge" data-bind="event.dateFormatted">18 December 2026</span>
       </div>
 
-      <!-- 4. Initial "Play Invitation" Button (User must tap to start) -->
+      <!-- 4. Initial "Open Invitation" Button (User must tap to start) -->
       <div class="intro-bottom-action">
-        <button type="button" id="btn-open-invitation" class="btn-royal-open-compact btn-play-pulse" aria-label="Play Wedding Invitation">
+        <button type="button" id="btn-open-invitation" class="btn-royal-open-compact btn-play-pulse" aria-label="Open Wedding Invitation">
           <span class="btn-compact-sparkle">🌸</span>
-          <span data-bind="video.openButtonLabel">Play Invitation</span>
-          <span class="btn-compact-arrow">⟶</span>
-        </button>
-
-        <button type="button" id="btn-enter-invitation" class="btn-royal-enter-compact" style="display: none;" aria-label="Step Inside Celebration">
-          <span class="btn-compact-sparkle">✨</span>
-          <span>Step Inside Celebration</span>
+          <span data-bind="video.openButtonLabel">Open Invitation</span>
           <span class="btn-compact-arrow">⟶</span>
         </button>
       </div>
@@ -97,16 +91,17 @@
        FLOATING INTERACTION CONTROLS
        ========================================== -->
   <div class="floating-controls" role="toolbar" aria-label="Interactive options">
-    <button type="button" id="btn-music-toggle" class="float-btn float-music" title="Toggle Shehnai Music" aria-label="Toggle Shehnai Music">
-      <svg class="icon-music" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-      </svg>
-      <span class="music-wave-ring"></span>
-    </button>
-    <button type="button" id="btn-replay-video" class="float-btn float-replay" title="Watch Wedding Video" aria-label="Watch Wedding Video">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-        <path d="M8 5v14l11-7z"/>
-      </svg>
+    <button type="button" id="btn-music-toggle" class="float-btn float-music is-playing" title="Toggle Shehnai Music" aria-label="Toggle Shehnai Music">
+      <span class="music-icon-wrap">
+        <svg class="icon-music" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+        </svg>
+      </span>
+      <span class="music-sound-bars" aria-hidden="true">
+        <span class="sound-bar bar-1"></span>
+        <span class="sound-bar bar-2"></span>
+        <span class="sound-bar bar-3"></span>
+      </span>
     </button>
   </div>
 
@@ -150,10 +145,6 @@
           <p class="mandap-venue-text reveal" data-bind="event.venueName">The Grand Heritage Palace, Jaipur</p>
 
           <div class="mandap-actions reveal">
-            <button type="button" id="btn-hero-watch-video" class="btn-royal-primary">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-              <span data-bind="hero.watchVideoLabel">Watch Wedding Video</span>
-            </button>
             <a href="#rsvp" class="btn-royal-secondary">
               <span data-bind="hero.rsvpButtonLabel">Confirm RSVP</span>
             </a>
@@ -161,11 +152,6 @@
         </div>
       </div>
     </section>
-
-    <!-- Royal Welcome Floral Toran Garland Divider -->
-    <div class="royal-garland-divider-wrap reveal" aria-hidden="true">
-      <img src="assets/images/royal-floral-garland.png" alt="" class="royal-swag-garland" />
-    </div>
 
     <!-- ==========================================
          SECTION 2: SPECIAL SURPRISE SCRATCH CARD
@@ -175,6 +161,11 @@
     <section id="scratch-card" class="scratch-card-section" data-section="scratchCard">
       <div class="section-container">
         <div class="scratch-card-wrapper reveal">
+          <!-- Royal Toran Garland Crowning the Arch Card -->
+          <div class="scratch-card-garland-wrap reveal" aria-hidden="true">
+            <img src="assets/images/royal-floral-garland.png" alt="" class="scratch-card-garland" />
+          </div>
+
           <!-- Royal Ornate Outer Arch Card -->
           <div class="scratch-card-inner royal-jharokha-frame">
             <!-- Transparent Royal Floral Corner Decorations -->
@@ -195,15 +186,11 @@
               <!-- Celebration Confetti Particles Canvas -->
               <canvas id="scratch-confetti-canvas" class="scratch-confetti-canvas" aria-hidden="true"></canvas>
 
-              <!-- Hidden Content Dynamically Revealed -->
+              <!-- Hidden Content Dynamically Revealed (Date Only) -->
               <div id="scratch-revealed-content" class="scratch-revealed-content">
                 <img src="assets/images/royal-rose-blossom.png" alt="" class="scratch-revealed-rose-img" aria-hidden="true" />
                 <div class="scratch-reveal-save-tag" data-bind="scratchCard.hiddenSub">Save The Date</div>
                 <h3 class="scratch-reveal-date" data-bind="event.dateFormatted">18 DECEMBER 2026</h3>
-                <p class="scratch-reveal-msg" data-bind="scratchCard.hiddenMessage">
-                  Join us as we unite under Jaipur's royal skies. Your presence and blessings are our greatest treasure.
-                </p>
-                <div class="surprise-blessing">✨ Ananya &amp; Kabir · Jaipur ✨</div>
               </div>
 
               <!-- HTML5 Canvas for Golden Scratch Surface -->
@@ -221,6 +208,11 @@
         </div>
       </div>
     </section>
+
+    <!-- Royal Floral Toran Garland Divider Before Countdown -->
+    <div class="royal-garland-divider-wrap reveal" aria-hidden="true">
+      <img src="assets/images/royal-floral-garland.png" alt="" class="royal-swag-garland" />
+    </div>
 
     <!-- ==========================================
          SECTION 3: WEDDING COUNTDOWN
@@ -269,6 +261,11 @@
         </div>
       </div>
     </section>
+
+    <!-- Royal Floral Toran Garland Divider Before The Royal Couple -->
+    <div class="royal-garland-divider-wrap reveal" aria-hidden="true">
+      <img src="assets/images/royal-floral-garland.png" alt="" class="royal-swag-garland" />
+    </div>
 
     <!-- ==========================================
          SECTION 4: BRIDE & GROOM SECTION

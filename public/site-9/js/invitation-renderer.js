@@ -195,7 +195,11 @@
     setTextAll("[data-bind='video.heading']", cfg.video.heading);
     setTextAll("[data-bind='video.introHeading']", cfg.video.introHeading);
     setTextAll("[data-bind='video.introSubheading']", cfg.video.introSubheading);
-    setTextAll("[data-bind='video.openButtonLabel']", cfg.video.openButtonLabel);
+    var openBtnLabel = cfg.video && cfg.video.openButtonLabel;
+    if (!openBtnLabel || openBtnLabel.toLowerCase() === "play invitation") {
+      openBtnLabel = "Open Invitation";
+    }
+    setTextAll("[data-bind='video.openButtonLabel']", openBtnLabel);
     setTextAll("[data-bind='video.skipLabel']", cfg.video.skipLabel);
     var videoEl = document.getElementById("intro-video") || document.getElementById("theater-video");
     if (videoEl && cfg.video && cfg.video.src) {

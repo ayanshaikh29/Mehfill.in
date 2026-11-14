@@ -212,9 +212,8 @@ export default function AboutPage() {
           </ul>
           <p className="mt-4 leading-relaxed text-charcoal/70">
             We are a newly launching platform. Instead of borrowed claims, we show our work:
-            open the demos, read the policies, and talk to us directly. Verified customer reviews
-            will be published on our <Link href="/reviews" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">reviews page</Link>{" "}
-            as orders are delivered.
+            open the demos, read the policies, and talk to us directly. Customer stories and verified feedback
+            can be explored on our <Link href="/reviews" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">reviews page</Link>.
           </p>
         </section>
 

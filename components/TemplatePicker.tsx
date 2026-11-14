@@ -46,6 +46,13 @@ export default function TemplatePicker({ templates }: { templates: CatalogTempla
                   {tpl.occasion}
                 </span>
 
+                {/* Highlight Badge */}
+                {tpl.badge && (
+                  <span className="absolute right-3.5 top-9 rounded-full bg-charcoal/80 backdrop-blur-md border border-champagne/40 px-2.5 py-1 text-[9px] font-bold tracking-[0.14em] uppercase text-champagne">
+                    {tpl.badge === "Latest" ? "✨ Latest" : tpl.badge === "Recommended" ? "★ Recommended" : tpl.badge === "Trending" ? "🔥 Trending" : "👑 Popular"}
+                  </span>
+                )}
+
                 {/* Content Overlay */}
                 <div className="absolute inset-x-0 bottom-0 p-4 text-white z-20">
                   <h3 className="font-serif text-xl sm:text-2xl leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">

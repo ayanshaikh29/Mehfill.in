@@ -13,6 +13,7 @@ const Occasions = dynamic(() => import("@/components/Occasions"));
 const ForEveryFaith = dynamic(() => import("@/components/ForEveryFaith"));
 const WhyMehfill = dynamic(() => import("@/components/WhyMehfill"));
 const FeatureShowcase = dynamic(() => import("@/components/FeatureShowcase"));
+const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const Pricing = dynamic(() => import("@/components/Pricing"));
 const FAQ = dynamic(() => import("@/components/FAQ"));
 import { FAQS } from "@/lib/faq-data";
@@ -65,6 +66,7 @@ export default function Home() {
       <ForEveryFaith />
       <WhyMehfill />
       <FeatureShowcase />
+      <Testimonials />
       <Pricing />
       <FAQ />
       <SeoCopy />

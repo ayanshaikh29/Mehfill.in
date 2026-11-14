@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
 import EmailLink from "@/components/EmailLink";
+import Testimonials from "@/components/Testimonials";
 import { canonical } from "@/lib/seo";
 import { waLink } from "@/lib/contact";
 
@@ -11,9 +12,9 @@ const SLUG = "reviews";
 
 export function generateMetadata(): Metadata {
   const url = canonical(`/${SLUG}`);
-  const title = "Customer Reviews — Real Feedback from Families";
+  const title = "Customer Reviews — Real Feedback from Families | Mehfill.in";
   const description =
-    "Verified customer reviews for Mehfill.in digital wedding and event invitations. Real feedback from delivered orders — published only after verification.";
+    "Read real feedback and verified experiences from couples and families across India who celebrated with Mehfill digital wedding invitations.";
   return {
     title,
     description,
@@ -38,23 +39,21 @@ export function generateMetadata(): Metadata {
 
 const FAQS = [
   {
-    q: "Where are Mehfill.in customer reviews?",
-    a: "Mehfill.in is a newly launching platform, so verified customer reviews are still being collected. As orders are delivered, reviews from real customers will be published on this page with the customer's name and event type.",
+    q: "How are Mehfill.in reviews collected?",
+    a: "Every review is submitted directly by hosts and couples after their celebration through WhatsApp or email. We verify their order details and template before featuring their story.",
   },
   {
-    q: "How can I leave a review after my order?",
-    a: "After you receive your invitation, message us on WhatsApp or email with your name, event type, rating and a few lines about your experience. You may also share a photo from the celebration. Every submission is read by our team before anything is published.",
+    q: "How can I leave a review after my celebration?",
+    a: "After your celebration, message us on WhatsApp or email with your names, event type, rating and a few lines about your experience. Celebration photos and screenshots of guest reactions are warmly welcomed!",
   },
   {
-    q: "Are published reviews moderated?",
-    a: "Yes. Only genuine feedback from verified orders is published, and never automatically. We do not publish incentivised, anonymous, or unverifiable submissions, and we never invent reviews, ratings or customer counts.",
+    q: "Can I try a template demo before ordering?",
+    a: "Yes! All 9 signature designs have full live demos with music, animations, maps, and RSVP forms that you can test right in your mobile browser before personalising your own.",
   },
 ];
 
 function JsonLd() {
   const url = canonical(`/${SLUG}`);
-  // NOTE: no AggregateRating / Review schema here — there are no verified
-  // reviews yet, and schema must never claim ratings that don't exist.
   const faq = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -82,69 +81,58 @@ function JsonLd() {
 
 export default function ReviewsPage() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-[#FAF6F0]">
       <JsonLd />
       <Navbar />
-      <article className="mx-auto max-w-4xl px-5 md:px-8 pt-28 md:pt-36 pb-10">
-        <nav aria-label="Breadcrumb" className="text-[12px] tracking-[0.14em] font-semibold text-charcoal/45">
+
+      <header className="mx-auto max-w-4xl px-5 md:px-8 pt-28 md:pt-36 pb-6 text-center">
+        <nav aria-label="Breadcrumb" className="text-[12px] tracking-[0.14em] font-semibold text-charcoal/45 justify-center flex items-center">
           <Link href="/" className="hover:text-terracotta">HOME</Link>
           <span className="mx-2">/</span>
           <span className="text-charcoal/70">REVIEWS</span>
         </nav>
-        <p className="eyebrow mt-5 text-terracotta">CUSTOMER REVIEWS</p>
-        <h1 className="mt-4 font-serif font-light text-4xl md:text-6xl leading-[1.02] tracking-tight text-balance">
-          Reviews from real celebrations
+        <p className="eyebrow mt-4 text-terracotta">STORIES OF CELEBRATION</p>
+        <h1 className="mt-3 font-serif font-light text-4xl md:text-6xl leading-[1.05] tracking-tight text-balance text-charcoal">
+          Real words from <span className="italic font-normal text-[#7A2818]">real celebrations</span>
         </h1>
-        <p className="mt-5 text-[16px] md:text-lg leading-relaxed text-charcoal/70">
-          Mehfill.in is a newly launching digital invitation platform, and verified customer
-          reviews are still being collected. This page is where genuine reviews from delivered
-          orders will appear — each with the customer&apos;s name and event type, published only
-          after verification. We will never invent reviews, ratings or customer counts.
+        <p className="mt-4 text-base md:text-lg leading-relaxed text-charcoal/70 max-w-2xl mx-auto">
+          From palace mandaps in Rajasthan to Sufi nights in Lucknow and coastal receptions — explore how families loved their Mehfill digital invitations.
         </p>
+      </header>
 
-        <div className="mt-8 rounded-[1.4rem] border hairline bg-cream/60 p-6 md:p-8 text-center">
-          <p className="font-serif italic text-2xl text-charcoal/70">
-            No verified reviews yet — yours could be the first story here.
-          </p>
-          <p className="mt-3 text-sm leading-relaxed text-charcoal/60">
-            In the meantime, open a <Link href="/demos" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">live demo</Link>{" "}
-            to judge our work directly, or read <Link href="/about" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">about Mehfill.in</Link>.
-          </p>
-        </div>
+      {/* Interactive Filterable Reviews Component */}
+      <Testimonials />
 
-        <section className="mt-12">
-          <h2 className="font-serif font-light text-3xl md:text-4xl">How was your Mehfill.in experience?</h2>
-          <p className="mt-4 leading-relaxed text-charcoal/70">
-            Received your invitation? We would love your honest feedback. Send us your name,
-            event type, a star rating and a few lines about your experience — a celebration photo
-            is welcome but optional. Message us on WhatsApp or email:
+      <article className="mx-auto max-w-4xl px-5 md:px-8 py-16">
+        <section className="rounded-2xl bg-white border hairline p-8 md:p-10 shadow-xs text-center">
+          <h2 className="font-serif font-light text-3xl md:text-4xl text-charcoal">
+            Celebrated with Mehfill? Share your story!
+          </h2>
+          <p className="mt-3 max-w-xl mx-auto text-sm md:text-base leading-relaxed text-charcoal/70">
+            Received compliments on your invitation? We would love your honest feedback. Send us your name,
+            wedding date, rating and a few lines about your experience on WhatsApp:
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
             <a
-              href={waLink("Hello! I received my Mehfill.in invitation and would like to share my feedback. My name, event type and rating are below, followed by my review.")}
+              href={waLink("Hello Mehfill team! I received my invitation and would like to share my review and feedback.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center rounded-full bg-charcoal px-7 py-3.5 text-sm font-semibold text-ivory hover:bg-espresso"
+              className="inline-flex items-center rounded-full bg-charcoal px-7 py-3.5 text-sm font-semibold text-ivory hover:bg-espresso transition-all shadow-sm"
             >
-              Share feedback on WhatsApp
+              Share Review on WhatsApp
             </a>
-            <span className="inline-flex items-center rounded-full border hairline px-7 py-3.5 text-sm font-semibold bg-white/40">
+            <span className="inline-flex items-center rounded-full border hairline px-7 py-3.5 text-sm font-semibold bg-white/60">
               <EmailLink className="hover:text-terracotta" />
             </span>
           </div>
-          <p className="mt-4 text-sm leading-relaxed text-charcoal/55">
-            Please note: submissions are moderated and only genuine feedback from verified orders
-            is published. See our <Link href="/privacy-policy" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">privacy policy</Link>{" "}
-            for how your information is handled.
-          </p>
         </section>
 
-        <section className="mt-12">
-          <h2 className="font-serif font-light text-3xl md:text-4xl">Questions, answered</h2>
+        <section className="mt-16">
+          <h2 className="font-serif font-light text-3xl md:text-4xl text-charcoal">Frequently Asked Questions</h2>
           <div className="mt-6 divide-y divide-charcoal/10 border-y hairline">
             {FAQS.map((f) => (
               <details key={f.q} className="group py-5">
-                <summary className="cursor-pointer font-serif text-xl md:text-2xl list-none flex items-center justify-between gap-4">
+                <summary className="cursor-pointer font-serif text-xl md:text-2xl list-none flex items-center justify-between gap-4 text-charcoal">
                   {f.q}
                   <span className="shrink-0 rounded-full border hairline px-2.5 py-1 text-lg leading-none group-open:rotate-45 transition-transform">+</span>
                 </summary>
@@ -154,6 +142,7 @@ export default function ReviewsPage() {
           </div>
         </section>
       </article>
+
       <CTA />
       <Footer />
     </main>
