@@ -100,11 +100,10 @@ export default function PrivacyPolicyPage() {
         <li>
           <strong>Google Fonts</strong> — loads site fonts.
         </li>
+        <li>
+          <strong>Google Analytics</strong> — anonymized traffic measurement and site performance analysis. We do not use Meta Pixel, Hotjar or advertising trackers.
+        </li>
       </ul>
-      <p>
-        We do not use Google Analytics, Meta Pixel, Hotjar or any advertising trackers. If that
-        changes, this policy will be updated first.
-      </p>
 
       <h2>5. How long we keep data</h2>
       <ul>

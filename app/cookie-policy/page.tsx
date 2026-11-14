@@ -36,14 +36,18 @@ export default function CookiePolicyPage() {
           <strong>Strictly necessary — cookie choice (local storage).</strong> Your cookie-notice
           choice is remembered in your own browser under <code>mehfill_cookie_choice</code>.
         </li>
+        <li>
+          <strong>Performance &amp; Analytics — Google Analytics.</strong> We use Google Analytics
+          to understand overall website traffic, page visits and platform performance.
+        </li>
       </ul>
 
       <h2>3. What we do NOT use</h2>
-      <p>As of the date above, Mehfill.in uses:</p>
+      <p>Mehfill.in uses:</p>
       <ul>
-        <li>No Google Analytics, Meta Pixel, Hotjar or advertising trackers.</li>
-        <li>No marketing or cross-site tracking cookies.</li>
-        <li>No social-media tracking embeds.</li>
+        <li>No Meta Pixel, Hotjar or invasive advertising trackers.</li>
+        <li>No third-party marketing or cross-site tracking cookies.</li>
+        <li>No social-media advertising embeds.</li>
       </ul>
       <p>If this ever changes, we will update this page first and ask for consent where required.</p>
 

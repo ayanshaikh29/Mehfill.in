@@ -24,6 +24,8 @@ const SOCIAL_URLS = [
   SOCIAL_PROFILES.youtube,
 ].filter((u): u is string => Boolean(u));
 
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-RLXN1LH9VP";
+
 const serif = Cormorant_Garamond({
   variable: "--font-serif",
   subsets: ["latin"],
@@ -192,12 +194,12 @@ export default function RootLayout({
           "default-src 'self'",
           // NOTE: only services actually used are allowlisted. Razorpay checkout
           // is loaded on /checkout when gateway keys are configured.
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com data:",
           "img-src 'self' data: https: blob:",
           "media-src 'self' https: blob:",
-          "connect-src 'self' https://owrylcdcaywlsolqszho.supabase.co https://api.qrserver.com https://api.razorpay.com https://lumberjack.razorpay.com",
+          "connect-src 'self' https://owrylcdcaywlsolqszho.supabase.co https://api.qrserver.com https://api.razorpay.com https://lumberjack.razorpay.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
           "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com",
           "object-src 'none'",
           "base-uri 'self'",
@@ -234,6 +236,22 @@ export default function RootLayout({
             </PostLaunch>
           </CurrencyProvider>
         </I18nProvider>
+        {/* Google Analytics (gtag.js) */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', '${GA_ID}', {
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
         <Script
           id="devtools-guard"
           strategy="afterInteractive"
