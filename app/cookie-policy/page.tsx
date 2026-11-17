@@ -37,17 +37,16 @@ export default function CookiePolicyPage() {
           choice is remembered in your own browser under <code>mehfill_cookie_choice</code>.
         </li>
         <li>
-          <strong>Performance &amp; Analytics — Google Analytics.</strong> We use Google Analytics
-          to understand overall website traffic, page visits and platform performance.
+          <strong>Performance &amp; Analytics — Google Analytics &amp; Meta Pixel.</strong> We use Google Analytics
+          to understand overall website traffic and Meta Pixel to measure social media campaign conversions.
         </li>
       </ul>
 
       <h2>3. What we do NOT use</h2>
       <p>Mehfill.in uses:</p>
       <ul>
-        <li>No Meta Pixel, Hotjar or invasive advertising trackers.</li>
-        <li>No third-party marketing or cross-site tracking cookies.</li>
-        <li>No social-media advertising embeds.</li>
+        <li>No Hotjar, invasive keystroke logging or session recorders.</li>
+        <li>No selling data to data brokers or third-party networks.</li>
       </ul>
       <p>If this ever changes, we will update this page first and ask for consent where required.</p>
 

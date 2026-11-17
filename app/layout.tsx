@@ -25,6 +25,7 @@ const SOCIAL_URLS = [
 ].filter((u): u is string => Boolean(u));
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-RLXN1LH9VP";
+const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID || "2703382660101882";
 
 const serif = Cormorant_Garamond({
   variable: "--font-serif",
@@ -194,13 +195,13 @@ export default function RootLayout({
           "default-src 'self'",
           // NOTE: only services actually used are allowlisted. Razorpay checkout
           // is loaded on /checkout when gateway keys are configured.
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://connect.facebook.net",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com data:",
-          "img-src 'self' data: https: blob:",
+          "img-src 'self' data: https: blob: https://www.facebook.com",
           "media-src 'self' https: blob:",
-          "connect-src 'self' https://owrylcdcaywlsolqszho.supabase.co https://api.qrserver.com https://api.razorpay.com https://lumberjack.razorpay.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
-          "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com",
+          "connect-src 'self' https://owrylcdcaywlsolqszho.supabase.co https://api.qrserver.com https://api.razorpay.com https://lumberjack.razorpay.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://www.facebook.com",
+          "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.facebook.com",
           "object-src 'none'",
           "base-uri 'self'",
           "form-action 'self'",
@@ -246,12 +247,33 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-
-            gtag('config', '${GA_ID}', {
-              page_path: window.location.pathname,
-            });
+            gtag('config', '${GA_ID}');
           `}
         </Script>
+        {/* Meta Pixel */}
+        <Script id="meta-pixel" strategy="afterInteractive">
+          {`
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '${FB_PIXEL_ID}');
+            fbq('track', 'PageView');
+          `}
+        </Script>
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src={`https://www.facebook.com/tr?id=${FB_PIXEL_ID}&ev=PageView&noscript=1`}
+            alt=""
+          />
+        </noscript>
         <Script
           id="devtools-guard"
           strategy="afterInteractive"
