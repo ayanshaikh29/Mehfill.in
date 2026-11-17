@@ -181,8 +181,6 @@ export default function EditInvitationPage() {
   const autoSaveReady = useRef(false);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savingRef = useRef(false);
-  // Bumped to remount the live preview iframe with fresh server-rendered HTML.
-  const [previewRev, setPreviewRev] = useState(0);
 
   const template = useMemo(
     () => getCatalogTemplate(invitation?.template_slug || ""),
@@ -447,15 +445,6 @@ export default function EditInvitationPage() {
   useEffect(() => {
     if (!loading && invitation) autoSaveReady.current = true;
   }, [loading, invitation]);
-
-  // Live preview refresh — remount the /i/ iframe ~400ms after edits settle
-  // (autosave has persisted by then). Never reloads mid-typing.
-  useEffect(() => {
-    if (loading || !invitation) return;
-    if (saveState !== "saved") return;
-    const t = setTimeout(() => setPreviewRev((r) => r + 1), 400);
-    return () => clearTimeout(t);
-  }, [loading, invitation, saveState, content, customSlug, slugAvailable]);
 
   // Expose minimal page context to the support widget (read-only, never sent
   // anywhere except our own /api/support/* when the customer opens chat).
@@ -963,11 +952,9 @@ export default function EditInvitationPage() {
         </div>
       </header>
 
-      {/* Editor Body — form (left) + live preview of the ACTUAL selected
-          template (right, xl+) rendered by the same /i/ renderer the public
-          URL uses, so what the customer sees IS the design they picked. */}
-      <div className="relative z-20 mx-auto max-w-7xl px-5 md:px-8 py-8 flex-1 w-full xl:grid xl:grid-cols-[minmax(0,1fr)_336px] xl:items-start xl:gap-8">
-        <div className="w-full min-w-0 max-w-5xl mx-auto xl:max-w-none">
+      {/* Editor Body */}
+      <div className="relative z-20 mx-auto max-w-5xl px-5 md:px-8 py-8 flex-1 w-full">
+        <div className="w-full min-w-0">
         {err && (
           <div className="mb-6 rounded-2xl bg-[#FBECE8] border border-[#F3C4B8] p-4 text-xs sm:text-sm font-semibold text-[#A63C26]">
             {err}
@@ -1996,16 +1983,6 @@ export default function EditInvitationPage() {
           </Section>
         )}
         </div>
-
-        {/* Live design preview — the real selected template (site-N original
-            design), refreshed once edits settle after autosave. */}
-        <aside className="hidden xl:block sticky top-28">
-          <LiveTemplatePreview
-            slug={invitation.slug || ""}
-            templateName={template.name}
-            rev={previewRev}
-          />
-        </aside>
       </div>
 
       {/* 2-Step Delete Confirmation Modal */}
@@ -2131,72 +2108,6 @@ export default function EditInvitationPage() {
 }
 
 /* ───────────────────────── Sub-components ───────────────────────── */
-
-/**
- * Live preview of the ACTUAL selected template — the same /i/<slug>?preview=1
- * renderer the public URL uses, inside a compact iPhone-style shell. `rev`
- * changes remount the iframe so every refresh shows fresh server-rendered
- * HTML (customer names, dates, venue bound into the original site-N design).
- */
-function LiveTemplatePreview({
-  slug,
-  templateName,
-  rev,
-}: {
-  slug: string;
-  templateName: string;
-  rev: number;
-}) {
-  if (!slug) return null;
-  const src = `/i/${slug}?preview=1&embed=1&rev=${rev}`;
-  const virtualW = 390;
-  const virtualH = 844;
-  const screenW = 254;
-  const scale = screenW / virtualW;
-  const screenH = Math.round(virtualH * scale);
-  return (
-    <div className="rounded-[1.6rem] border border-[#DECFC0] bg-white/85 backdrop-blur-xl p-4 shadow-[0_14px_44px_rgba(110,75,45,0.12)]">
-      <div className="flex items-center justify-between gap-2 px-1 pb-3">
-        <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#9E6D4B]">
-          Live design
-        </span>
-        <span className="max-w-[160px] truncate rounded-full border border-[#DECFC0]/70 bg-[#FAF6EE] px-2 py-0.5 text-[10px] font-bold text-[#8B4828]">
-          {templateName}
-        </span>
-      </div>
-      <div className="relative mx-auto w-[272px] rounded-[2.2rem] bg-gradient-to-b from-[#3a3632] via-[#1f1c19] to-[#2a2622] p-[9px] shadow-[0_18px_44px_rgba(0,0,0,.35)]">
-        <div
-          className="relative overflow-hidden rounded-[1.8rem] bg-white"
-          style={{ width: `${screenW}px`, height: `${screenH}px` }}
-        >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-[7px] z-10 h-[18px] w-[70px] -translate-x-1/2 rounded-full bg-black shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute bottom-[5px] left-1/2 z-10 h-[3.5px] w-[86px] -translate-x-1/2 rounded-full bg-black/30"
-          />
-          <iframe
-            key={src}
-            src={src}
-            title={`${templateName} live preview`}
-            className="border-0 bg-white block"
-            style={{
-              width: `${virtualW}px`,
-              height: `${virtualH}px`,
-              transform: `scale(${scale})`,
-              transformOrigin: "top left",
-            }}
-          />
-        </div>
-      </div>
-      <p className="mt-3 text-center text-[11px] leading-relaxed text-[#7A6353]">
-        Exactly how guests will see it · updates after each save
-      </p>
-    </div>
-  );
-}
 
 const inputCls =
   "w-full rounded-xl border border-[#DECFC0] bg-white/95 px-4 py-2.5 text-xs sm:text-sm text-[#2B1F17] outline-none transition-all placeholder:text-[#B5A496] focus:border-[#8B4828] focus:ring-2 focus:ring-[#8B4828]/15";
