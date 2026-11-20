@@ -54,7 +54,6 @@ export default function Navbar() {
   const LINKS = [
     { label: t("nav.home"), href: "/#top" },
     { label: t("nav.designs"), href: "/templates" },
-    { label: "Videos", href: "/wedding-invitation-video" },
     { label: t("nav.demos"), href: "/#designs" },
     { label: t("nav.how"), href: "/how-it-works" },
     { label: t("nav.pricing"), href: "/#pricing" },

@@ -92,7 +92,6 @@ export default function DemosIndex() {
         <div className="mt-10">
           <h2 className="font-serif text-2xl md:text-3xl">Explore by celebration</h2>
           <div className="mt-4 flex flex-wrap gap-2.5">
-            <Link href="/wedding-invitation-video" className="rounded-full border border-terracotta/40 bg-terracotta/10 text-terracotta px-5 py-2.5 text-[13px] font-semibold hover:bg-terracotta hover:text-white transition-colors">✨ Video Invitations (New)</Link>
             <Link href="/digital-wedding-invitations" className="rounded-full border hairline bg-white/60 px-5 py-2.5 text-[13px] font-semibold">Digital Wedding Invitations</Link>
             <Link href="/nikah-invitations" className="rounded-full border hairline bg-white/60 px-5 py-2.5 text-[13px] font-semibold">Nikah Invitations</Link>
             <Link href="/birthday-invitations" className="rounded-full border hairline bg-white/60 px-5 py-2.5 text-[13px] font-semibold">Birthday Invitations</Link>

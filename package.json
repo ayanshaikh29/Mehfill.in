@@ -10,7 +10,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@remotion/player": "^4.0.545",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "framer-motion": "^12.23.24",
@@ -19,8 +18,7 @@
     "next": "16.3.6",
     "razorpay": "^2.9.8",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "remotion": "^4.0.545"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
