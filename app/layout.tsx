@@ -200,6 +200,7 @@ export default function RootLayout({
           "font-src 'self' https://fonts.gstatic.com data:",
           "img-src 'self' data: https: blob: https://www.facebook.com",
           "media-src 'self' https: blob:",
+          "worker-src 'self' blob:",
           "connect-src 'self' https://owrylcdcaywlsolqszho.supabase.co https://api.qrserver.com https://api.razorpay.com https://lumberjack.razorpay.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://www.facebook.com",
           "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.facebook.com",
           "object-src 'none'",
