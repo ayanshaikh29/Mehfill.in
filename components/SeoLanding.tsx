@@ -190,8 +190,6 @@ export default function SeoLanding({ slug }: { slug: string }) {
         <nav aria-label="Breadcrumb" className="text-[12px] tracking-[0.14em] font-semibold text-charcoal/45">
           <Link href="/" className="hover:text-terracotta">HOME</Link>
           <span className="mx-2">/</span>
-          <Link href="/demos" className="hover:text-terracotta">DEMOS</Link>
-          <span className="mx-2">/</span>
           <span className="text-charcoal/70">{l.h1.toUpperCase()}</span>
         </nav>
         <h1 className="mt-5 font-serif font-light text-4xl md:text-6xl leading-[1.02] tracking-tight text-balance">

@@ -7,25 +7,25 @@ import { canonical } from "@/lib/seo";
 const PAGE_URL = canonical("/templates");
 
 export const metadata: Metadata = {
-  title: "Invitation Designs & Templates for Every Event",
+  title: "Wedding Invitation Templates — 9 Designs",
   description:
-    "Browse ready-to-personalise digital wedding invitation designs. Choose a template, customise your details and publish your invitation link in minutes.",
+    "Browse 9 ready-to-personalise digital wedding invitation templates — Hindu, Nikah, Haldi, Sangeet and more. Customise and publish your WhatsApp invitation in minutes.",
   alternates: { canonical: PAGE_URL },
   openGraph: {
-    title: "Invitation Designs | Mehfill.in",
+    title: "Wedding Invitation Templates | Mehfill.in",
     description:
-      "Browse ready-to-personalise digital wedding invitation designs. Customise your details and publish your link in minutes.",
+      "9 ready-to-personalise digital wedding invitation templates. Add your details and publish your WhatsApp invitation in minutes.",
     url: PAGE_URL,
     siteName: "Mehfill.in",
     locale: "en_IN",
     type: "website",
-    images: [{ url: "/og-cover.png", width: 1200, height: 630, alt: "Mehfill invitation designs" }],
+    images: [{ url: "/og-cover.png", width: 1200, height: 630, alt: "Mehfill wedding invitation templates" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Invitation Designs | Mehfill.in",
+    title: "Wedding Invitation Templates | Mehfill.in",
     description:
-      "Browse ready-to-personalise digital wedding invitation designs. Customise and publish in minutes.",
+      "9 ready-to-personalise digital wedding invitation templates. Customise and publish in minutes.",
     images: ["/og-cover.png"],
   },
 };

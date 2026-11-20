@@ -26,49 +26,61 @@ export interface LandingPage {
 export const LANDING_PAGES: LandingPage[] = [
   {
     slug: "digital-wedding-invitations",
-    title: "Digital Wedding Invitations — India Online",
+    title: "Digital Wedding Invitations India — Online",
     description:
-      "Create digital wedding invitations for India — a cinematic e-invite with music, RSVP, maps and photos, ready to share as a WhatsApp wedding invitation.",
+      "Create digital wedding invitations for India — cinematic e-invite with music, RSVP, maps and photos. Share instantly as a WhatsApp wedding invitation. From ₹999.",
     h1: "Digital wedding invitations, made for India",
     intro:
-      "Mehfill creates beautiful digital invitation experiences for weddings across India — Hindu, Muslim, Sikh, Christian and interfaith families. Instead of a paper card that gets lost in a drawer, your guests open one elegant link with your story, events, venues, photos and RSVP. It is the same warm invitation your family would have posted, simply better suited to how India communicates today: on WhatsApp.",
+      "Mehfill creates beautiful digital invitation experiences for weddings across India — Hindu, Muslim, Sikh, Christian and interfaith families. Instead of a paper card that gets lost in a drawer, your guests open one elegant invitation website with your story, events, venues, photos and RSVP. It is the same warm invitation your family would have posted, simply better suited to how India communicates today: on WhatsApp.",
     sections: [
       {
-        h2: "What you get in a Mehfill wedding invitation",
+        h2: "What you get in a Mehfill digital wedding invitation",
         body: [
-          "Start from a designer-made template and make it yours — every detail stays editable. A typical wedding invitation includes:",
+          "Start from a designer-made template and make it yours — every detail stays editable. Your wedding invitation website includes:",
         ],
         list: [
-          "A cinematic opening with your names and date",
-          "Haldi, Mehndi, Sangeet, wedding and reception schedules",
-          "Venue addresses with maps guests can actually follow",
+          "A cinematic opening with your names and wedding date",
+          "Haldi, Mehndi, Sangeet, wedding and reception event schedules",
+          "Venue addresses with Google Maps guests can tap directly",
           "Photo galleries, blessings and family introductions",
-          "One-tap RSVP so you know who is coming",
+          "One-tap RSVP so you know exactly who is coming",
           "Music, Urdu/Hindi/English wording and bilingual options",
+          "WhatsApp-ready shareable link with rich preview",
         ],
       },
       {
-        h2: "Why the paper card becomes a better digital invitation",
+        h2: "Wedding invitation website vs. a paper card",
         body: [
-          "Indian families have always sent printed cards — hand-delivered, couriered or pasted on a fridge. The sentiment matters; the logistics do not. A digital wedding invitation reaches every guest the moment you publish it, costs a fraction of printing, and never runs out of stock when a cousin adds five more people to the list.",
+          "Indian families have always sent printed cards — hand-delivered, couriered or pasted on a fridge. The sentiment matters; the logistics do not. A digital wedding invitation website reaches every guest the moment you publish it, costs a fraction of printing, and never runs out of stock when a cousin adds five more people to the list.",
           "More importantly, details change. Venues shift, timings move by an hour, a godh-bharai gets added the week before. With a paper card those changes mean reprints and phone calls. With your Mehfill link you edit once and every guest sees the update. Directions, RSVP and photos live in the same place, so nobody has to scroll back through WhatsApp messages to find the address.",
         ],
       },
       {
         h2: "E-invite with music, maps and RSVP in one link",
         body: [
-          "Each invitation is a personal web page — an e-invite with music that opens with your names, unfolds your events in order, and ends with directions guests can tap straight into Google Maps. Guests RSVP without an account, and you track responses from your dashboard. Share it as a WhatsApp wedding invitation and it carries a rich preview, so it looks like an invitation the moment it lands in a chat, not a bare URL.",
+          "Each invitation is a personal web page — a digital e-invite with music that opens with your names, unfolds your events in order, and ends with directions guests can tap straight into Google Maps. Guests RSVP without an account, and you track responses from your dashboard. Share it as a WhatsApp wedding invitation and it carries a rich preview — it looks like an invitation the moment it lands in a chat, not a bare URL.",
+        ],
+      },
+      {
+        h2: "How to create your digital wedding invitation",
+        body: [
+          "Getting started takes minutes. Browse our live wedding invitation demos to find a design you love, then click 'Customise' to open the editor. Add your names, wedding date, venue, event schedule, photos and any personal note — the preview updates live as you type.",
+          "Once you are happy, pay securely via UPI, card or net banking. Basic (₹999) publishes instantly — your unique shareable link is live the moment payment succeeds. Premium (₹1,500) adds a human design review and two revision rounds, typically delivered in 2–4 days. After that, copy the link and paste it into WhatsApp — your digital wedding invitation is on its way.",
         ],
       },
     ],
     faqs: [
       {
         q: "What is a digital wedding invitation?",
-        a: "A digital wedding invitation is a personal web link with your names, story, event schedule, venues, photos, maps and RSVP — designed beautifully and shared on WhatsApp. Guests open it on any phone with no app needed.",
+        a: "A digital wedding invitation is a personal invitation website with your names, story, event schedule, venues, photos, maps and RSVP — designed beautifully and shared on WhatsApp. Guests open it on any phone with no app needed.",
+      },
+      {
+        q: "How much does a digital wedding invitation cost?",
+        a: "Basic is ₹999 (one-time, publishes instantly). Premium is ₹1,500 and adds a human design review with two revision rounds, delivered in 2–4 days. No subscription, no recurring charges.",
       },
       {
         q: "How do guests open and RSVP?",
-        a: "Guests get one link. It opens beautifully on any phone, shows events and locations, and lets them confirm RSVP in one tap.",
+        a: "Guests get one link. It opens beautifully on any phone, shows events and locations, and lets them confirm RSVP in one tap — no app or login needed.",
       },
       {
         q: "Can I add photos, videos and maps?",
@@ -86,6 +98,10 @@ export const LANDING_PAGES: LandingPage[] = [
         q: "Can I still print cards for elders?",
         a: "Absolutely. Many families print a small set of keepsake cards for elders while sending the digital link to everyone else. Your Mehfill invitation handles the digital side beautifully.",
       },
+      {
+        q: "Is a digital invitation better than a WhatsApp card image?",
+        a: "A flat image shared on WhatsApp shows basic details but cannot include clickable maps, RSVP, or multiple events. A Mehfill digital wedding invitation is a full website — guests tap directions, confirm attendance and read every event schedule in one place.",
+      },
     ],
     relatedSlugs: ["nikah-invitations", "engagement-invitations", "birthday-invitations", "anniversary-invitations"],
     templateSlugs: ["royal-marigold", "rose-royale", "botanical-sage", "blush-garden"],
@@ -93,9 +109,9 @@ export const LANDING_PAGES: LandingPage[] = [
   },
   {
     slug: "nikah-invitations",
-    title: "Nikah Invitations Online — Digital Cards",
+    title: "Nikah Invitations Online — Bilingual Digital",
     description:
-      "Create an online nikah card with Urdu-English wording, duas, Walima and Dawat schedules, maps and RSVP. Elegant digital nikah invitations to view.",
+      "Create a digital Nikah invitation with Urdu-English wording, duas, Walima and Dawat schedules, maps and RSVP. Elegant online Nikah card to share on WhatsApp.",
     h1: "Nikah invitations with adab and elegance",
     intro:
       "Mehfill designs digital Nikah invitations that honour the solemnity of the occasion — Bismillah and duas in beautiful Urdu calligraphy, clear English details for every guest, and venues, Walima and Dawat events in one respectful link. Families searching for an online nikah card maker want two things: designs that feel traditional, and wording that can be trusted. Our Nikah templates deliver both, and you stay in control of every line.",
@@ -159,9 +175,9 @@ export const LANDING_PAGES: LandingPage[] = [
   },
   {
     slug: "muslim-wedding-invitations",
-    title: "Muslim Wedding Invitations — Nikah & Walima",
+    title: "Muslim Wedding Invitation Card — Digital",
     description:
-      "Digital Muslim wedding invitations for Nikah, Walima and family Dawats — respectful bilingual design, duas, photos, maps and RSVP in one link.",
+      "Digital Muslim wedding invitation cards for Nikah, Walima and Dawat — respectful bilingual design with duas, photos, maps and RSVP in one WhatsApp link. From ₹999.",
     h1: "Muslim wedding invitations, thoughtfully designed",
     intro:
       "For Muslim families who want something modern yet respectful, Mehfill creates digital wedding invitations covering Nikah, Dawat and Walima — with duas, family names, venues and RSVP presented with care in Urdu and English. Whether the celebration spans one evening or an entire weekend, guests receive a single link that holds every function in the right order, with wording your family approves before it goes out.",

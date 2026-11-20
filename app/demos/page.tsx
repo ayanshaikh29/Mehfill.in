@@ -10,18 +10,18 @@ import { waLink } from "@/lib/contact";
 import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Live Invitation Demos — Wedding & Birthday",
+  title: "Live Wedding Invitation Website Demos",
   description:
-    "Open live Mehfill invitation demos — cinematic wedding, Nikah, engagement and birthday designs with events, galleries, maps and RSVP for guests.",
+    "Open live Mehfill invitation website demos — cinematic wedding, Nikah, engagement and birthday digital invitations with events, photos, maps and RSVP.",
   alternates: { canonical: canonical("/demos") },
   openGraph: {
-    title: "Live Invitation Demos | Mehfill.in",
-    description: "Cinematic wedding, engagement and birthday invitation demos. Open and feel the experience.",
+    title: "Live Wedding Invitation Website Demos | Mehfill.in",
+    description: "Open real, live digital invitation websites — wedding, Nikah, engagement and birthday. Feel the experience before you order.",
     url: canonical("/demos"),
     siteName: "Mehfill.in",
     locale: "en_IN",
     type: "website",
-    images: [{ url: "/og-cover.png", width: 1200, height: 630, alt: "Mehfill live invitation demos" }],
+    images: [{ url: "/og-cover.png", width: 1200, height: 630, alt: "Mehfill live invitation website demos" }],
   },
 };
 
@@ -59,7 +59,7 @@ export default function DemosIndex() {
         <p className="eyebrow text-terracotta">LIVE DEMOS</p>
         <h1 className="mt-4 font-serif font-light text-4xl md:text-6xl">Open a demo. <span className="italic">Feel the experience.</span></h1>
         <p className="mt-4 max-w-2xl text-charcoal/65 leading-relaxed">
-          Real, live invitations — open one and feel it.
+          Real, live wedding invitation websites — tap a card to open one and feel exactly what your guests will see.
         </p>
         <div className="mt-6 md:mt-10 grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-7">
           {SHOWCASE.map((s, i) => (
