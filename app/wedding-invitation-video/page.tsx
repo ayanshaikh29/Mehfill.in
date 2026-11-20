@@ -1,25 +1,11 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
 import { canonical } from "@/lib/seo";
 import Link from "next/link";
-import { Film, Music, Smartphone, Zap, CheckCircle2 } from "lucide-react";
-
-// Client-only dynamic import of Remotion Video Player to prevent SSR canvas issues
-const RemotionVideoPlayer = dynamic(
-  () => import("@/components/RemotionVideoPlayer"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full min-h-[580px] flex flex-col items-center justify-center p-12 text-center text-charcoal/60">
-        <div className="w-12 h-12 border-3 border-terracotta border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="font-serif text-lg">Initializing Remotion 60fps Video Engine...</p>
-      </div>
-    ),
-  }
-);
+import { Film, Music, Smartphone, Zap } from "lucide-react";
+import RemotionVideoClientWrapper from "@/components/RemotionVideoClientWrapper";
 
 export const metadata: Metadata = {
   title: "Wedding Invitation Video Maker — Cinematic WhatsApp Video",
@@ -68,7 +54,7 @@ export default function WeddingInvitationVideoPage() {
 
       {/* Hero & Interactive Video Player Section */}
       <section className="pt-24 sm:pt-32 pb-12 sm:pb-16 border-b hairline">
-        <RemotionVideoPlayer />
+        <RemotionVideoClientWrapper />
       </section>
 
       {/* Video Features Grid */}
