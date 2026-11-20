@@ -198,8 +198,14 @@ export default function SeoLanding({ slug }: { slug: string }) {
         <p className="mt-5 text-[16px] md:text-lg leading-relaxed text-charcoal/70">{l.intro}</p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
-            href="/demos"
+            href="/templates"
             className="inline-flex items-center rounded-full bg-charcoal px-7 py-3.5 text-sm font-semibold text-ivory hover:bg-espresso"
+          >
+            Browse templates
+          </Link>
+          <Link
+            href="/demos"
+            className="inline-flex items-center rounded-full border hairline px-7 py-3.5 text-sm font-semibold bg-white/40 hover:border-charcoal/30"
           >
             View live demos
           </Link>
@@ -207,7 +213,7 @@ export default function SeoLanding({ slug }: { slug: string }) {
             href={waLink(`${WA_MSG_GENERAL} (Interested in: ${l.h1})`)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center rounded-full border hairline px-7 py-3.5 text-sm font-semibold bg-white/40"
+            className="inline-flex items-center rounded-full border hairline px-7 py-3.5 text-sm font-semibold bg-white/40 hover:border-charcoal/30"
           >
             Chat on WhatsApp
           </a>

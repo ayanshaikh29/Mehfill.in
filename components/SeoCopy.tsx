@@ -29,6 +29,10 @@ export default function SeoCopy() {
           <Link href="/nikah-invitations" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">
             Nikah invitations
           </Link>{" "}
+          and{" "}
+          <Link href="/muslim-wedding-invitations" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">
+            Muslim wedding invitations
+          </Link>{" "}
           to{" "}
           <Link href="/birthday-invitations" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">
             birthdays
@@ -57,12 +61,20 @@ export default function SeoCopy() {
           <Link href="/baby-shower-invitations" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">
             baby showers
           </Link>{" "}
-          — every digital invitation card is custom-made, delivered in 1–3 days, and ready
+          — every digital invitation is custom-made, delivered in 1–3 days, and ready
           to open on any phone with no app needed.{" "}
           <Link href="/demos" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">
             Open a live demo
           </Link>{" "}
-          and feel the difference.
+          and feel the difference. Browse our{" "}
+          <Link href="/templates" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">
+            wedding invitation templates
+          </Link>{" "}
+          or read our{" "}
+          <Link href="/blog" className="font-semibold text-terracotta-deep underline decoration-terracotta/30 underline-offset-4 hover:decoration-terracotta">
+            invitation guides
+          </Link>
+          .
         </p>
       </div>
     </section>
